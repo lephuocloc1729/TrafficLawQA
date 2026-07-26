@@ -1,0 +1,21 @@
+[project]
+name = "vlsp2025-legalqa"
+version = "0.1.0"
+description = "VLSP2025 Legal Q&A"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "html2text==2025.4.15",
+    "pydantic-settings==2.10.1",
+    "pillow==11.3.0",
+    "torch==2.8.0",
+    "torchvision==0.23.0",
+    "transformers==4.56.0",
+    "ultralytics==8.3.191",
+    "supervision==0.26.1",
+    "openai==1.102.0",
+    "qdrant-client==1.15.1",
+    "streamlit==1.49.1",
+    "loguru==0.7.3",
+    "clip @ git+https://github.com/ultralytics/CLIP.git",
+]

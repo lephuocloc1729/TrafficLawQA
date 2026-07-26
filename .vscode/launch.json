@@ -1,0 +1,62 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "LawDB: Parse LawDB Sign Information",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.core.lawdb.parse_lawdb_sign_infos",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "LawDB: Ingest LawDB Sign Information into Qdrant",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.core.lawdb.ingest_lawdb_signs",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Sub Task 1: Get Relevant Articles",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.core.sub_task_1",
+            "console": "integratedTerminal",
+            "args": [
+                "--set_name",
+                "train",
+                "--begin_idx",
+                "0",
+                "--batch_size",
+                "10"
+            ]
+        },
+        {
+            "name": "Sub Task 1: Evaluation",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.eval.sub_task_1",
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "Sub Task 2: Get Answer",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.core.sub_task_2",
+            "console": "integratedTerminal",
+            "args": [
+                "--set_name",
+                "train",
+            ]
+        },
+        {
+            "name": "Sub Task 2: Evaluation",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.eval.sub_task_2",
+            "console": "integratedTerminal",
+        },
+    ]
+}
