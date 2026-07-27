@@ -19,8 +19,15 @@ from src.deps.qdrant import QdrantVectorStore
 from src.core.utils import load_json, save_json, pil_to_base64_png
 from src.deps.embeddings import get_embedding_model
 from src.core.lawdb.article_lookup import LawDBArticleLookup
+from src.core.sign_parse import (
+    build_sign_groups,
+    compact_crop_parse,
+    compact_sign_groups,
+    parse_detected_signs,
+)
 from src.prompts.answer_prompt import (
     SYSTEM_PROMPT_FREEFORM_CITED_QA,
+    SYSTEM_PROMPT_JSON_REPAIR,
     SYSTEM_PROMPT_SIGN_VARIANT_DISAMBIGUATION,
 )
 
@@ -221,7 +228,54 @@ def normalize_freeform_response(
         "reasoning": reasoning,
         "confidence": confidence,
         "raw_answer_response": response_content,
+        "json_valid": not bool(parse_error),
+        "json_parse_error": parse_error,
+        "json_repaired": False,
     }
+
+
+def repair_json_response(
+    llm_client: LLMClient,
+    response_content: str,
+    parse_error: str,
+    article_contexts: list[dict[str, str]],
+    visual_evidence: list[dict[str, str]],
+    temperature: float = 0.0,
+    max_tokens: int = 1500,
+) -> str:
+    allowed_context = {
+        "parse_error": parse_error,
+        "allowed_citations": [
+            {
+                "law_id": article.get("law_id", ""),
+                "article_id": article.get("article_id", ""),
+                "title": article.get("title", ""),
+            }
+            for article in article_contexts
+        ],
+        "allowed_visual_evidence": visual_evidence,
+    }
+    return llm_client.generate_content(
+        contents=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": SYSTEM_PROMPT_JSON_REPAIR},
+                    {
+                        "type": "text",
+                        "text": (
+                            "ALLOWED CONTEXT\n"
+                            f"{json.dumps(allowed_context, ensure_ascii=False)}\n\n"
+                            "BROKEN MODEL OUTPUT\n"
+                            f"{response_content}"
+                        ),
+                    },
+                ],
+            }
+        ],
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
 
 
 def _article_ref(article: dict[str, Any]) -> dict[str, str]:
@@ -488,6 +542,11 @@ def collect_retrieved_context(
             visual_evidence.append(evidence_item)
 
         sign["retrieved_payloads"] = sign_payloads
+        compact_primary_group = {}
+        if sample.get("primary_sign_group"):
+            compact_primary_group = compact_sign_groups(
+                [sample["primary_sign_group"]]
+            )[0]
         sign_prompt_parts.extend(
             [
                 {
@@ -495,6 +554,11 @@ def collect_retrieved_context(
                     "text": (
                         "DETECTED/RETRIEVED SIGN CONTEXT\n"
                         f"image_name: {sign.get('image_name')}\n"
+                        f"sign_group_id: {sign.get('sign_group_id', '')}\n"
+                        "crop_parse: "
+                        f"{json.dumps(compact_crop_parse(sign.get('crop_parse')), ensure_ascii=False)}\n"
+                        "primary_sign_group: "
+                        f"{json.dumps(compact_primary_group, ensure_ascii=False)}\n"
                         f"primary_visual_evidence: {json.dumps(sign_visual_evidence[:1], ensure_ascii=False)}\n"
                         f"variant_decision: {json.dumps(variant_decision, ensure_ascii=False)}\n"
                         f"retrieved_payloads: {json.dumps(sign_payloads, ensure_ascii=False)}"
@@ -525,9 +589,16 @@ def build_freeform_prompt_parts(
     org_b64, org_mime = pil_to_base64_png(image)
 
     choices = sample.get("choices")
+    compact_groups = compact_sign_groups(sample.get("sign_groups", []))
+    compact_primary_group = None
+    if sample.get("primary_sign_group"):
+        compact_primary_group = compact_sign_groups([sample["primary_sign_group"]])[0]
     user_context = {
         "question": sample.get("question", ""),
         "choices_optional_reference": choices if choices else None,
+        "question_intent": sample.get("question_intent", {}),
+        "sign_groups": compact_groups,
+        "primary_sign_group": compact_primary_group,
         "visual_evidence_available": visual_evidence,
     }
 
@@ -581,6 +652,20 @@ def get_freeform_answer(
 ) -> dict[str, Any]:
     t1 = time.time()
     try:
+        if any(
+            not sign.get("crop_parse")
+            for sign in sample.get("detected_signs", [])
+        ):
+            sample = parse_detected_signs(
+                llm_client=llm_client,
+                sample=sample,
+                sign_dir=sign_dir,
+                temperature=temperature,
+                max_tokens=min(max_tokens, 700),
+            )
+        else:
+            sample = build_sign_groups(sample)
+
         article_contexts, visual_evidence, sign_prompt_parts = collect_retrieved_context(
             sample=sample,
             sign_dir=sign_dir,
@@ -612,6 +697,31 @@ def get_freeform_answer(
             article_contexts=article_contexts,
             visual_evidence=visual_evidence,
         )
+        if parsed.get("json_parse_error"):
+            try:
+                repair_response = repair_json_response(
+                    llm_client=llm_client,
+                    response_content=response_content,
+                    parse_error=str(parsed.get("json_parse_error") or ""),
+                    article_contexts=article_contexts,
+                    visual_evidence=visual_evidence,
+                    temperature=0.0,
+                    max_tokens=min(max_tokens, 1500),
+                )
+                repaired = normalize_freeform_response(
+                    response_content=repair_response,
+                    article_contexts=article_contexts,
+                    visual_evidence=visual_evidence,
+                )
+                repaired["raw_answer_response_initial"] = response_content
+                repaired["json_repair_response"] = repair_response
+                repaired["json_repaired"] = not bool(repaired.get("json_parse_error"))
+                if not repaired.get("json_parse_error"):
+                    parsed = repaired
+                else:
+                    parsed["json_repair_response"] = repair_response
+            except Exception as repair_exc:
+                parsed["json_repair_error"] = f"{type(repair_exc).__name__}: {repair_exc}"
         return {
             **sample,
             **parsed,
@@ -733,10 +843,19 @@ def main() -> None:
             "reasoning",
             "confidence",
             "raw_answer_response",
+            "raw_answer_response_initial",
+            "json_valid",
+            "json_parse_error",
+            "json_repaired",
+            "json_repair_response",
             "time_second",
             "article_contexts",
+            "question_intent",
+            "sign_groups",
+            "primary_sign_group",
         ):
-            sample[field] = response[field]
+            if field in response:
+                sample[field] = response[field]
 
         sample["answer_prompt_parts"] = sanitize_prompt_parts(
             response["answer_prompt_parts"]
