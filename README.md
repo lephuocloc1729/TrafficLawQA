@@ -12,12 +12,19 @@ choose only `A/B/C/D` or `Đúng/Sai`.
 ## Features
 
 - Detect traffic signs from uploaded road-scene images.
+- Parse each detected crop at query time for OCR text, numbers, times,
+  vehicles, arrows, colors, shapes, and symbols.
+- Group main signs with supplementary signs when they appear together.
 - Filter detected signs according to the user question.
+- Use question intent metadata during sign filtering.
 - Retrieve top-k matching traffic-sign entries from Qdrant.
 - Load full legal article context by `law_id` and `article_id`.
 - Generate Vietnamese free-form answers with legal citations.
 - Attach evidence from legal articles and detected/retrieved signs.
+- Force the answer prompt to reason from `primary_sign_group`, OCR text,
+  numbers, time ranges, vehicles, arrows, and legal evidence.
 - Disambiguate similar sign variants such as `P.131a`, `P.131b`, and `P.131c`.
+- Retry once with a JSON repair prompt when the model output is malformed.
 - Run an interactive Streamlit demo locally or on a rented GPU.
 - Use local GPU LLMs through an OpenAI-compatible endpoint.
 - Evaluate correctness, citation quality, evidence faithfulness, grounding,
@@ -38,12 +45,15 @@ The project has two main stages.
 ### 2. Image QA
 
 1. Detect signs in the uploaded road-scene image.
-2. Use a VLM to select signs relevant to the question.
-3. Retrieve similar LawDB signs from Qdrant.
-4. Resolve ambiguous variants among top-k retrieved signs.
-5. Load legal article text from LawDB.
-6. Ask the LLM to produce strict JSON with answer, citations, evidence,
+2. Parse each crop with the VLM for OCR and visual attributes.
+3. Build sign groups from main and supplementary signs.
+4. Infer question intent and use it to select relevant signs.
+5. Retrieve similar LawDB signs from Qdrant.
+6. Resolve ambiguous variants among top-k retrieved signs.
+7. Load legal article text from LawDB.
+8. Ask the LLM to produce strict JSON with answer, citations, evidence,
    reasoning, and confidence.
+9. If the JSON is malformed, retry once with a JSON repair prompt.
 
 ## Project Structure
 
@@ -336,12 +346,39 @@ The demo supports:
 - image upload;
 - free-form Vietnamese question input;
 - optional choices/reference text;
+- resource warm-up before presentation;
+- persistent result cache for repeated demo samples;
 - detected sign crops;
 - selected relevant signs;
 - free-form answer;
 - citations and legal evidence;
 - visual evidence;
 - raw JSON/debug information.
+
+### Presentation Mode
+
+For a smoother live demo:
+
+1. Start Qdrant and the local LLM endpoint.
+2. Open the Streamlit demo.
+3. Click `Warm up` in the sidebar to load the detector, embedding model,
+   Qdrant collection, and LLM.
+4. Keep `Use cached results` enabled.
+5. Run each planned demo image/question once before presenting.
+6. During the presentation, upload the same image and ask the same question.
+   The app will reuse the cached answer and sign crops from `outputs/demo_cache`.
+
+The cache key includes the uploaded image hash, question, optional choices,
+retrieval limit, detector names, embedding model, collection name, and LLM
+model. If any of these change, the app will run the full pipeline again.
+
+To clear cached demo answers:
+
+```bash
+make clean-demo-cache
+```
+
+You can also clear the cache from the sidebar with `Clear cache`.
 
 ## Run Demo on a GPU Machine
 
@@ -429,8 +466,23 @@ slice is more useful for judging visual grounding and LawDB sign retrieval.
 make ui-freeform-demo      # Free-form cited QA demo
 make ui-inspect            # Inspect processed LawDB
 make ui-inspect-task1      # Inspect retrieval output
+make ui-edit-lawdb-signs   # Review and edit parsed sign descriptions
 make ui-label              # Annotation helper
 ```
+
+### Edit Parsed Sign Descriptions
+
+Use the sign description editor to manually review LawDB sign crops and update
+the parsed `name` / `description` fields directly in the selected JSON file:
+
+```bash
+make ui-edit-lawdb-signs
+```
+
+The editor shows one cropped sign at a time, its source `law_id`,
+`article_id`, article title/text, current parsed metadata, and editable fields.
+When `Save changes` is clicked, the JSON file is updated atomically and a
+one-time `.bak` backup is created next to the original file.
 
 ## Development Checks
 

@@ -1,11 +1,11 @@
-# VLSP2025 Legal Q&A System Makefile
+# Traffic Sign Legal QA Makefile
 # This Makefile provides convenient commands for common project tasks
 
-.PHONY: help install setup venv venv-create venv-activate venv-remove lawdb task1 task2 clean docker-up docker-down test format lint ui-freeform-demo
+.PHONY: help install setup venv venv-create venv-activate venv-remove lawdb task1 task2 clean clean-demo-cache docker-up docker-down test format lint ui-freeform-demo ui-edit-lawdb-signs
 
 # Default target
 help:
-	@echo "VLSP2025 Legal Q&A System - Available Commands:"
+	@echo "Traffic Sign Legal QA - Available Commands:"
 	@echo ""
 	@echo "Setup & Installation:"
 	@echo "  venv-create  Create virtual environment using uv"
@@ -30,10 +30,12 @@ help:
 	@echo "Development:"
 	@echo "  format      Format code with black"
 	@echo "  clean       Clean temporary files and caches"
+	@echo "  clean-demo-cache Remove cached Streamlit demo answers"
 	@echo ""
 	@echo "UI Applications:"
 	@echo "  ui-label    Start labeling application"
 	@echo "  ui-inspect  Start law database inspection tool"
+	@echo "  ui-edit-lawdb-signs Edit parsed LawDB sign descriptions"
 	@echo "  ui-freeform-demo Start free-form cited QA demo"
 	@echo ""
 
@@ -132,6 +134,10 @@ clean:
 	rm -rf build/
 	rm -rf dist/
 
+clean-demo-cache:
+	@echo "Removing cached Streamlit demo answers..."
+	rm -rf outputs/demo_cache
+
 # UI Applications
 ui-label:
 	@echo "Starting labeling application..."
@@ -148,6 +154,10 @@ ui-inspect-task1:
 ui-freeform-demo:
 	@echo "Starting free-form cited QA demo..."
 	PYTHONPATH=. streamlit run src/ui/freeform_qa_demo.py
+
+ui-edit-lawdb-signs:
+	@echo "Starting LawDB sign description editor..."
+	PYTHONPATH=. streamlit run src/ui/edit_lawdb_signs.py
 
 # Data management
 data-clean:

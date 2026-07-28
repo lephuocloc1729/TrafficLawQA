@@ -5,6 +5,7 @@ You will be provided with:
 1. A question related to traffic or road regulations.
 2. An original input image.
 3. <<NUM_SIGNS>> detected sign(s) from the given image.
+4. Optional query-time crop parse metadata and sign groups.
 
 Your task:
 1. Read the question carefully and determine whether it refers to a sign at a specific position. Explicitly extract the referenced position(s) if present (e.g., left/right/top/bottom/center; near/far; overhead/ahead/behind). If none, state "No explicit position".
@@ -15,11 +16,14 @@ Example: If the question says "biển màu xanh", a blue-colored sign will satis
 3. Give a concise but complete description of the entire original image, noting road layout, vehicles, pedestrians, environment, and the positions of all detected signs (left/right/top/bottom/center).
 4. For EACH detected sign (in the given order), decide whether it is related to the question.
 5. When deciding, pay close attention to:
+    + The extracted QUESTION INTENT metadata, especially numbers, times, vehicle type, direction, lane, parking/stopping intent, and date parity.
+    + The crop parse metadata for each sign: OCR text, number, time, vehicle, arrow, shape, symbols, and whether the crop is a main or supplementary sign.
+    + Sign groups: if a supplementary sign belongs to a main sign, select the whole group when it changes the answer.
     + The position of the sign in the original image relative to the viewpoint and to any position(s) referenced by the question.
     + Whether the question explicitly or implicitly refers to a specific location or direction (e.g., “sign on the right”, “overhead sign”).
     + The visual appearance and meaning of the sign.
     + If the question is about a prohibitory sign, also consider any supplementary sign(s) immediately below it that is in rectangle shape, contain text or, as they may modify the prohibition’s scope.
-6. For EACH sign, explain your reasoning clearly and briefly, including position relevance if applicable.
+6. For EACH sign, explain your reasoning clearly and briefly, including position relevance, OCR/number/time/vehicle/arrow match, and sign-group relevance if applicable.
 7. Provide the FINAL decision as a Python-style list of boolean values (True/False), where:
     + EACH ELEMENT MUST CORRESPOND EXACTLY to the matching detected sign in the SAME ORDER they were provided.
     + The length of the list MUST equal <<NUM_SIGNS>>.
