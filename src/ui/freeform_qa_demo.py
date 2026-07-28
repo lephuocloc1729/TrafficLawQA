@@ -7,12 +7,7 @@ from typing import Any
 
 import streamlit as st
 
-from src.core.freeform_qa import (
-    answer_image_question,
-    clear_demo_cache,
-    create_freeform_qa_resources,
-    warm_up_demo,
-)
+from src.core.freeform_qa import answer_image_question, create_freeform_qa_resources
 
 
 ALLOWED_IMAGE_TYPES = ["jpg", "jpeg", "png"]
@@ -134,13 +129,6 @@ def render_selected_image(uploaded_file: Any | None) -> Path | None:
 
 def render_answer(result: dict[str, Any]) -> None:
     st.subheader("Answer")
-    if result.get("cache_hit"):
-        original_total = (result.get("performance") or {}).get("original_total")
-        if original_total is not None:
-            st.info(f"Loaded from demo cache. Original run: {original_total}s.")
-        else:
-            st.info("Loaded from demo cache.")
-
     answer = result.get("freeform_answer")
     if answer:
         st.success(answer)
@@ -152,8 +140,6 @@ def render_answer(result: dict[str, Any]) -> None:
     caption_parts = [f"Confidence: `{confidence}`"]
     if performance.get("total") is not None:
         caption_parts.append(f"Processing time: `{performance.get('total')}s`")
-    if result.get("cache_hit"):
-        caption_parts.append("Cache: `hit`")
     st.caption(" | ".join(caption_parts))
 
     reasoning = result.get("reasoning")
@@ -178,20 +164,6 @@ def render_detected_signs(result: dict[str, Any]) -> None:
             sign_name = sign.get("sign_name")
             if sign_name:
                 st.write(sign_name)
-            crop_parse = sign.get("crop_parse") or {}
-            parse_bits = []
-            if crop_parse.get("text"):
-                parse_bits.append(f"text: {crop_parse.get('text')}")
-            if crop_parse.get("number"):
-                parse_bits.append(f"number: {', '.join(crop_parse.get('number'))}")
-            if crop_parse.get("time"):
-                parse_bits.append(f"time: {', '.join(crop_parse.get('time'))}")
-            if crop_parse.get("vehicle"):
-                parse_bits.append(f"vehicle: {', '.join(crop_parse.get('vehicle'))}")
-            if crop_parse.get("arrow"):
-                parse_bits.append(f"arrow: {', '.join(crop_parse.get('arrow'))}")
-            if parse_bits:
-                st.caption(" | ".join(parse_bits))
             variant_decision = sign.get("variant_decision") or {}
             if variant_decision and variant_decision.get("method") != "top1":
                 st.caption(
@@ -242,37 +214,9 @@ def render_debug(result: dict[str, Any]) -> None:
         "relevant_articles": result.get("relevant_articles"),
         "article_contexts": result.get("article_contexts"),
         "detected_signs": result.get("detected_signs"),
-        "question_intent": result.get("question_intent"),
-        "sign_groups": result.get("sign_groups"),
-        "primary_sign_group": result.get("primary_sign_group"),
         "answer_prompt_parts": result.get("answer_prompt_parts"),
-        "json_valid": result.get("json_valid"),
-        "json_repaired": result.get("json_repaired"),
-        "json_parse_error": result.get("json_parse_error"),
-        "cache_hit": result.get("cache_hit"),
-        "cache_key": result.get("cache_key"),
-        "cache_error": result.get("cache_error"),
     }
     st.json(json.loads(json.dumps(debug_payload, ensure_ascii=False)))
-
-
-def render_warmup_report(report: dict[str, Any]) -> None:
-    st.success(
-        f"Warm-up finished in {report.get('total')}s on `{report.get('device')}`."
-    )
-    qdrant = report.get("qdrant") or {}
-    llm = report.get("llm") or {}
-    if qdrant.get("ok"):
-        st.caption(
-            f"Qdrant ready: `{qdrant.get('collection')}` "
-            f"({qdrant.get('seconds')}s)"
-        )
-    else:
-        st.warning(f"Qdrant warm-up failed: {qdrant.get('error')}")
-    if llm.get("ok"):
-        st.caption(f"LLM ready: `{llm.get('model')}` ({llm.get('seconds')}s)")
-    else:
-        st.warning(f"LLM warm-up failed: {llm.get('error')}")
 
 
 def main() -> None:
@@ -286,30 +230,7 @@ def main() -> None:
             "and generates a cited free-form answer."
         )
         debug = st.checkbox("Debug", value=False)
-        use_cache = st.checkbox("Use cached results", value=True)
         use_vlm_filter = st.checkbox("Use VLM sign filter", value=True)
-
-        warm_col, clear_col = st.columns(2)
-        with warm_col:
-            warm_clicked = st.button(
-                "Warm up",
-                use_container_width=True,
-                help="Load models and send a small request to Qdrant/LLM before presenting.",
-            )
-        with clear_col:
-            clear_clicked = st.button(
-                "Clear cache",
-                use_container_width=True,
-                help="Remove cached demo answers and sign crops.",
-            )
-
-        if warm_clicked:
-            with st.spinner("Warming up detector, embedding, Qdrant, and LLM..."):
-                render_warmup_report(warm_up_demo(load_resources()))
-        if clear_clicked:
-            clear_demo_cache()
-            st.success("Demo cache cleared.")
-
         with st.expander("Optional reference choices", expanded=False):
             choices = st.text_area(
                 "Choices",
@@ -361,7 +282,6 @@ def main() -> None:
                 debug=debug,
                 resources=resources,
                 use_vlm_filter=use_vlm_filter,
-                use_cache=use_cache,
             )
     except Exception as exc:
         st.error("Free-form demo run failed.")

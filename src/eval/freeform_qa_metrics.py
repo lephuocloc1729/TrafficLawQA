@@ -228,7 +228,6 @@ def main() -> None:
             debug=False,
             resources=resources,
             use_vlm_filter=not args.no_vlm_filter,
-            use_cache=False,
         )
         latency = time.perf_counter() - t0
 
