@@ -231,25 +231,25 @@ P131B = {
 
 ### Week 7: Integrate Symbolic Decision Into Answer Generation
 
-- [ ] Modify answer generation prompt inputs to include:
+- [x] Modify answer generation prompt inputs to include:
   - `symbolic_facts`
   - `question_intent`
   - `rules_fired`
   - `symbolic_decision`
   - `reasoning_trace`
 
-- [ ] Update the final answer schema.
+- [x] Update the final answer schema.
   - Add:
     - `symbolic_decision`
     - `rules_fired`
     - `symbolic_facts`
     - `reasoning_trace`
 
-- [ ] Update the prompt rule.
+- [x] Update the prompt rule.
   - The LLM should explain the symbolic decision, not override it unless the
     decision is `UNKNOWN`.
 
-- [ ] Test 10 examples manually.
+- [x] Test 10 examples manually.
   - Output: table comparing V1 answer vs V3 answer.
   - Check: rule-based cases should become more consistent and more explainable.
 

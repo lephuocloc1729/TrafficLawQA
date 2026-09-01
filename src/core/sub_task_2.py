@@ -19,6 +19,7 @@ from src.deps.qdrant import QdrantVectorStore
 from src.core.utils import load_json, save_json, pil_to_base64_png
 from src.deps.embeddings import get_embedding_model
 from src.core.lawdb.article_lookup import LawDBArticleLookup
+from src.core.symbolic.reasoner import build_symbolic_reasoning_context
 from src.core.symbolic.sign_normalizer import normalize_detected_sign_to_fact
 from src.prompts.answer_prompt import (
     SYSTEM_PROMPT_FREEFORM_CITED_QA,
@@ -91,7 +92,9 @@ def normalize_freeform_response(
     response_content: str,
     article_contexts: list[dict[str, str]],
     visual_evidence: list[dict[str, str]],
+    symbolic_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    symbolic_context = symbolic_context or {}
     allowed_articles = {
         (article["law_id"], article["article_id"]): article
         for article in article_contexts
@@ -222,6 +225,11 @@ def normalize_freeform_response(
         "reasoning": reasoning,
         "confidence": confidence,
         "raw_answer_response": response_content,
+        "symbolic_decision": symbolic_context.get("symbolic_decision", {}),
+        "rules_fired": symbolic_context.get("rules_fired", []),
+        "symbolic_facts": symbolic_context.get("symbolic_facts", []),
+        "question_intent": symbolic_context.get("question_intent", {}),
+        "reasoning_trace": symbolic_context.get("reasoning_trace", {}),
     }
 
 
@@ -533,16 +541,20 @@ def build_freeform_prompt_parts(
     article_contexts: list[dict[str, str]],
     visual_evidence: list[dict[str, str]],
     sign_prompt_parts: list[dict[str, Any]],
+    symbolic_context: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     image_path = image_dir / f"{sample['image_id']}.jpg"
     image = Image.open(image_path).convert("RGB")
     org_b64, org_mime = pil_to_base64_png(image)
 
+    symbolic_context = symbolic_context or {}
     choices = sample.get("choices")
     user_context = {
         "question": sample.get("question", ""),
         "choices_optional_reference": choices if choices else None,
         "visual_evidence_available": visual_evidence,
+        "symbolic_decision": symbolic_context.get("symbolic_decision", {}),
+        "rules_fired": symbolic_context.get("rules_fired", []),
     }
 
     article_lines: list[str] = []
@@ -567,6 +579,8 @@ def build_freeform_prompt_parts(
             "text": (
                 "USER QUESTION CONTEXT\n"
                 f"{json.dumps(user_context, ensure_ascii=False)}\n\n"
+                "SYMBOLIC REASONING CONTEXT\n"
+                f"{json.dumps(symbolic_context, ensure_ascii=False)}\n\n"
                 "LEGAL ARTICLE CONTEXT\n"
                 f"{legal_context}"
             ),
@@ -612,6 +626,14 @@ def get_freeform_answer(
             temperature=temperature,
             max_tokens=min(max_tokens, 500),
         )
+        symbolic_context = build_symbolic_reasoning_context(
+            symbolic_facts=symbolic_facts,
+            question=str(sample.get("question") or ""),
+            llm_client=llm_client,
+            use_llm_fallback=True,
+            temperature=temperature,
+            max_tokens=min(max_tokens, 300),
+        )
 
         parts = build_freeform_prompt_parts(
             sample=sample,
@@ -619,6 +641,7 @@ def get_freeform_answer(
             article_contexts=article_contexts,
             visual_evidence=visual_evidence,
             sign_prompt_parts=sign_prompt_parts,
+            symbolic_context=symbolic_context,
         )
 
         response_content: str = llm_client.generate_content(
@@ -630,6 +653,7 @@ def get_freeform_answer(
             response_content=response_content,
             article_contexts=article_contexts,
             visual_evidence=visual_evidence,
+            symbolic_context=symbolic_context,
         )
         return {
             **sample,
@@ -637,7 +661,6 @@ def get_freeform_answer(
             "time_second": round(time.time() - t1, 5),
             "answer_prompt_parts": parts,
             "article_contexts": article_contexts,
-            "symbolic_facts": symbolic_facts,
         }
     except Exception as exc:
         response_content = f"Error response: {exc}"
@@ -652,7 +675,11 @@ def get_freeform_answer(
             "time_second": round(time.time() - t1, 5),
             "answer_prompt_parts": [],
             "article_contexts": [],
+            "symbolic_decision": {},
+            "rules_fired": [],
             "symbolic_facts": [],
+            "question_intent": {},
+            "reasoning_trace": {},
         }
 
 
@@ -756,7 +783,11 @@ def main() -> None:
             "raw_answer_response",
             "time_second",
             "article_contexts",
+            "symbolic_decision",
+            "rules_fired",
             "symbolic_facts",
+            "question_intent",
+            "reasoning_trace",
         ):
             sample[field] = response[field]
 
@@ -781,6 +812,11 @@ def main() -> None:
                     "visual_evidence": sample.get("visual_evidence", []),
                     "reasoning": sample.get("reasoning", ""),
                     "confidence": sample.get("confidence", "low"),
+                    "symbolic_decision": sample.get("symbolic_decision", {}),
+                    "rules_fired": sample.get("rules_fired", []),
+                    "symbolic_facts": sample.get("symbolic_facts", []),
+                    "question_intent": sample.get("question_intent", {}),
+                    "reasoning_trace": sample.get("reasoning_trace", {}),
                 }
             )
 

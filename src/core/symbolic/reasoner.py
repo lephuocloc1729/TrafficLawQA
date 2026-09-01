@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable
+from typing import Any, Iterable
 
 from src.core.symbolic.question_intent import parse_question_intent
 from src.core.symbolic.sign_schema import (
@@ -135,3 +135,32 @@ def decide_symbolically(
         question_intent=question_intent,
         rules=rules,
     ).decision or SymbolicDecision()
+
+
+def build_symbolic_reasoning_context(
+    symbolic_facts: Iterable[TrafficSignFact | dict],
+    question: str,
+    llm_client: Any | None = None,
+    use_llm_fallback: bool = True,
+    temperature: float = 0.0,
+    max_tokens: int = 300,
+) -> dict[str, Any]:
+    question_intent = parse_question_intent(
+        question=question,
+        llm_client=llm_client,
+        use_llm_fallback=use_llm_fallback,
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+    reasoning_trace = reason_over_facts(
+        facts=symbolic_facts,
+        question_intent=question_intent,
+    )
+    symbolic_decision = reasoning_trace.decision or SymbolicDecision()
+    return {
+        "symbolic_facts": [fact.to_dict() for fact in reasoning_trace.facts],
+        "question_intent": question_intent.to_dict(),
+        "rules_fired": symbolic_decision.rules_fired,
+        "symbolic_decision": symbolic_decision.to_dict(),
+        "reasoning_trace": reasoning_trace.to_dict(),
+    }

@@ -29,6 +29,7 @@ from src.core.symbolic.question_intent import (
     parse_question_intent_with_llm,
 )
 from src.core.symbolic.reasoner import (
+    build_symbolic_reasoning_context,
     build_symbolic_decision,
     decide_symbolically,
     reason_over_facts,
@@ -52,6 +53,7 @@ __all__ = [
     "VALID_ACTIONS",
     "VALID_INTENTS",
     "VALID_VEHICLES",
+    "build_symbolic_reasoning_context",
     "build_symbolic_decision",
     "decide_symbolically",
     "detect_intent",

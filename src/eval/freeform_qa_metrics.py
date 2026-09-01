@@ -105,7 +105,17 @@ def visual_grounding_proxy(sample: dict[str, Any], result: dict[str, Any]) -> di
 def json_validity(result: dict[str, Any]) -> dict[str, float]:
     try:
         parsed = extract_json_object(result.get("raw_answer_response", ""))
-        required = {"answer", "citations", "visual_evidence", "reasoning", "confidence"}
+        required = {
+            "answer",
+            "citations",
+            "visual_evidence",
+            "reasoning",
+            "confidence",
+            "symbolic_decision",
+            "rules_fired",
+            "symbolic_facts",
+            "reasoning_trace",
+        }
         ok = isinstance(parsed, dict) and required.issubset(parsed)
     except Exception:
         ok = False
