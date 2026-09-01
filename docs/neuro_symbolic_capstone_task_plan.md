@@ -159,10 +159,10 @@ P131B = {
 
 ### Week 5: Question Intent Parser
 
-- [ ] Create `src/core/symbolic/question_intent.py`.
+- [x] Create `src/core/symbolic/question_intent.py`.
   - Output: Vietnamese question becomes small structured intent JSON.
 
-- [ ] Start with deterministic keyword parsing.
+- [x] Start with deterministic keyword parsing.
   - Intents:
     - `CHECK_PERMISSION`
     - `QUERY_SIGN_MEANING`
@@ -172,7 +172,7 @@ P131B = {
     - `QUERY_DISTANCE_SCOPE`
     - `UNKNOWN`
 
-- [ ] Extract action.
+- [x] Extract action.
   - Actions:
     - `parking`
     - `stopping`
@@ -182,7 +182,7 @@ P131B = {
     - `speed`
     - `circulation`
 
-- [ ] Extract vehicle subject when possible.
+- [x] Extract vehicle subject when possible.
   - Subjects:
     - `car`
     - `motorbike`
@@ -193,7 +193,7 @@ P131B = {
     - `motor_vehicle`
     - `unknown`
 
-- [ ] Add optional LLM parser fallback.
+- [x] Add optional LLM parser fallback.
   - Output: if keyword parser is unsure, ask the LLM to return strict JSON.
   - Keep the schema tiny and validate it before use.
 
