@@ -19,6 +19,7 @@ from src.deps.qdrant import QdrantVectorStore
 from src.core.utils import load_json, save_json, pil_to_base64_png
 from src.deps.embeddings import get_embedding_model
 from src.core.lawdb.article_lookup import LawDBArticleLookup
+from src.core.symbolic.sign_normalizer import normalize_detected_sign_to_fact
 from src.prompts.answer_prompt import (
     SYSTEM_PROMPT_FREEFORM_CITED_QA,
     SYSTEM_PROMPT_SIGN_VARIANT_DISAMBIGUATION,
@@ -429,10 +430,16 @@ def collect_retrieved_context(
     limit: int = 1,
     temperature: float = 0.0,
     max_tokens: int = 500,
-) -> tuple[list[dict[str, str]], list[dict[str, str]], list[dict[str, Any]]]:
+) -> tuple[
+    list[dict[str, str]],
+    list[dict[str, str]],
+    list[dict[str, Any]],
+    list[dict[str, Any]],
+]:
     article_refs: list[dict[str, Any]] = []
     visual_evidence: list[dict[str, str]] = []
     sign_prompt_parts: list[dict[str, Any]] = []
+    symbolic_facts: list[dict[str, Any]] = []
 
     for sign in sample.get("detected_signs", []):
         if not sign.get("is_chosen"):
@@ -488,6 +495,13 @@ def collect_retrieved_context(
             visual_evidence.append(evidence_item)
 
         sign["retrieved_payloads"] = sign_payloads
+        symbolic_fact = normalize_detected_sign_to_fact(
+            sign=sign,
+            payloads=sign_payloads[:1],
+            visual_evidence=sign_visual_evidence[:1],
+        )
+        sign["symbolic_fact"] = symbolic_fact.to_dict()
+        symbolic_facts.append(sign["symbolic_fact"])
         sign_prompt_parts.extend(
             [
                 {
@@ -510,7 +524,7 @@ def collect_retrieved_context(
     article_refs.extend(sample.get("relevant_articles", []))
     article_refs.extend(sample.get("predicted_articles", []))
     article_contexts = article_lookup.get_many(_dedupe_articles(article_refs))
-    return article_contexts, visual_evidence, sign_prompt_parts
+    return article_contexts, visual_evidence, sign_prompt_parts, symbolic_facts
 
 
 def build_freeform_prompt_parts(
@@ -581,7 +595,12 @@ def get_freeform_answer(
 ) -> dict[str, Any]:
     t1 = time.time()
     try:
-        article_contexts, visual_evidence, sign_prompt_parts = collect_retrieved_context(
+        (
+            article_contexts,
+            visual_evidence,
+            sign_prompt_parts,
+            symbolic_facts,
+        ) = collect_retrieved_context(
             sample=sample,
             sign_dir=sign_dir,
             embedding_model=embedding_model,
@@ -618,6 +637,7 @@ def get_freeform_answer(
             "time_second": round(time.time() - t1, 5),
             "answer_prompt_parts": parts,
             "article_contexts": article_contexts,
+            "symbolic_facts": symbolic_facts,
         }
     except Exception as exc:
         response_content = f"Error response: {exc}"
@@ -632,6 +652,7 @@ def get_freeform_answer(
             "time_second": round(time.time() - t1, 5),
             "answer_prompt_parts": [],
             "article_contexts": [],
+            "symbolic_facts": [],
         }
 
 
@@ -735,6 +756,7 @@ def main() -> None:
             "raw_answer_response",
             "time_second",
             "article_contexts",
+            "symbolic_facts",
         ):
             sample[field] = response[field]
 

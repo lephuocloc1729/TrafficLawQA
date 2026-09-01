@@ -213,6 +213,7 @@ def render_debug(result: dict[str, Any]) -> None:
         "performance": result.get("performance"),
         "relevant_articles": result.get("relevant_articles"),
         "article_contexts": result.get("article_contexts"),
+        "symbolic_facts": result.get("symbolic_facts"),
         "detected_signs": result.get("detected_signs"),
         "answer_prompt_parts": result.get("answer_prompt_parts"),
     }

@@ -127,16 +127,16 @@ python -m src.eval.freeform_qa_metrics --num-samples 20 --judge --output outputs
 
 ### Week 4: Sign Normalization
 
-- [ ] Create `src/core/symbolic/sign_normalizer.py`.
+- [x] Create `src/core/symbolic/sign_normalizer.py`.
   - Output: retrieved LawDB payloads become structured sign facts.
 
-- [ ] Implement sign-code extraction.
+- [x] Implement sign-code extraction.
   - Examples:
     - `Biển số P.131a Cấm đỗ xe` -> `P.131a`
     - `P.131b` -> family `P.131`
     - `P.127` variants -> family `P.127`
 
-- [ ] Implement rule-scope mapping for known signs.
+- [x] Implement rule-scope mapping for known signs.
   - Output: static mapping table from sign code to symbolic meaning.
   - Example:
 
@@ -148,11 +148,11 @@ P131B = {
 }
 ```
 
-- [ ] Add fallback behavior.
+- [x] Add fallback behavior.
   - If sign code is unknown, create a fact with `restriction_type="unknown"` and
     preserve the retrieved article metadata.
 
-- [ ] Integrate facts into the current pipeline without changing answers yet.
+- [x] Integrate facts into the current pipeline without changing answers yet.
   - Output: V2 pipeline returns `symbolic_facts` in debug/result JSON.
   - Check: current answer quality should not regress, because reasoning is not
     active yet.
