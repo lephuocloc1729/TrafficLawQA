@@ -199,13 +199,13 @@ P131B = {
 
 ### Week 6: Manual Rule Engine
 
-- [ ] Create `src/core/symbolic/traffic_rules.py`.
+- [x] Create `src/core/symbolic/traffic_rules.py`.
   - Output: manually encoded rules for the first sign scope.
 
-- [ ] Create `src/core/symbolic/reasoner.py`.
+- [x] Create `src/core/symbolic/reasoner.py`.
   - Output: applies rules to facts and question intent.
 
-- [ ] Implement permission rules.
+- [x] Implement permission rules.
   - Required first rules:
     - `P130_NO_STOPPING_NO_PARKING`
     - `P131A_NO_PARKING`
@@ -216,7 +216,7 @@ P131B = {
     - `P102_NO_ENTRY`
     - `P127_SPEED_LIMIT`
 
-- [ ] Implement rule output.
+- [x] Implement rule output.
   - Each rule should return:
     - `rule_id`
     - `decision`
@@ -225,7 +225,7 @@ P131B = {
     - `reason`
     - `confidence`
 
-- [ ] Add no-rule fallback.
+- [x] Add no-rule fallback.
   - If no rule fires, return `decision="UNKNOWN"` and let the existing RAG/LLM
     path answer with low or medium confidence.
 

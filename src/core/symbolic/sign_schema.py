@@ -103,6 +103,7 @@ class RuleMatch(SerializableMixin):
     rule_id: str
     decision: Decision
     matched_fact_ids: list[str] = field(default_factory=list)
+    matched_facts: list[dict[str, Any]] = field(default_factory=list)
     legal_basis: list[dict[str, str]] = field(default_factory=list)
     reason: str = ""
     confidence: Confidence = "low"
