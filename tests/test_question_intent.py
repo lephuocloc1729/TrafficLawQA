@@ -3,6 +3,7 @@ import unittest
 
 from src.core.symbolic.question_intent import (
     extract_action,
+    extract_time_context,
     extract_vehicle,
     normalize_question_text,
     parse_question_intent,
@@ -67,6 +68,27 @@ class QuestionIntentTest(unittest.TestCase):
         for question, expected_action in cases.items():
             with self.subTest(question=question):
                 self.assertEqual(extract_action(question), expected_action)
+
+    def test_week8_required_question_intent_parsing_cases(self) -> None:
+        cases = [
+            ("Xe ô tô có được phép đỗ không?", "CHECK_PERMISSION", "parking", "car"),
+            ("Xe máy có được dừng xe tại đây không?", "CHECK_PERMISSION", "stopping", "motorbike"),
+            ("Xe ô tô có được rẽ trái không?", "CHECK_PERMISSION", "turn_left", "car"),
+            ("Xe tải có được đi vào đường này không?", "CHECK_PERMISSION", "entering", "truck"),
+            ("Tốc độ tối đa là bao nhiêu?", "UNKNOWN", "speed", "unknown"),
+        ]
+
+        for question, expected_intent, expected_action, expected_vehicle in cases:
+            with self.subTest(question=question):
+                parsed = parse_question_intent_deterministic(question)
+                self.assertEqual(parsed.intent, expected_intent)
+                self.assertEqual(parsed.action, expected_action)
+                self.assertEqual(parsed.vehicle, expected_vehicle)
+
+    def test_extracts_odd_even_day_time_context(self) -> None:
+        self.assertEqual(extract_time_context("Hôm nay là ngày lẻ, xe có được đỗ không?"), "odd_days")
+        self.assertEqual(extract_time_context("Vào ngày chẵn có được đỗ xe không?"), "even_days")
+        self.assertIsNone(extract_time_context("Xe có được đỗ không?"))
 
     def test_extracts_supported_vehicle_subjects(self) -> None:
         cases = {

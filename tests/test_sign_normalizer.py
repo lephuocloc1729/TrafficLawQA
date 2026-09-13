@@ -19,6 +19,21 @@ class SignNormalizerTest(unittest.TestCase):
         self.assertEqual(extract_sign_code("bien P,131B cam do xe"), "P.131b")
         self.assertEqual(extract_sign_code("Không có mã biển"), "")
 
+    def test_week8_required_sign_code_extraction_cases(self) -> None:
+        cases = {
+            "Biển số P.131a Cấm đỗ xe": "P.131a",
+            "Biển P.131b cấm đỗ xe ngày lẻ": "P.131b",
+            "P.131c - cấm đỗ xe ngày chẵn": "P.131c",
+            "P.130 Cấm dừng xe và đỗ xe": "P.130",
+            "Biển báo P.127 tốc độ tối đa": "P.127",
+            "Biển báo không có mã hợp lệ": "",
+            "Mã P.ABC không đúng định dạng": "",
+        }
+
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(extract_sign_code(text), expected)
+
     def test_sign_family_removes_variant_suffix(self) -> None:
         self.assertEqual(sign_family("P.131b"), "P.131")
         self.assertEqual(sign_family("P.123A"), "P.123")

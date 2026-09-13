@@ -20,6 +20,7 @@ class TrafficRule:
     confidence: str = "high"
     allowed_intents: frozenset[str] = frozenset({"CHECK_PERMISSION"})
     target_vehicle: str = "unknown"
+    required_time_context: str | None = None
 
     def matches(self, fact: TrafficSignFact, intent: QuestionIntent) -> bool:
         if intent.intent not in self.allowed_intents:
@@ -30,15 +31,42 @@ class TrafficRule:
             return False
         return vehicle_is_covered(intent.vehicle, self.target_vehicle or fact.target_vehicle)
 
-    def to_match(self, fact: TrafficSignFact) -> RuleMatch:
+    def _resolved_decision(self, intent: QuestionIntent) -> tuple[Decision, str, str]:
+        if not self.required_time_context:
+            return self.decision, self.reason, self.confidence
+
+        if intent.time_context == self.required_time_context:
+            return self.decision, self.reason, self.confidence
+
+        if not intent.time_context:
+            return (
+                "CONDITIONAL",
+                (
+                    f"{self.reason} Câu hỏi chưa cung cấp ngữ cảnh thời gian đủ rõ, "
+                    "nên kết luận symbolic giữ ở mức có điều kiện."
+                ),
+                "medium",
+            )
+
+        return (
+            "UNKNOWN",
+            (
+                f"{self.reason} Ngữ cảnh thời gian của câu hỏi không khớp điều kiện "
+                "của biển, nên rule này không đủ căn cứ để cấm tại thời điểm đó."
+            ),
+            "low",
+        )
+
+    def to_match(self, fact: TrafficSignFact, intent: QuestionIntent) -> RuleMatch:
+        decision, reason, confidence = self._resolved_decision(intent)
         return RuleMatch(
             rule_id=self.rule_id,
-            decision=self.decision,
+            decision=decision,
             matched_fact_ids=[fact.sign_code],
             matched_facts=[fact.to_dict()],
             legal_basis=fact.related_articles,
-            reason=self.reason,
-            confidence=self.confidence,  # type: ignore[arg-type]
+            reason=reason,
+            confidence=confidence,  # type: ignore[arg-type]
         )
 
 
@@ -63,16 +91,18 @@ TRAFFIC_RULES: tuple[TrafficRule, ...] = (
         rule_id="P131B_ODD_DAY_NO_PARKING",
         sign_codes=frozenset({"P.131b"}),
         actions=frozenset({"parking"}),
-        decision="CONDITIONAL",
-        reason="Biển P.131b cấm đỗ xe vào ngày lẻ; cần xét ngày cụ thể để kết luận cho mọi thời điểm.",
+        decision="PROHIBITED",
+        reason="Biển P.131b cấm đỗ xe vào ngày lẻ.",
+        required_time_context="odd_days",
         target_vehicle="motor_vehicle",
     ),
     TrafficRule(
         rule_id="P131C_EVEN_DAY_NO_PARKING",
         sign_codes=frozenset({"P.131c"}),
         actions=frozenset({"parking"}),
-        decision="CONDITIONAL",
-        reason="Biển P.131c cấm đỗ xe vào ngày chẵn; cần xét ngày cụ thể để kết luận cho mọi thời điểm.",
+        decision="PROHIBITED",
+        reason="Biển P.131c cấm đỗ xe vào ngày chẵn.",
+        required_time_context="even_days",
         target_vehicle="motor_vehicle",
     ),
     TrafficRule(
@@ -133,5 +163,5 @@ def find_matching_rules(
     for fact in facts:
         for rule in rules:
             if rule.matches(fact, intent):
-                matches.append(rule.to_match(fact))
+                matches.append(rule.to_match(fact, intent))
     return matches

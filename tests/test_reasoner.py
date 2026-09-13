@@ -48,6 +48,24 @@ class ReasonerTest(unittest.TestCase):
         self.assertEqual(decision.rules_fired, ["P131B_ODD_DAY_NO_PARKING"])
         self.assertEqual(decision.legal_basis[0]["article_id"], "31")
 
+    def test_reasoner_returns_prohibited_for_p131b_on_odd_day(self) -> None:
+        fact = normalize_payload_to_fact(
+            {
+                "law_id": "QCVN 41:2024/BGTVT",
+                "article_id": "31",
+                "sign_name": "P.131b Cấm đỗ xe ngày lẻ",
+            }
+        )
+
+        decision = decide_symbolically(
+            [fact],
+            "Hôm nay là ngày lẻ, xe ô tô có được đỗ ở đây không?",
+        )
+
+        self.assertEqual(decision.decision, "PROHIBITED")
+        self.assertEqual(decision.rules_fired, ["P131B_ODD_DAY_NO_PARKING"])
+        self.assertEqual(decision.confidence, "high")
+
     def test_reasoner_no_rule_fallback(self) -> None:
         fact = normalize_payload_to_fact(
             {

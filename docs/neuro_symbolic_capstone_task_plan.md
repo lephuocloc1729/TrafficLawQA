@@ -255,16 +255,16 @@ P131B = {
 
 ### Week 8: Symbolic Unit Tests
 
-- [ ] Add tests for sign-code extraction.
+- [x] Add tests for sign-code extraction.
   - Cases: `P.131a`, `P.131b`, `P.131c`, `P.130`, `P.127`, malformed text.
 
-- [ ] Add tests for question intent parsing.
+- [x] Add tests for question intent parsing.
   - Vietnamese questions for parking, stopping, turning, entry, speed.
 
-- [ ] Add tests for rule firing.
+- [x] Add tests for rule firing.
   - Example: `P.131b` + parking + odd day -> prohibited.
 
-- [ ] Add tests for unknown or unsupported cases.
+- [x] Add tests for unknown or unsupported cases.
   - Check: unsupported signs do not produce fake confident decisions.
 
 ## Month 3: Video Evidence And UI

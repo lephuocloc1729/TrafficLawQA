@@ -91,6 +91,11 @@ VEHICLE_PATTERNS = (
     ("motor_vehicle", ("xe co gioi", "phuong tien co gioi")),
 )
 
+TIME_CONTEXT_PATTERNS = (
+    ("odd_days", ("ngay le", "hom nay la ngay le", "vao ngay le")),
+    ("even_days", ("ngay chan", "hom nay la ngay chan", "vao ngay chan")),
+)
+
 PERMISSION_TERMS = (
     "duoc phep",
     "co duoc",
@@ -112,7 +117,10 @@ def normalize_question_text(question: str) -> str:
 
 
 def _contains_any(text: str, patterns: tuple[str, ...]) -> bool:
-    return any(pattern in text for pattern in patterns)
+    return any(
+        re.search(rf"(?<!\w){re.escape(pattern)}(?!\w)", text)
+        for pattern in patterns
+    )
 
 
 def extract_action(question: str) -> str:
@@ -125,10 +133,24 @@ def extract_action(question: str) -> str:
 
 def extract_vehicle(question: str) -> str:
     normalized = normalize_question_text(question)
+    candidates: list[tuple[int, int, str]] = []
     for vehicle, patterns in VEHICLE_PATTERNS:
-        if _contains_any(normalized, patterns):
-            return vehicle
+        for pattern in patterns:
+            match = re.search(rf"(?<!\w){re.escape(pattern)}(?!\w)", normalized)
+            if match:
+                candidates.append((match.start(), -len(pattern), vehicle))
+                break
+    if candidates:
+        return sorted(candidates)[0][2]
     return "unknown"
+
+
+def extract_time_context(question: str) -> str | None:
+    normalized = normalize_question_text(question)
+    for time_context, patterns in TIME_CONTEXT_PATTERNS:
+        if _contains_any(normalized, patterns):
+            return time_context
+    return None
 
 
 def detect_intent(question: str, action: str | None = None) -> str:
@@ -145,6 +167,7 @@ def detect_intent(question: str, action: str | None = None) -> str:
 def parse_question_intent_deterministic(question: str) -> QuestionIntent:
     action = extract_action(question)
     vehicle = extract_vehicle(question)
+    time_context = extract_time_context(question)
     intent = detect_intent(question, action=action)
     confidence = "low"
 
@@ -163,6 +186,7 @@ def parse_question_intent_deterministic(question: str) -> QuestionIntent:
         intent=intent,
         action=action,
         vehicle=vehicle,
+        time_context=time_context,
         raw_question=question,
         confidence=confidence,
         source="keyword",

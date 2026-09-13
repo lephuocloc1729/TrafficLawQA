@@ -72,6 +72,30 @@ class TrafficRulesTest(unittest.TestCase):
                 matches = find_matching_rules([fact_for(sign_name)], intent)
                 self.assertEqual((matches[0].rule_id, matches[0].decision), expected)
 
+    def test_week8_p131b_parking_on_odd_day_is_prohibited(self) -> None:
+        matches = find_matching_rules(
+            [fact_for("P.131b Cấm đỗ xe ngày lẻ")],
+            parse_question_intent_deterministic(
+                "Hôm nay là ngày lẻ, xe ô tô có được đỗ ở đây không?"
+            ),
+        )
+
+        self.assertEqual(matches[0].rule_id, "P131B_ODD_DAY_NO_PARKING")
+        self.assertEqual(matches[0].decision, "PROHIBITED")
+        self.assertEqual(matches[0].confidence, "high")
+
+    def test_week8_p131c_parking_on_even_day_is_prohibited(self) -> None:
+        matches = find_matching_rules(
+            [fact_for("P.131c Cấm đỗ xe ngày chẵn")],
+            parse_question_intent_deterministic(
+                "Vào ngày chẵn, xe ô tô có được đỗ ở đây không?"
+            ),
+        )
+
+        self.assertEqual(matches[0].rule_id, "P131C_EVEN_DAY_NO_PARKING")
+        self.assertEqual(matches[0].decision, "PROHIBITED")
+        self.assertEqual(matches[0].confidence, "high")
+
     def test_turn_entry_and_speed_rules_match(self) -> None:
         cases = [
             ("P.123a Cấm rẽ trái", "Xe ô tô có được rẽ trái không?", "P123A_NO_LEFT_TURN"),
@@ -92,6 +116,14 @@ class TrafficRulesTest(unittest.TestCase):
         matches = find_matching_rules(
             [fact_for("P.131a Cấm đỗ xe")],
             parse_question_intent_deterministic("Xe ô tô có được rẽ trái không?"),
+        )
+
+        self.assertEqual(matches, [])
+
+    def test_week8_unsupported_sign_does_not_fire_confident_rule(self) -> None:
+        matches = find_matching_rules(
+            [fact_for("P.999 Biển chưa hỗ trợ")],
+            parse_question_intent_deterministic("Xe ô tô có được đỗ không?"),
         )
 
         self.assertEqual(matches, [])
