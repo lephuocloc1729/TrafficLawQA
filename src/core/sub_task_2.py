@@ -19,6 +19,11 @@ from src.deps.qdrant import QdrantVectorStore
 from src.core.utils import load_json, save_json, pil_to_base64_png
 from src.deps.embeddings import get_embedding_model
 from src.core.lawdb.article_lookup import LawDBArticleLookup
+from src.core.article_context import (
+    article_candidate_from_payload,
+    build_article_contexts,
+    rule_article_candidates,
+)
 from src.core.symbolic.reasoner import build_symbolic_reasoning_context
 from src.core.symbolic.sign_normalizer import normalize_detected_sign_to_fact
 from src.prompts.answer_prompt import (
@@ -90,8 +95,8 @@ def _citation_evidence(article: dict[str, str]) -> str:
 
 def normalize_freeform_response(
     response_content: str,
-    article_contexts: list[dict[str, str]],
-    visual_evidence: list[dict[str, str]],
+    article_contexts: list[dict[str, Any]],
+    visual_evidence: list[dict[str, Any]],
     symbolic_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     symbolic_context = symbolic_context or {}
@@ -231,26 +236,6 @@ def normalize_freeform_response(
         "question_intent": symbolic_context.get("question_intent", {}),
         "reasoning_trace": symbolic_context.get("reasoning_trace", {}),
     }
-
-
-def _article_ref(article: dict[str, Any]) -> dict[str, str]:
-    return {
-        "law_id": str(article.get("law_id") or "").strip(),
-        "article_id": str(article.get("article_id") or "").strip(),
-    }
-
-
-def _dedupe_articles(articles: list[dict[str, Any]]) -> list[dict[str, str]]:
-    seen: set[tuple[str, str]] = set()
-    deduped: list[dict[str, str]] = []
-    for article in articles:
-        article_ref = _article_ref(article)
-        key = (article_ref["law_id"], article_ref["article_id"])
-        if not key[0] or not key[1] or key in seen:
-            continue
-        seen.add(key)
-        deduped.append(article_ref)
-    return deduped
 
 
 def _sign_code(payload: dict[str, Any]) -> str:
@@ -439,13 +424,13 @@ def collect_retrieved_context(
     temperature: float = 0.0,
     max_tokens: int = 500,
 ) -> tuple[
-    list[dict[str, str]],
+    list[dict[str, Any]],
     list[dict[str, str]],
     list[dict[str, Any]],
     list[dict[str, Any]],
 ]:
-    article_refs: list[dict[str, Any]] = []
-    visual_evidence: list[dict[str, str]] = []
+    article_candidates: list[dict[str, Any]] = []
+    visual_evidence: list[dict[str, Any]] = []
     sign_prompt_parts: list[dict[str, Any]] = []
     symbolic_facts: list[dict[str, Any]] = []
 
@@ -486,15 +471,20 @@ def collect_retrieved_context(
 
         sign_visual_evidence: list[dict[str, Any]] = []
         for rank, payload in enumerate(sign_payloads, start=1):
-            article_ref = {
-                "law_id": payload.get("law_id", ""),
-                "article_id": payload.get("article_id", ""),
-            }
-            article_refs.append(article_ref)
+            article_candidate = article_candidate_from_payload(
+                payload,
+                retrieval_rank=rank,
+                context_source="retrieval",
+            )
+            if article_candidate:
+                article_candidates.append(article_candidate)
 
             evidence_item = {
+                "sign_code": _sign_code(payload),
+                "sign_family": str(payload.get("sign_family") or ""),
                 "sign_name": str(payload.get("sign_name") or ""),
                 "description": str(payload.get("sign_description") or ""),
+                "legal_conditions": payload.get("legal_conditions", {}),
                 "image_name": str(sign.get("image_name") or ""),
                 "retrieval_rank": rank,
                 "is_primary": rank == 1,
@@ -515,11 +505,9 @@ def collect_retrieved_context(
                 {
                     "type": "text",
                     "text": (
-                        "DETECTED/RETRIEVED SIGN CONTEXT\n"
-                        f"image_name: {sign.get('image_name')}\n"
-                        f"primary_visual_evidence: {json.dumps(sign_visual_evidence[:1], ensure_ascii=False)}\n"
-                        f"variant_decision: {json.dumps(variant_decision, ensure_ascii=False)}\n"
-                        f"retrieved_payloads: {json.dumps(sign_payloads, ensure_ascii=False)}"
+                        f"DETECTED SIGN CROP: {sign.get('image_name')}\n"
+                        "VARIANT RESOLUTION: "
+                        f"{json.dumps(variant_decision, ensure_ascii=False)}"
                     ),
                 },
                 {
@@ -529,17 +517,34 @@ def collect_retrieved_context(
             ]
         )
 
-    article_refs.extend(sample.get("relevant_articles", []))
-    article_refs.extend(sample.get("predicted_articles", []))
-    article_contexts = article_lookup.get_many(_dedupe_articles(article_refs))
+    predicted_article_refs = sample.get("predicted_articles") or []
+    sample_article_refs = predicted_article_refs or sample.get("relevant_articles", [])
+    for article_ref in sample_article_refs:
+        if not isinstance(article_ref, dict):
+            continue
+        if (
+            article_candidates
+            and not article_ref.get("source")
+            and not predicted_article_refs
+        ):
+            continue
+        candidate = article_candidate_from_payload(article_ref)
+        if candidate:
+            article_candidates.append(candidate)
+
+    article_contexts = build_article_contexts(
+        article_candidates,
+        article_lookup=article_lookup,
+        max_articles=MAX_ARTICLES_IN_PROMPT,
+    )
     return article_contexts, visual_evidence, sign_prompt_parts, symbolic_facts
 
 
 def build_freeform_prompt_parts(
     sample: dict[str, Any],
     image_dir: Path,
-    article_contexts: list[dict[str, str]],
-    visual_evidence: list[dict[str, str]],
+    article_contexts: list[dict[str, Any]],
+    visual_evidence: list[dict[str, Any]],
     sign_prompt_parts: list[dict[str, Any]],
     symbolic_context: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
@@ -552,25 +557,67 @@ def build_freeform_prompt_parts(
     user_context = {
         "question": sample.get("question", ""),
         "choices_optional_reference": choices if choices else None,
-        "visual_evidence_available": visual_evidence,
         "symbolic_decision": symbolic_context.get("symbolic_decision", {}),
         "rules_fired": symbolic_context.get("rules_fired", []),
     }
 
-    article_lines: list[str] = []
-    for index, article in enumerate(article_contexts[:MAX_ARTICLES_IN_PROMPT], start=1):
-        article_lines.append(
-            "\n".join(
-                [
-                    f"ARTICLE {index}",
-                    f"law_id: {article['law_id']}",
-                    f"article_id: {article['article_id']}",
-                    f"title: {article.get('title', '')}",
-                    f"text: {truncate_text(article.get('text', ''))}",
-                ]
+    def format_article_section(
+        heading: str,
+        articles: list[dict[str, Any]],
+    ) -> str:
+        article_lines: list[str] = []
+        for index, article in enumerate(articles, start=1):
+            article_lines.append(
+                "\n".join(
+                    [
+                        f"ARTICLE {index}",
+                        f"law_id: {article['law_id']}",
+                        f"article_id: {article['article_id']}",
+                        f"title: {article.get('title', '')}",
+                        f"context_source: {article.get('context_source', '')}",
+                        f"retrieval_rank: {article.get('retrieval_rank')}",
+                        "related_sign_codes: "
+                        f"{json.dumps(article.get('related_sign_codes', []), ensure_ascii=False)}",
+                        f"text: {truncate_text(article.get('text', ''))}",
+                    ]
+                )
             )
-        )
-    legal_context = "\n\n".join(article_lines) or "No legal article context available."
+        content = "\n\n".join(article_lines) or "None"
+        return f"{heading}\n{content}"
+
+    primary_articles = [
+        article
+        for article in article_contexts
+        if article.get("context_source") == "retrieval"
+    ]
+    related_articles = [
+        article
+        for article in article_contexts
+        if article.get("context_source") != "retrieval"
+    ]
+    legal_context = "\n\n".join(
+        [
+            format_article_section("PRIMARY ARTICLE", primary_articles),
+            format_article_section("RELATED ARTICLE", related_articles),
+        ]
+    )
+    sign_evidence = [
+        {
+            "sign_code": item.get("sign_code", ""),
+            "sign_family": item.get("sign_family", ""),
+            "sign_name": item.get("sign_name", ""),
+            "description": truncate_text(
+                str(item.get("description") or ""), max_chars=700
+            ),
+            "legal_conditions": item.get("legal_conditions", {}),
+            "image_name": item.get("image_name", ""),
+            "retrieval_rank": item.get("retrieval_rank"),
+        }
+        for item in _primary_evidence_by_sign(visual_evidence)
+    ]
+    sign_specific_context = (
+        json.dumps(sign_evidence, ensure_ascii=False) if sign_evidence else "None"
+    )
 
     return [
         {"type": "text", "text": SYSTEM_PROMPT_FREEFORM_CITED_QA},
@@ -582,7 +629,9 @@ def build_freeform_prompt_parts(
                 "SYMBOLIC REASONING CONTEXT\n"
                 f"{json.dumps(symbolic_context, ensure_ascii=False)}\n\n"
                 "LEGAL ARTICLE CONTEXT\n"
-                f"{legal_context}"
+                f"{legal_context}\n\n"
+                "SIGN-SPECIFIC EVIDENCE\n"
+                f"{sign_specific_context}"
             ),
         },
         {"type": "text", "text": "INPUT IMAGE"},
@@ -592,6 +641,19 @@ def build_freeform_prompt_parts(
         },
         *sign_prompt_parts,
     ]
+
+
+def _primary_evidence_by_sign(
+    visual_evidence: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    primary_by_image: dict[str, dict[str, Any]] = {}
+    for item in visual_evidence:
+        image_name = str(item.get("image_name") or "")
+        if not image_name:
+            continue
+        if image_name not in primary_by_image or item.get("is_primary"):
+            primary_by_image[image_name] = item
+    return list(primary_by_image.values())[:MAX_ARTICLES_IN_PROMPT]
 
 
 def get_freeform_answer(
@@ -633,6 +695,11 @@ def get_freeform_answer(
             use_llm_fallback=True,
             temperature=temperature,
             max_tokens=min(max_tokens, 300),
+        )
+        article_contexts = build_article_contexts(
+            [*article_contexts, *rule_article_candidates(symbolic_context)],
+            article_lookup=article_lookup,
+            max_articles=MAX_ARTICLES_IN_PROMPT,
         )
 
         parts = build_freeform_prompt_parts(

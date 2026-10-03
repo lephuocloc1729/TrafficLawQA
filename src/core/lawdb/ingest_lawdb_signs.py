@@ -4,6 +4,7 @@ from tqdm import tqdm
 from PIL import Image
 from pathlib import Path
 from src.core.utils import load_json
+from src.core.lawdb.sign_metadata import build_sign_payload
 from src.deps.embeddings import get_embedding_model
 from src.deps.qdrant import QdrantVectorStore
 from src.settings import settings
@@ -64,13 +65,12 @@ def main():
                 image_path = str(lawdb_extracted_sign_dir / detail_sign_info["image"])
                 image = Image.open(image_path)
                 embedding = embedder.embed_image(image)
-                payload: dict[str, any] = {
-                    "law_id": law_id,
-                    "article_id": article_id,
-                    "image_path": image_path,
-                    "sign_name": detail_sign_info["name"],
-                    "sign_description": detail_sign_info["description"],
-                }
+                payload = build_sign_payload(
+                    law_id=law_id,
+                    article_id=article_id,
+                    image_path=image_path,
+                    sign_info=detail_sign_info,
+                )
                 sign_embeddings.append(embedding)
                 sign_payloads.append(payload)
 

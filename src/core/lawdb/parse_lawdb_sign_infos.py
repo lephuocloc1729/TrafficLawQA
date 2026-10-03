@@ -1,6 +1,5 @@
 import argparse
 import re
-import copy
 import json
 import time
 from PIL import Image
@@ -9,6 +8,10 @@ from pathlib import Path
 from typing import Sequence
 
 from src.deps.llm_client import LLMClient
+from src.core.lawdb.sign_metadata import (
+    normalize_legal_conditions,
+    normalize_parsed_sign_info,
+)
 from src.prompts.parse_signs_prompt import PARSE_SIGNS_PROMPT
 from src.core.utils import pil_to_base64_png, load_json, save_json
 from src.settings import settings
@@ -109,11 +112,14 @@ def fallback_sign_info(
     text = re.sub(r"\s+", " ", article.get("text") or "").strip()
     return {
         "image_tag": f"<<IMAGE_{absolute_index}>>",
+        "sign_code": "",
+        "sign_family": "",
         "name": title,
         "description": (
             f"Fallback metadata: ảnh crop {sign_name} thuộc điều {article.get('id', '')} "
             f"({title}). {text[:700]}"
         ),
+        "legal_conditions": normalize_legal_conditions({}),
         "__fallback": True,
     }
 
@@ -306,7 +312,9 @@ def process_article(
     else:
         try:
             for sign_i, sign_parsed in enumerate(parsed_response_all):
-                sp = copy.deepcopy(sign_parsed)
+                if not isinstance(sign_parsed, dict):
+                    raise ValueError(f"Parsed sign {sign_i} is not an object")
+                sp = normalize_parsed_sign_info(sign_parsed, article)
                 sp["image"] = article["signs"][sign_i]
                 detailed_signs.append(sp)
                 # Remove volatile tag if present

@@ -18,16 +18,18 @@ QUY TẮC BẮT BUỘC:
 - Chỉ dùng thông tin có trong context được cung cấp.
 - Không bịa tên luật, số điều, nội dung điều luật, hoặc ý nghĩa biển báo.
 - Nếu context không đủ căn cứ để trả lời, hãy nói rõ là chưa đủ thông tin và đặt confidence là "low".
-- Trước khi trả lời, đối chiếu 3 lớp căn cứ: câu hỏi, DETECTED/RETRIEVED SIGN CONTEXT, và LEGAL ARTICLE CONTEXT.
+- Trước khi trả lời, đối chiếu 3 lớp căn cứ: câu hỏi, SIGN-SPECIFIC EVIDENCE, và LEGAL ARTICLE CONTEXT.
 - Nếu SYMBOLIC REASONING CONTEXT có symbolic_decision khác "UNKNOWN", hãy xem đó là kết luận quyết định của hệ thống rule engine. Nhiệm vụ của bạn là giải thích kết luận đó bằng tiếng Việt dựa trên citations và visual_evidence, không tự ý đảo ngược kết luận.
 - Chỉ được không theo symbolic_decision khi symbolic_decision là "UNKNOWN" hoặc khi legal/visual context rõ ràng mâu thuẫn; trong trường hợp mâu thuẫn, phải đặt confidence là "low" và nêu chưa đủ căn cứ.
-- Nếu DETECTED/RETRIEVED SIGN CONTEXT có primary_visual_evidence, hãy ưu tiên biến thể biển trong primary_visual_evidence hơn các candidate còn lại.
+- Hãy ưu tiên SIGN-SPECIFIC EVIDENCE đã chọn hơn các candidate còn lại.
+- Ưu tiên PRIMARY ARTICLE cho kết luận trực tiếp; chỉ dùng RELATED ARTICLE khi cần bổ sung căn cứ từ rule hoặc fallback.
+- SIGN-SPECIFIC EVIDENCE mô tả riêng từng biển và không thay thế căn cứ pháp lý trong article.
 - Với các nhóm biển có nhiều biến thể như P.131a/P.131b/P.131c, evidence pháp lý phải khớp đúng biến thể đã nhận diện; không được dùng biến thể đầu tiên trong điều luật nếu nó không khớp biển trong ảnh.
 - citations chỉ được dùng các article xuất hiện trong LEGAL ARTICLE CONTEXT.
 - Mỗi citation phải có law_id, article_id, title khớp chính xác với context.
 - evidence trong citations phải là đoạn căn cứ pháp lý ngắn được trích hoặc tóm tắt sát nghĩa từ đúng article đó; không dùng evidence nếu nó không hỗ trợ trực tiếp cho câu trả lời.
 - Nếu có nhiều article được cung cấp, chỉ cite article thật sự cần cho kết luận. Không cite tràn lan.
-- visual_evidence chỉ được dùng các biển báo xuất hiện trong DETECTED/RETRIEVED SIGN CONTEXT.
+- visual_evidence chỉ được dùng các biển báo xuất hiện trong SIGN-SPECIFIC EVIDENCE.
 - Nếu biển được retrieve và điều luật mâu thuẫn hoặc không đủ liên quan, nêu chưa đủ căn cứ thay vì suy đoán.
 - Trả lời ngắn gọn, rõ căn cứ, không bắt buộc chọn A/B/C/D hoặc Đúng/Sai dù input có choices.
 
