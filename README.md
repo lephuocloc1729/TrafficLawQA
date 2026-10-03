@@ -104,7 +104,7 @@ python -m venv .venv
 source .venv/bin/activate
 
 pip install --upgrade pip
-pip install -e .
+pip install -e ".[dev]"
 ```
 
 With `uv`:
@@ -112,7 +112,7 @@ With `uv`:
 ```bash
 uv venv
 source .venv/bin/activate
-uv pip install -e .
+uv pip install -e ".[dev]"
 ```
 
 ## Configuration
@@ -369,55 +369,67 @@ Required services on the GPU machine:
 
 ## Evaluation
 
-Run a small free-form QA evaluation:
+The baseline is locked by `configs/baseline_eval.json`. It fixes the 20 train
+sample ids, dataset paths, LLM model, retrieval `LIMIT`, detectors, embedding
+model, Qdrant collection, judge, temperature, and token limit. Run it with:
 
 ```bash
-PYTHONPATH=. python -m src.eval.freeform_qa_metrics \
-  --num-samples 20 \
-  --judge \
-  --output outputs/freeform_qa_metrics_20_judge.json
+make baseline
 ```
 
-Run a sign-centric slice:
+The evaluator writes aggregate metrics and detailed per-sample inputs, outputs,
+and metrics separately:
+
+```text
+outputs/baseline_metrics.json
+outputs/baseline_rows.json
+```
+
+Interrupted runs can continue without recomputing completed samples:
 
 ```bash
-PYTHONPATH=. python -m src.eval.freeform_qa_metrics \
-  --begin-idx 39 \
-  --num-samples 20 \
-  --judge \
-  --output outputs/freeform_qa_metrics_signcentric_20_judge.json
+python -m src.eval.freeform_qa_metrics \
+  --config configs/baseline_eval.json \
+  --resume
 ```
 
-Metrics:
+To compare a later run against the baseline:
+
+```bash
+make baseline-compare CANDIDATE=outputs/candidate_metrics.json
+```
+
+The required baseline metrics are:
 
 - `answer_correctness`
-- `citation_accuracy`
 - `citation_precision`
 - `citation_recall`
 - `evidence_faithfulness`
-- `evidence_faithfulness_proxy`
-- `visual_grounding_accuracy_proxy`
 - `retrieval_recall_at_1`
 - `retrieval_recall_at_3`
 - `retrieval_recall_at_5`
 - `json_validity`
-- `hallucination`
 - `latency`
 
-Recent smoke-test metrics:
+The committed baseline was promoted from the existing judged sign-centric run
+associated with repository baseline `f3eb048`. Its provenance and source hash
+are recorded in the output files. That legacy evaluator retained generated
+answers and per-row metrics but not the full retrieval/citation payload; every
+new run produced by the current evaluator retains the full pipeline output.
 
-| Metric | First 20 train | Sign-centric 20 |
-|---|---:|---:|
-| Answer correctness | 0.85 | 0.75 |
-| Citation accuracy | 0.00 | 0.60 |
-| Evidence faithfulness | 1.00 | 1.00 |
-| Visual grounding accuracy proxy | 0.00 | 0.55 |
-| Retrieval Recall@1 | 0.00 | 0.45 |
-| Retrieval Recall@3 | 0.00 | 0.525 |
-| Retrieval Recall@5 | 0.00 | 0.55 |
-| JSON validity | 1.00 | 1.00 |
-| Hallucination | 0.15 | 0.05 |
-| Average latency | 14.15s | 14.48s |
+Committed baseline metrics:
+
+| Metric | Value |
+|---|---:|
+| Answer correctness | 0.80 |
+| Citation precision | 0.65 |
+| Citation recall | 0.50 |
+| Evidence faithfulness | 1.00 |
+| Retrieval Recall@1 | 0.475 |
+| Retrieval Recall@3 | 0.525 |
+| Retrieval Recall@5 | 0.55 |
+| JSON validity | 1.00 |
+| Average latency | 17.197s |
 
 The first-20 slice contains many general legal questions, so citation and
 retrieval scores are less representative for sign retrieval. The sign-centric

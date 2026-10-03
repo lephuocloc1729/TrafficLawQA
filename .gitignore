@@ -216,7 +216,9 @@ task1/yoloe-v8l-seg.pt
 datasets
 extracted_signs
 extracted_signs_from_real_image
-outputs
+outputs/*
+!outputs/baseline_metrics.json
+!outputs/baseline_rows.json
 qdrant_storage
 weights
 insight_data
