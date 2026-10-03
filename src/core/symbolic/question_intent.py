@@ -11,6 +11,9 @@ from src.core.symbolic.sign_schema import QuestionIntent, normalize_confidence
 VALID_INTENTS = {
     "CHECK_PERMISSION",
     "QUERY_SIGN_MEANING",
+    "ASK_CONDITION",
+    "ASK_PENALTY",
+    # Legacy labels are retained for previously stored intent payloads.
     "QUERY_PROHIBITED_SUBJECTS",
     "QUERY_TIME_CONDITION",
     "QUERY_DIRECTION_SCOPE",
@@ -41,7 +44,36 @@ VALID_VEHICLES = {
 }
 
 INTENT_PRIORITY = (
-    ("QUERY_TIME_CONDITION", ("thoi gian", "luc nao", "khi nao", "ngay nao", "hieu luc")),
+    (
+        "ASK_PENALTY",
+        (
+            "muc phat",
+            "phat bao nhieu",
+            "bi phat bao nhieu",
+            "bao nhieu tien",
+            "tien phat",
+            "xu phat",
+            "muc xu phat",
+            "xu phat the nao",
+            "vi pham se bi gi",
+        ),
+    ),
+    (
+        "ASK_CONDITION",
+        (
+            "thoi gian",
+            "luc nao",
+            "khi nao",
+            "ngay nao",
+            "hieu luc",
+            "dieu kien gi",
+            "truong hop nao",
+            "ap dung khi nao",
+            "bao nhieu km h",
+            "toc do toi da",
+            "gioi han toc do",
+        ),
+    ),
     ("QUERY_DIRECTION_SCOPE", ("huong nao", "chieu nao", "re huong", "ben nao", "phia nao")),
     ("QUERY_DISTANCE_SCOPE", ("bao xa", "khoang cach", "pham vi", "bao nhieu met")),
     (
@@ -73,7 +105,7 @@ ACTION_PATTERNS = (
             "do khong",
         ),
     ),
-    ("stopping", ("dung xe", "tam dung")),
+    ("stopping", ("dung xe", "tam dung", "dung tai")),
     ("turn_left", ("re trai", "queo trai", "quay dau sang trai")),
     ("turn_right", ("re phai", "queo phai")),
     ("entering", ("di vao", "vao duong", "luu thong vao", "duoc vao", "cam vao")),
@@ -94,6 +126,12 @@ VEHICLE_PATTERNS = (
 TIME_CONTEXT_PATTERNS = (
     ("odd_days", ("ngay le", "hom nay la ngay le", "vao ngay le")),
     ("even_days", ("ngay chan", "hom nay la ngay chan", "vao ngay chan")),
+)
+
+LOCATION_CONTEXT_PATTERNS = (
+    ("current_sign_location", ("tai day", "tai vi tri nay", "tren doan duong nay")),
+    ("sign_scope", ("trong pham vi bien", "trong khu vuc nay", "tren tuyen duong nay")),
+    ("direction_scope", ("theo chieu dat bien", "theo huong dat bien")),
 )
 
 PERMISSION_TERMS = (
@@ -147,9 +185,23 @@ def extract_vehicle(question: str) -> str:
 
 def extract_time_context(question: str) -> str | None:
     normalized = normalize_question_text(question)
-    for time_context, patterns in TIME_CONTEXT_PATTERNS:
+    matches = [
+        time_context
+        for time_context, patterns in TIME_CONTEXT_PATTERNS
+        if _contains_any(normalized, patterns)
+    ]
+    if len(matches) == 1:
+        return matches[0]
+    if len(matches) > 1:
+        return None
+    return None
+
+
+def extract_location_context(question: str) -> str | None:
+    normalized = normalize_question_text(question)
+    for location, patterns in LOCATION_CONTEXT_PATTERNS:
         if _contains_any(normalized, patterns):
-            return time_context
+            return location
     return None
 
 
@@ -158,6 +210,12 @@ def detect_intent(question: str, action: str | None = None) -> str:
     for intent, patterns in INTENT_PRIORITY:
         if _contains_any(normalized, patterns):
             return intent
+
+    if action == "speed" and _contains_any(
+        normalized,
+        ("bao nhieu", "muc nao", "gioi han", "quy dinh toc do"),
+    ):
+        return "ASK_CONDITION"
 
     if action and action != "unknown" and _contains_any(normalized, PERMISSION_TERMS):
         return "CHECK_PERMISSION"
@@ -168,6 +226,7 @@ def parse_question_intent_deterministic(question: str) -> QuestionIntent:
     action = extract_action(question)
     vehicle = extract_vehicle(question)
     time_context = extract_time_context(question)
+    location_context = extract_location_context(question)
     intent = detect_intent(question, action=action)
     confidence = "low"
 
@@ -175,6 +234,8 @@ def parse_question_intent_deterministic(question: str) -> QuestionIntent:
         confidence = "high" if vehicle != "unknown" else "medium"
     elif intent in {
         "QUERY_SIGN_MEANING",
+        "ASK_CONDITION",
+        "ASK_PENALTY",
         "QUERY_PROHIBITED_SUBJECTS",
         "QUERY_TIME_CONDITION",
         "QUERY_DIRECTION_SCOPE",
@@ -187,6 +248,7 @@ def parse_question_intent_deterministic(question: str) -> QuestionIntent:
         action=action,
         vehicle=vehicle,
         time_context=time_context,
+        location_context=location_context,
         raw_question=question,
         confidence=confidence,
         source="keyword",
@@ -272,11 +334,11 @@ def parse_question_intent_with_llm(
         f"vehicle: {sorted(VALID_VEHICLES)}\n"
         "Schema:\n"
         "{"
-        '"intent":"CHECK_PERMISSION|QUERY_SIGN_MEANING|QUERY_PROHIBITED_SUBJECTS|QUERY_TIME_CONDITION|QUERY_DIRECTION_SCOPE|QUERY_DISTANCE_SCOPE|UNKNOWN",'
+        '"intent":"CHECK_PERMISSION|QUERY_SIGN_MEANING|ASK_CONDITION|ASK_PENALTY|QUERY_PROHIBITED_SUBJECTS|QUERY_TIME_CONDITION|QUERY_DIRECTION_SCOPE|QUERY_DISTANCE_SCOPE|UNKNOWN",'
         '"action":"parking|stopping|turn_left|turn_right|entering|speed|circulation|unknown",'
         '"vehicle":"car|motorbike|truck|bus|bicycle|pedestrian|motor_vehicle|unknown",'
-        '"time_context":null,'
-        '"location_context":null,'
+        '"time_context":"odd_days|even_days|null",'
+        '"location_context":"current_sign_location|sign_scope|direction_scope|null",'
         '"confidence":"high|medium|low"'
         "}\n\n"
         f"Câu hỏi: {question}"

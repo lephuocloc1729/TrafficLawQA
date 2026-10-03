@@ -96,6 +96,30 @@ class TrafficRulesTest(unittest.TestCase):
         self.assertEqual(matches[0].decision, "PROHIBITED")
         self.assertEqual(matches[0].confidence, "high")
 
+    def test_p131b_is_allowed_on_even_day(self) -> None:
+        matches = find_matching_rules(
+            [fact_for("P.131b Cấm đỗ xe ngày lẻ")],
+            parse_question_intent_deterministic(
+                "Ngày chẵn, xe ô tô có được đỗ không?"
+            ),
+        )
+        self.assertEqual(matches[0].decision, "ALLOWED")
+
+    def test_p127_without_readable_limit_is_conditional(self) -> None:
+        matches = find_matching_rules(
+            [fact_for("P.127 Tốc độ tối đa cho phép")],
+            parse_question_intent_deterministic("Tốc độ tối đa là bao nhiêu?"),
+        )
+        self.assertEqual(matches[0].decision, "CONDITIONAL")
+        self.assertIn("Chưa đọc được trị số", matches[0].reason)
+
+    def test_ask_penalty_does_not_trigger_permission_rule(self) -> None:
+        matches = find_matching_rules(
+            [fact_for("P.131a Cấm đỗ xe")],
+            parse_question_intent_deterministic("Mức phạt khi đỗ xe là bao nhiêu?"),
+        )
+        self.assertEqual(matches, [])
+
     def test_turn_entry_and_speed_rules_match(self) -> None:
         cases = [
             ("P.123a Cấm rẽ trái", "Xe ô tô có được rẽ trái không?", "P123A_NO_LEFT_TURN"),

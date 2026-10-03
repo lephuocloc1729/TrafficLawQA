@@ -40,6 +40,46 @@ class SignNormalizerTest(unittest.TestCase):
         self.assertEqual(sign_family("P.127"), "P.127")
         self.assertEqual(normalize_sign_code("p,131C"), "P.131c")
 
+    def test_normalizes_code_spacing_prefix_case_and_suffix_case(self) -> None:
+        cases = {
+            "P.131b": "P.131b",
+            "P131b": "P.131b",
+            "Biển số P.131b": "P.131b",
+            "p.131B": "P.131b",
+            "P,131B": "P.131b",
+        }
+        for raw, expected in cases.items():
+            with self.subTest(raw=raw):
+                self.assertEqual(extract_sign_code(raw), expected)
+
+    def test_payload_normalizes_legal_condition_fields_and_all_article_refs(self) -> None:
+        fact = normalize_payload_to_fact(
+            {
+                "sign_code": "P131b",
+                "sign_family": "P131",
+                "restriction_type": "parking_restriction",
+                "legal_conditions": {
+                    "time_condition": "cấm vào ngày lẻ",
+                    "vehicle_scope": "xe cơ giới",
+                    "direction_scope": "theo chiều đặt biển",
+                },
+                "related_articles": [
+                    {"law_id": "QCVN", "article_id": "31"},
+                    {"law_id": "QCVN", "article_id": "31"},
+                    {"law_id": "QCVN", "article_id": "32"},
+                ],
+                "source": "lawdb",
+            }
+        )
+        self.assertEqual(fact.sign_code, "P.131b")
+        self.assertEqual(fact.sign_family, "P.131")
+        self.assertEqual(fact.restriction_type, "parking_restriction")
+        self.assertEqual(fact.target_vehicle, "motor_vehicle")
+        self.assertEqual(fact.time_condition, "odd_days")
+        self.assertEqual(fact.direction_scope, "theo chiều đặt biển")
+        self.assertEqual(len(fact.related_articles), 2)
+        self.assertEqual(fact.source, "lawdb")
+
     def test_known_sign_payload_maps_to_symbolic_meaning(self) -> None:
         fact = normalize_payload_to_fact(
             {
@@ -97,14 +137,16 @@ class SignNormalizerTest(unittest.TestCase):
                     "law_id": "QCVN 41:2024/BGTVT",
                     "article_id": "31",
                     "sign_name": "P.131a Cấm đỗ xe",
+                    "is_primary": True,
                 },
             ],
             visual_evidence=[{"image_name": "demo_crop0.jpg", "retrieval_rank": 1}],
         )
 
-        self.assertEqual(fact.sign_code, "P.130")
-        self.assertEqual(fact.restriction_type, "no_stopping_no_parking")
-        self.assertEqual(fact.related_articles[0]["article_id"], "30")
+        self.assertEqual(fact.sign_code, "P.131a")
+        self.assertEqual(fact.restriction_type, "no_parking")
+        self.assertEqual(fact.related_articles[0]["article_id"], "31")
+        self.assertEqual(fact.metadata["retrieval_candidate_count"], 2)
 
     def test_payloads_to_facts_preserves_rank_specific_evidence(self) -> None:
         facts = normalize_payloads_to_facts(

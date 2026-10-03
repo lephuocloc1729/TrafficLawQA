@@ -43,7 +43,8 @@ class QuestionIntentTest(unittest.TestCase):
         cases = {
             "Biển báo này có ý nghĩa gì?": "QUERY_SIGN_MEANING",
             "Biển này cấm những phương tiện nào?": "QUERY_PROHIBITED_SUBJECTS",
-            "Biển này có hiệu lực vào thời gian nào?": "QUERY_TIME_CONDITION",
+            "Biển này có hiệu lực vào thời gian nào?": "ASK_CONDITION",
+            "Vi phạm thì mức phạt bao nhiêu?": "ASK_PENALTY",
             "Biển cấm theo hướng nào?": "QUERY_DIRECTION_SCOPE",
             "Biển phụ này áp dụng trong phạm vi bao nhiêu mét?": "QUERY_DISTANCE_SCOPE",
         }
@@ -75,7 +76,7 @@ class QuestionIntentTest(unittest.TestCase):
             ("Xe máy có được dừng xe tại đây không?", "CHECK_PERMISSION", "stopping", "motorbike"),
             ("Xe ô tô có được rẽ trái không?", "CHECK_PERMISSION", "turn_left", "car"),
             ("Xe tải có được đi vào đường này không?", "CHECK_PERMISSION", "entering", "truck"),
-            ("Tốc độ tối đa là bao nhiêu?", "UNKNOWN", "speed", "unknown"),
+            ("Tốc độ tối đa là bao nhiêu?", "ASK_CONDITION", "speed", "unknown"),
         ]
 
         for question, expected_intent, expected_action, expected_vehicle in cases:
@@ -89,6 +90,17 @@ class QuestionIntentTest(unittest.TestCase):
         self.assertEqual(extract_time_context("Hôm nay là ngày lẻ, xe có được đỗ không?"), "odd_days")
         self.assertEqual(extract_time_context("Vào ngày chẵn có được đỗ xe không?"), "even_days")
         self.assertIsNone(extract_time_context("Xe có được đỗ không?"))
+
+    def test_conflicting_parity_context_is_not_guessed(self) -> None:
+        self.assertIsNone(extract_time_context("Ngày lẻ và ngày chẵn có được đỗ không?"))
+
+    def test_extracts_location_context_and_permission_action(self) -> None:
+        intent = parse_question_intent_deterministic(
+            "Xe máy có được dừng tại vị trí này không?"
+        )
+        self.assertEqual(intent.action, "stopping")
+        self.assertEqual(intent.vehicle, "motorbike")
+        self.assertEqual(intent.location_context, "current_sign_location")
 
     def test_extracts_supported_vehicle_subjects(self) -> None:
         cases = {

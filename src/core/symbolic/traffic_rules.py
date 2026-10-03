@@ -8,6 +8,15 @@ from src.core.symbolic.sign_schema import Decision, QuestionIntent, RuleMatch, T
 
 MOTOR_VEHICLES = {"car", "motorbike", "truck", "bus", "motor_vehicle", "unknown"}
 VEHICLES = {*MOTOR_VEHICLES, "bicycle", "vehicle"}
+DEFAULT_RULE_INTENTS = frozenset(
+    {
+        "CHECK_PERMISSION",
+        "QUERY_SIGN_MEANING",
+        "ASK_CONDITION",
+        "QUERY_TIME_CONDITION",
+        "QUERY_PROHIBITED_SUBJECTS",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -18,25 +27,69 @@ class TrafficRule:
     decision: Decision
     reason: str
     confidence: str = "high"
-    allowed_intents: frozenset[str] = frozenset({"CHECK_PERMISSION"})
+    allowed_intents: frozenset[str] = DEFAULT_RULE_INTENTS
     target_vehicle: str = "unknown"
     required_time_context: str | None = None
+    sign_families: frozenset[str] = frozenset()
+    legal_basis: tuple[tuple[str, str], ...] = ()
 
     def matches(self, fact: TrafficSignFact, intent: QuestionIntent) -> bool:
         if intent.intent not in self.allowed_intents:
             return False
-        if fact.sign_code not in self.sign_codes:
+        if (
+            fact.sign_code not in self.sign_codes
+            and fact.sign_family not in self.sign_families
+        ):
             return False
-        if intent.action not in self.actions:
+        intent_can_ask_about_sign = intent.intent in {
+            "QUERY_SIGN_MEANING",
+            "ASK_CONDITION",
+            "QUERY_TIME_CONDITION",
+            "QUERY_PROHIBITED_SUBJECTS",
+        }
+        if intent.action not in self.actions and not intent_can_ask_about_sign:
             return False
         return vehicle_is_covered(intent.vehicle, self.target_vehicle or fact.target_vehicle)
 
-    def _resolved_decision(self, intent: QuestionIntent) -> tuple[Decision, str, str]:
+    def _resolved_decision(
+        self,
+        fact: TrafficSignFact,
+        intent: QuestionIntent,
+    ) -> tuple[Decision, str, str]:
+        if self.rule_id == "P127_SPEED_LIMIT" and fact.metadata.get("speed_limit") is None:
+            return (
+                "CONDITIONAL",
+                f"{self.reason} Chưa đọc được trị số tốc độ trên biển.",
+                "medium",
+            )
+
+        if intent.intent in {"ASK_CONDITION", "QUERY_TIME_CONDITION"}:
+            condition = self.required_time_context or "additional_sign_context"
+            return (
+                "CONDITIONAL",
+                f"{self.reason} Điều kiện cần kiểm tra: {condition}.",
+                "medium",
+            )
+
         if not self.required_time_context:
             return self.decision, self.reason, self.confidence
 
         if intent.time_context == self.required_time_context:
             return self.decision, self.reason, self.confidence
+
+        other_parity = {
+            "odd_days": "even_days",
+            "even_days": "odd_days",
+        }.get(self.required_time_context)
+        if intent.time_context == other_parity:
+            return (
+                "ALLOWED",
+                (
+                    f"{self.reason} Câu hỏi xác định thời điểm thuộc ngày đối diện "
+                    "với điều kiện cấm của biển."
+                ),
+                "medium",
+            )
 
         if not intent.time_context:
             return (
@@ -58,16 +111,35 @@ class TrafficRule:
         )
 
     def to_match(self, fact: TrafficSignFact, intent: QuestionIntent) -> RuleMatch:
-        decision, reason, confidence = self._resolved_decision(intent)
+        decision, reason, confidence = self._resolved_decision(fact, intent)
         return RuleMatch(
             rule_id=self.rule_id,
             decision=decision,
             matched_fact_ids=[fact.sign_code],
             matched_facts=[fact.to_dict()],
-            legal_basis=fact.related_articles,
+            legal_basis=_rule_legal_basis(self.legal_basis, fact.related_articles),
             reason=reason,
             confidence=confidence,  # type: ignore[arg-type]
+            metadata={
+                "action_scope": sorted(self.actions),
+                "vehicle_scope": self.target_vehicle,
+                "time_condition": self.required_time_context,
+                "sign_families": sorted(self.sign_families),
+            },
         )
+
+
+def _rule_legal_basis(
+    explicit_basis: tuple[tuple[str, str], ...],
+    fact_basis: list[dict[str, str]],
+) -> list[dict[str, str]]:
+    articles: list[dict[str, str]] = []
+    for law_id, article_id in explicit_basis:
+        articles.append({"law_id": law_id, "article_id": article_id})
+    for article in fact_basis:
+        if article not in articles:
+            articles.append(article)
+    return articles
 
 
 TRAFFIC_RULES: tuple[TrafficRule, ...] = (
@@ -135,7 +207,7 @@ TRAFFIC_RULES: tuple[TrafficRule, ...] = (
         actions=frozenset({"speed"}),
         decision="CONDITIONAL",
         reason="Biển P.127 quy định tốc độ tối đa; cần đọc trị số trên biển hoặc biển phụ để kết luận mức cụ thể.",
-        allowed_intents=frozenset({"CHECK_PERMISSION", "QUERY_SIGN_MEANING", "UNKNOWN"}),
+        allowed_intents=DEFAULT_RULE_INTENTS,
         target_vehicle="motor_vehicle",
     ),
 )

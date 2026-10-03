@@ -13,14 +13,6 @@ from src.core.symbolic.sign_schema import (
 from src.core.symbolic.traffic_rules import TRAFFIC_RULES, TrafficRule, find_matching_rules
 
 
-DECISION_PRIORITY = {
-    "PROHIBITED": 0,
-    "CONDITIONAL": 1,
-    "ALLOWED": 2,
-    "UNKNOWN": 3,
-}
-
-
 def _coerce_fact(fact: TrafficSignFact | dict) -> TrafficSignFact:
     if isinstance(fact, TrafficSignFact):
         return fact
@@ -59,10 +51,6 @@ def build_symbolic_decision(rule_matches: list[RuleMatch]) -> SymbolicDecision:
             reason="No manual traffic-law rule fired.",
         )
 
-    selected = sorted(
-        rule_matches,
-        key=lambda match: DECISION_PRIORITY.get(match.decision, 99),
-    )[0]
     matched_fact_ids = sorted(
         {
             fact_id
@@ -70,16 +58,58 @@ def build_symbolic_decision(rule_matches: list[RuleMatch]) -> SymbolicDecision:
             for fact_id in rule_match.matched_fact_ids
         }
     )
+    decisions = {match.decision for match in rule_matches}
+    conflict = "PROHIBITED" in decisions and "ALLOWED" in decisions
+    if conflict:
+        selected_decision = "CONDITIONAL"
+        conclusion = (
+            "Nhiều rule áp dụng trực tiếp đưa ra kết luận ALLOWED và PROHIBITED "
+            "cùng lúc; cần kiểm tra vị trí, phạm vi và biển phụ trước khi kết luận."
+        )
+        reason = "Conflicting direct rule outcomes were detected."
+        confidence = "low"
+    elif "PROHIBITED" in decisions:
+        selected = next(
+            match for match in rule_matches if match.decision == "PROHIBITED"
+        )
+        selected_decision = "PROHIBITED"
+        conclusion = selected.reason
+        reason = selected.reason
+        confidence = selected.confidence
+    elif "CONDITIONAL" in decisions:
+        selected = next(
+            match for match in rule_matches if match.decision == "CONDITIONAL"
+        )
+        selected_decision = "CONDITIONAL"
+        conclusion = selected.reason
+        reason = selected.reason
+        confidence = selected.confidence
+    elif "ALLOWED" in decisions:
+        selected = next(match for match in rule_matches if match.decision == "ALLOWED")
+        selected_decision = "ALLOWED"
+        conclusion = selected.reason
+        reason = selected.reason
+        confidence = selected.confidence
+    else:
+        selected = rule_matches[0]
+        selected_decision = "UNKNOWN"
+        conclusion = selected.reason
+        reason = selected.reason
+        confidence = selected.confidence
 
     return SymbolicDecision(
-        decision=selected.decision,
-        conclusion=selected.reason,
+        decision=selected_decision,
+        conclusion=conclusion,
         rules_fired=[rule_match.rule_id for rule_match in rule_matches],
         rule_matches=rule_matches,
         matched_fact_ids=matched_fact_ids,
         legal_basis=_dedupe_articles(rule_matches),
-        confidence=selected.confidence,
-        reason=selected.reason,
+        confidence=confidence,
+        reason=reason,
+        metadata={
+            "conflict_detected": conflict,
+            "candidate_decisions": sorted(decisions),
+        },
     )
 
 
@@ -110,6 +140,8 @@ def reason_over_facts(
             "intent": coerced_intent.intent,
             "action": coerced_intent.action,
             "vehicle": coerced_intent.vehicle,
+            "time_context": coerced_intent.time_context,
+            "location_context": coerced_intent.location_context,
         },
         output={"candidate_sign_codes": [fact.sign_code for fact in coerced_facts]},
     )
@@ -120,6 +152,20 @@ def reason_over_facts(
             "rules_fired": decision.rules_fired,
             "decision": decision.decision,
             "confidence": decision.confidence,
+        },
+    )
+    trace.add_step(
+        "aggregate_rule_outcomes",
+        inputs={
+            "rule_outcomes": [
+                {"rule_id": match.rule_id, "decision": match.decision}
+                for match in rule_matches
+            ]
+        },
+        output={
+            "decision": decision.decision,
+            "conflict_detected": decision.metadata.get("conflict_detected", False),
+            "reason": decision.reason,
         },
     )
     return trace

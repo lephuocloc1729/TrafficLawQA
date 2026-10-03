@@ -66,6 +66,31 @@ class ReasonerTest(unittest.TestCase):
         self.assertEqual(decision.rules_fired, ["P131B_ODD_DAY_NO_PARKING"])
         self.assertEqual(decision.confidence, "high")
 
+    def test_opposite_day_and_conflicting_signs_are_aggregated_safely(self) -> None:
+        odd_day_sign = normalize_payload_to_fact(
+            {"sign_code": "P131b", "article_id": "31", "law_id": "QCVN"}
+        )
+        even_day_sign = normalize_payload_to_fact(
+            {
+                "sign_code": "p.131C",
+                "article_id": "31",
+                "law_id": "QCVN",
+            }
+        )
+        trace = reason_over_facts(
+            [odd_day_sign, even_day_sign],
+            "Ngày lẻ, xe ô tô có được đỗ không?",
+        )
+        decision = trace.decision
+
+        self.assertEqual(decision.decision, "CONDITIONAL")
+        self.assertTrue(decision.metadata["conflict_detected"])
+        self.assertEqual(
+            decision.rules_fired,
+            ["P131B_ODD_DAY_NO_PARKING", "P131C_EVEN_DAY_NO_PARKING"],
+        )
+        self.assertEqual(trace.steps[-1]["name"], "aggregate_rule_outcomes")
+
     def test_reasoner_no_rule_fallback(self) -> None:
         fact = normalize_payload_to_fact(
             {
