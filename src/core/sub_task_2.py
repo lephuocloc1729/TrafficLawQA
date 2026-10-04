@@ -25,7 +25,7 @@ from src.core.article_context import (
     rule_article_candidates,
 )
 from src.core.symbolic.reasoner import build_symbolic_reasoning_context
-from src.core.symbolic.sign_normalizer import normalize_detected_sign_to_fact
+from src.core.symbolic.sign_normalizer import normalize_detected_sign_to_observation
 from src.prompts.answer_prompt import (
     SYSTEM_PROMPT_FREEFORM_CITED_QA,
     SYSTEM_PROMPT_SIGN_VARIANT_DISAMBIGUATION,
@@ -232,8 +232,11 @@ def normalize_freeform_response(
         "raw_answer_response": response_content,
         "symbolic_decision": symbolic_context.get("symbolic_decision", {}),
         "rules_fired": symbolic_context.get("rules_fired", []),
-        "symbolic_facts": symbolic_context.get("symbolic_facts", []),
-        "question_intent": symbolic_context.get("question_intent", {}),
+        "traffic_facts": symbolic_context.get("facts", {}),
+        "query_intent": symbolic_context.get("query_intent", {}),
+        "query_context_facts": symbolic_context.get("query_context_facts", []),
+        "intent_evaluations": symbolic_context.get("intent_evaluations", []),
+        "rule_evaluations": symbolic_context.get("rule_evaluations", []),
         "reasoning_trace": symbolic_context.get("reasoning_trace", {}),
     }
 
@@ -432,7 +435,7 @@ def collect_retrieved_context(
     article_candidates: list[dict[str, Any]] = []
     visual_evidence: list[dict[str, Any]] = []
     sign_prompt_parts: list[dict[str, Any]] = []
-    symbolic_facts: list[dict[str, Any]] = []
+    traffic_sign_observations: list[dict[str, Any]] = []
 
     for sign in sample.get("detected_signs", []):
         if not sign.get("is_chosen"):
@@ -493,13 +496,13 @@ def collect_retrieved_context(
             visual_evidence.append(evidence_item)
 
         sign["retrieved_payloads"] = sign_payloads
-        symbolic_fact = normalize_detected_sign_to_fact(
+        sign_observation = normalize_detected_sign_to_observation(
             sign=sign,
-            payloads=sign_payloads[:1],
-            visual_evidence=sign_visual_evidence[:1],
+            payloads=sign_payloads,
+            visual_evidence=sign_visual_evidence,
         )
-        sign["symbolic_fact"] = symbolic_fact.to_dict()
-        symbolic_facts.append(sign["symbolic_fact"])
+        sign["sign_observation"] = sign_observation.to_dict()
+        traffic_sign_observations.append(sign["sign_observation"])
         sign_prompt_parts.extend(
             [
                 {
@@ -537,7 +540,7 @@ def collect_retrieved_context(
         article_lookup=article_lookup,
         max_articles=MAX_ARTICLES_IN_PROMPT,
     )
-    return article_contexts, visual_evidence, sign_prompt_parts, symbolic_facts
+    return article_contexts, visual_evidence, sign_prompt_parts, traffic_sign_observations
 
 
 def build_freeform_prompt_parts(
@@ -557,6 +560,7 @@ def build_freeform_prompt_parts(
     user_context = {
         "question": sample.get("question", ""),
         "choices_optional_reference": choices if choices else None,
+        "query_intent": symbolic_context.get("query_intent", {}),
         "symbolic_decision": symbolic_context.get("symbolic_decision", {}),
         "rules_fired": symbolic_context.get("rules_fired", []),
     }
@@ -675,7 +679,7 @@ def get_freeform_answer(
             article_contexts,
             visual_evidence,
             sign_prompt_parts,
-            symbolic_facts,
+            traffic_sign_observations,
         ) = collect_retrieved_context(
             sample=sample,
             sign_dir=sign_dir,
@@ -689,7 +693,7 @@ def get_freeform_answer(
             max_tokens=min(max_tokens, 500),
         )
         symbolic_context = build_symbolic_reasoning_context(
-            symbolic_facts=symbolic_facts,
+            traffic_facts=traffic_sign_observations,
             question=str(sample.get("question") or ""),
             llm_client=llm_client,
             use_llm_fallback=True,
@@ -744,8 +748,11 @@ def get_freeform_answer(
             "article_contexts": [],
             "symbolic_decision": {},
             "rules_fired": [],
-            "symbolic_facts": [],
-            "question_intent": {},
+            "traffic_facts": {},
+            "query_intent": {},
+            "query_context_facts": [],
+            "intent_evaluations": [],
+            "rule_evaluations": [],
             "reasoning_trace": {},
         }
 
@@ -852,8 +859,11 @@ def main() -> None:
             "article_contexts",
             "symbolic_decision",
             "rules_fired",
-            "symbolic_facts",
-            "question_intent",
+            "traffic_facts",
+            "query_intent",
+            "query_context_facts",
+            "intent_evaluations",
+            "rule_evaluations",
             "reasoning_trace",
         ):
             sample[field] = response[field]
@@ -881,8 +891,11 @@ def main() -> None:
                     "confidence": sample.get("confidence", "low"),
                     "symbolic_decision": sample.get("symbolic_decision", {}),
                     "rules_fired": sample.get("rules_fired", []),
-                    "symbolic_facts": sample.get("symbolic_facts", []),
-                    "question_intent": sample.get("question_intent", {}),
+                    "traffic_facts": sample.get("traffic_facts", {}),
+                    "query_intent": sample.get("query_intent", {}),
+                    "query_context_facts": sample.get("query_context_facts", []),
+                    "intent_evaluations": sample.get("intent_evaluations", []),
+                    "rule_evaluations": sample.get("rule_evaluations", []),
                     "reasoning_trace": sample.get("reasoning_trace", {}),
                 }
             )

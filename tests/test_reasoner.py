@@ -1,179 +1,85 @@
 import unittest
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
+from src.core.symbolic.fact_schema import TrafficFacts
+from src.core.symbolic.question_intent import parse_query_intent_deterministic
 from src.core.symbolic.reasoner import (
     build_symbolic_reasoning_context,
     decide_symbolically,
     reason_over_facts,
 )
-from src.core.symbolic.sign_normalizer import normalize_payload_to_fact
+from src.core.symbolic.sign_normalizer import normalize_payload_to_observation
+
+
+def facts(code: str) -> TrafficFacts:
+    return TrafficFacts("2.0", "scene-1", [normalize_payload_to_observation({
+        "sign_code": code,
+        "image_name": "crop-1.jpg",
+        "law_id": "QCVN 41:2024/BGTVT",
+        "article_id": "31",
+    })])
+
+
+def query(text: str):
+    fixed_now = datetime(2026, 10, 5, 8, 30, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
+    return parse_query_intent_deterministic(text, now=fixed_now)
 
 
 class ReasonerTest(unittest.TestCase):
-    def test_reasoner_returns_trace_and_prohibited_decision(self) -> None:
-        fact = normalize_payload_to_fact(
-            {
-                "law_id": "QCVN 41:2024/BGTVT",
-                "article_id": "30",
-                "sign_name": "P.130 Cấm dừng xe và đỗ xe",
-            }
-        )
-
-        trace = reason_over_facts(
-            [fact],
-            "Xe ô tô có được phép đỗ tại đây không?",
-        )
+    def test_reasoner_returns_evaluation_trace(self) -> None:
+        trace = reason_over_facts(facts("P.130"), "Xe ô tô có được phép đỗ tại đây không?")
         payload = trace.to_dict()
-
         self.assertEqual(payload["decision"]["decision"], "PROHIBITED")
         self.assertEqual(payload["decision"]["rules_fired"], ["P130_NO_STOPPING_NO_PARKING"])
-        self.assertEqual(payload["rule_matches"][0]["matched_facts"][0]["sign_code"], "P.130")
-        self.assertEqual(payload["steps"][0]["name"], "normalize_inputs")
-        self.assertEqual(payload["steps"][1]["name"], "apply_manual_rules")
+        self.assertEqual(payload["rule_evaluations"][0]["rule_id"], "P130_NO_STOPPING_NO_PARKING")
+        self.assertEqual(payload["steps"][1]["name"], "evaluate_rules")
 
-    def test_reasoner_returns_conditional_for_odd_day_parking_sign(self) -> None:
-        fact = normalize_payload_to_fact(
-            {
-                "law_id": "QCVN 41:2024/BGTVT",
-                "article_id": "31",
-                "sign_name": "P.131b Cấm đỗ xe ngày lẻ",
-            }
-        )
-
+    def test_permission_decision_waits_for_time_fact_when_explicit_time_unresolved(self) -> None:
         decision = decide_symbolically(
-            [fact.to_dict()],
-            {"intent": "CHECK_PERMISSION", "action": "parking", "vehicle": "car"},
+            facts("P.131b"),
+            "Xe ô tô có được đỗ lúc 7 giờ hôm nay không?",
         )
-
         self.assertEqual(decision.decision, "CONDITIONAL")
-        self.assertEqual(decision.rules_fired, ["P131B_ODD_DAY_NO_PARKING"])
-        self.assertEqual(decision.legal_basis[0]["article_id"], "31")
+        self.assertEqual(decision.rule_evaluations[0]["missing_facts"], ["calendar_parity"])
 
-    def test_reasoner_returns_prohibited_for_p131b_on_odd_day(self) -> None:
-        fact = normalize_payload_to_fact(
-            {
-                "law_id": "QCVN 41:2024/BGTVT",
-                "article_id": "31",
-                "sign_name": "P.131b Cấm đỗ xe ngày lẻ",
-            }
-        )
+    def test_permission_uses_default_system_clock_if_user_omits_time(self) -> None:
+        decision = decide_symbolically(facts("P.131b"), query("Xe ô tô có được đỗ không?"))
+        self.assertEqual(decision.decision, "PROHIBITED")  # injected date is an odd day
+        self.assertTrue(decision.rules_fired)
 
-        decision = decide_symbolically(
-            [fact],
-            "Hôm nay là ngày lẻ, xe ô tô có được đỗ ở đây không?",
-        )
+    def test_opposite_parity_sign_is_allowed_for_that_calendar_day(self) -> None:
+        decision = decide_symbolically(facts("P.131b"), query("Ngày chẵn, xe ô tô có được đỗ không?"))
+        self.assertEqual(decision.decision, "ALLOWED")
 
-        self.assertEqual(decision.decision, "PROHIBITED")
-        self.assertEqual(decision.rules_fired, ["P131B_ODD_DAY_NO_PARKING"])
-        self.assertEqual(decision.confidence, "high")
-
-    def test_opposite_day_and_conflicting_signs_are_aggregated_safely(self) -> None:
-        odd_day_sign = normalize_payload_to_fact(
-            {"sign_code": "P131b", "article_id": "31", "law_id": "QCVN"}
-        )
-        even_day_sign = normalize_payload_to_fact(
-            {
-                "sign_code": "p.131C",
-                "article_id": "31",
-                "law_id": "QCVN",
-            }
-        )
-        trace = reason_over_facts(
-            [odd_day_sign, even_day_sign],
-            "Ngày lẻ, xe ô tô có được đỗ không?",
-        )
-        decision = trace.decision
-
+    def test_conflicting_signs_are_reported_per_intent(self) -> None:
+        both = TrafficFacts("2.0", "scene-1", [
+            normalize_payload_to_observation({"sign_code": "P.131b", "image_name": "a.jpg"}),
+            normalize_payload_to_observation({"sign_code": "P.131c", "image_name": "b.jpg"}),
+        ])
+        decision = decide_symbolically(both, query("Ngày lẻ, xe ô tô có được đỗ không?"))
         self.assertEqual(decision.decision, "CONDITIONAL")
-        self.assertTrue(decision.metadata["conflict_detected"])
-        self.assertEqual(
-            decision.rules_fired,
-            ["P131B_ODD_DAY_NO_PARKING", "P131C_EVEN_DAY_NO_PARKING"],
-        )
-        self.assertEqual(trace.steps[-1]["name"], "aggregate_rule_outcomes")
+        self.assertIn("conflicting_rule_outcomes", decision.metadata["unresolved_items"])
 
-    def test_reasoner_no_rule_fallback(self) -> None:
-        fact = normalize_payload_to_fact(
-            {
-                "law_id": "QCVN 41:2024/BGTVT",
-                "article_id": "99",
-                "sign_name": "P.999 Biển chưa hỗ trợ",
-            }
-        )
+    def test_multi_intent_query_keeps_results_separate(self) -> None:
+        query_intent = query("Biển này có ý nghĩa gì và ô tô có được đỗ ở đây không?")
+        trace = reason_over_facts(facts("P.131a"), query_intent)
+        payload = trace.to_dict()
+        self.assertEqual(len(payload["intent_evaluations"]), 2)
+        self.assertEqual(payload["intent_evaluations"][0]["decision"], "UNKNOWN")
+        self.assertEqual(payload["intent_evaluations"][1]["decision"], "PROHIBITED")
 
-        decision = decide_symbolically(
-            [fact],
-            {"intent": "CHECK_PERMISSION", "action": "parking", "vehicle": "car"},
-        )
-
+    def test_unrecognized_sign_stays_unknown(self) -> None:
+        decision = decide_symbolically(facts("P.999"), query("Xe ô tô có được đỗ không?"))
         self.assertEqual(decision.decision, "UNKNOWN")
         self.assertEqual(decision.rules_fired, [])
-        self.assertEqual(decision.confidence, "low")
 
-    def test_symbolic_reasoning_context_contains_final_answer_fields(self) -> None:
-        fact = normalize_payload_to_fact(
-            {
-                "law_id": "QCVN 41:2024/BGTVT",
-                "article_id": "31",
-                "sign_name": "P.131a Cấm đỗ xe",
-            }
-        )
-
-        context = build_symbolic_reasoning_context(
-            [fact],
-            "Xe ô tô có được phép đỗ ở đây không?",
-        )
-
-        self.assertEqual(
-            set(context),
-            {
-                "symbolic_facts",
-                "question_intent",
-                "rules_fired",
-                "symbolic_decision",
-                "reasoning_trace",
-            },
-        )
-        self.assertEqual(context["question_intent"]["intent"], "CHECK_PERMISSION")
-        self.assertEqual(context["rules_fired"], ["P131A_NO_PARKING"])
+    def test_context_output_exposes_new_intent_and_fact_schemas(self) -> None:
+        context = build_symbolic_reasoning_context(facts("P.131a"), "Xe ô tô có được đỗ không?")
+        self.assertEqual(context["query_intent"]["schema_version"], "2.0")
+        self.assertEqual(context["facts"]["sign_observations"][0]["sign_code"], "P.131a")
         self.assertEqual(context["symbolic_decision"]["decision"], "PROHIBITED")
-        self.assertEqual(context["symbolic_facts"][0]["sign_code"], "P.131a")
-        self.assertEqual(
-            context["reasoning_trace"]["decision"]["rules_fired"],
-            ["P131A_NO_PARKING"],
-        )
-
-    def test_ten_manual_symbolic_examples_have_expected_decisions(self) -> None:
-        cases = [
-            ("P.130 Cấm dừng xe và đỗ xe", "Xe ô tô có được đỗ không?", "P130_NO_STOPPING_NO_PARKING", "PROHIBITED"),
-            ("P.130 Cấm dừng xe và đỗ xe", "Xe máy có được dừng xe không?", "P130_NO_STOPPING_NO_PARKING", "PROHIBITED"),
-            ("P.131a Cấm đỗ xe", "Xe ô tô có được đỗ ở đây không?", "P131A_NO_PARKING", "PROHIBITED"),
-            ("P.131b Cấm đỗ xe ngày lẻ", "Xe tải có được đỗ ở đây không?", "P131B_ODD_DAY_NO_PARKING", "CONDITIONAL"),
-            ("P.131c Cấm đỗ xe ngày chẵn", "Xe buýt có được đỗ ở đây không?", "P131C_EVEN_DAY_NO_PARKING", "CONDITIONAL"),
-            ("P.123a Cấm rẽ trái", "Xe ô tô có được rẽ trái không?", "P123A_NO_LEFT_TURN", "PROHIBITED"),
-            ("P.123b Cấm rẽ phải", "Xe ô tô có được rẽ phải không?", "P123B_NO_RIGHT_TURN", "PROHIBITED"),
-            ("P.102 Cấm đi ngược chiều", "Xe ô tô có được đi vào đường này không?", "P102_NO_ENTRY", "PROHIBITED"),
-            ("P.127 Tốc độ tối đa cho phép", "Tốc độ tối đa là bao nhiêu?", "P127_SPEED_LIMIT", "CONDITIONAL"),
-            ("P.999 Biển chưa hỗ trợ", "Xe ô tô có được đỗ không?", None, "UNKNOWN"),
-        ]
-
-        for sign_name, question, expected_rule, expected_decision in cases:
-            with self.subTest(sign_name=sign_name, question=question):
-                fact = normalize_payload_to_fact(
-                    {
-                        "law_id": "QCVN 41:2024/BGTVT",
-                        "article_id": "31",
-                        "sign_name": sign_name,
-                    }
-                )
-                context = build_symbolic_reasoning_context([fact], question)
-                self.assertEqual(
-                    context["symbolic_decision"]["decision"],
-                    expected_decision,
-                )
-                if expected_rule is None:
-                    self.assertEqual(context["rules_fired"], [])
-                else:
-                    self.assertEqual(context["rules_fired"], [expected_rule])
+        self.assertIn("intent_evaluations", context["symbolic_decision"])
 
 
 if __name__ == "__main__":

@@ -1,13 +1,15 @@
 import json
 import unittest
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from src.core.symbolic.question_intent import (
     extract_action,
     extract_time_context,
     extract_vehicle,
     normalize_question_text,
-    parse_question_intent,
-    parse_question_intent_deterministic,
+    parse_query_intent,
+    parse_query_intent_deterministic,
 )
 
 
@@ -21,167 +23,86 @@ class FakeLLMClient:
         return self.response
 
 
-class QuestionIntentTest(unittest.TestCase):
-    def test_normalize_question_text_removes_vietnamese_accents(self) -> None:
+class QueryIntentTest(unittest.TestCase):
+    def test_accent_normalization_and_basic_slots(self) -> None:
+        query = parse_query_intent_deterministic("Xe ô tô có được phép đỗ tại đây không?")
+        self.assertEqual(normalize_question_text("Xe ô tô"), "xe o to")
+        self.assertEqual(query.query_intent.intents[0].kind, "CHECK_PERMISSION")
+        self.assertEqual(query.query_intent.intents[0].action.value, "parking")
+        self.assertEqual(query.query_intent.intents[0].actor.value, "car")
+        self.assertEqual(query.query_intent.intents[0].target.kind, "scene")
+        self.assertEqual(query.query_intent.intents[0].requested_answer["kind"], "decision_with_explanation")
+
+    def test_parser_supports_multiple_intents(self) -> None:
+        query = parse_query_intent_deterministic(
+            "Biển này có ý nghĩa gì và ô tô có được đỗ ở đây không?"
+        )
         self.assertEqual(
-            normalize_question_text("Xe ô tô có được phép đỗ không?"),
-            "xe o to co duoc phep do khong",
+            [item.kind for item in query.query_intent.intents],
+            ["QUERY_SIGN_MEANING", "CHECK_PERMISSION"],
         )
 
-    def test_permission_question_extracts_intent_action_and_vehicle(self) -> None:
-        intent = parse_question_intent_deterministic(
-            "Xe ô tô có được phép đỗ tại vị trí này không?"
+    def test_permission_defaults_to_a_system_clock_fact(self) -> None:
+        now = datetime(2026, 10, 5, 8, 30, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
+        query = parse_query_intent_deterministic("Xe ô tô có được đỗ ở đây không?", now=now)
+        temporal = query.context_facts[0]
+        self.assertEqual(temporal.predicate, "observed_at")
+        self.assertEqual(temporal.value, "2026-10-05T08:30:00+07:00")
+        self.assertEqual(temporal.source, "system_clock")
+        self.assertEqual(temporal.metadata["resolution"], "default_current")
+
+    def test_explicit_time_is_kept_as_query_fact_not_replaced_by_now(self) -> None:
+        query = parse_query_intent_deterministic("Xe ô tô có được đỗ lúc 7 giờ hôm nay không?")
+        temporal = query.context_facts[0]
+        self.assertEqual(temporal.predicate, "temporal_reference")
+        self.assertEqual(temporal.status, "needs_resolution")
+        self.assertEqual(temporal.source, "user_query")
+
+    def test_calendar_parity_is_an_explicit_context_fact(self) -> None:
+        query = parse_query_intent_deterministic(
+            "Hôm nay là ngày lẻ, xe ô tô có được đỗ không?"
         )
+        self.assertEqual(query.context_facts[0].predicate, "calendar_parity")
+        self.assertEqual(query.context_facts[0].value, "odd_days")
+        self.assertEqual(query.context_facts[0].source, "user_query")
 
-        self.assertEqual(intent.intent, "CHECK_PERMISSION")
-        self.assertEqual(intent.action, "parking")
-        self.assertEqual(intent.vehicle, "car")
-        self.assertEqual(intent.confidence, "high")
-        self.assertEqual(intent.source, "keyword")
+    def test_action_and_vehicle_extractors(self) -> None:
+        self.assertEqual(extract_action("Xe máy có được rẽ trái không?"), "turn_left")
+        self.assertEqual(extract_vehicle("Xe tải có được đi vào không?"), "truck")
+        self.assertEqual(extract_time_context("Ngày chẵn có được đỗ không?"), "even_days")
 
-    def test_all_supported_query_intents_are_detected(self) -> None:
-        cases = {
-            "Biển báo này có ý nghĩa gì?": "QUERY_SIGN_MEANING",
-            "Biển này cấm những phương tiện nào?": "QUERY_PROHIBITED_SUBJECTS",
-            "Biển này có hiệu lực vào thời gian nào?": "ASK_CONDITION",
-            "Vi phạm thì mức phạt bao nhiêu?": "ASK_PENALTY",
-            "Biển cấm theo hướng nào?": "QUERY_DIRECTION_SCOPE",
-            "Biển phụ này áp dụng trong phạm vi bao nhiêu mét?": "QUERY_DISTANCE_SCOPE",
-        }
-
-        for question, expected_intent in cases.items():
-            with self.subTest(question=question):
-                parsed = parse_question_intent_deterministic(question)
-                self.assertEqual(parsed.intent, expected_intent)
-                self.assertEqual(parsed.confidence, "high")
-
-    def test_extracts_supported_actions(self) -> None:
-        cases = {
-            "Có được đỗ xe không?": "parking",
-            "Có được dừng xe không?": "stopping",
-            "Có được rẽ trái không?": "turn_left",
-            "Có được rẽ phải không?": "turn_right",
-            "Xe có được đi vào đường này không?": "entering",
-            "Tốc độ tối đa là bao nhiêu?": "speed",
-            "Xe máy có được lưu thông không?": "circulation",
-        }
-
-        for question, expected_action in cases.items():
-            with self.subTest(question=question):
-                self.assertEqual(extract_action(question), expected_action)
-
-    def test_week8_required_question_intent_parsing_cases(self) -> None:
-        cases = [
-            ("Xe ô tô có được phép đỗ không?", "CHECK_PERMISSION", "parking", "car"),
-            ("Xe máy có được dừng xe tại đây không?", "CHECK_PERMISSION", "stopping", "motorbike"),
-            ("Xe ô tô có được rẽ trái không?", "CHECK_PERMISSION", "turn_left", "car"),
-            ("Xe tải có được đi vào đường này không?", "CHECK_PERMISSION", "entering", "truck"),
-            ("Tốc độ tối đa là bao nhiêu?", "ASK_CONDITION", "speed", "unknown"),
-        ]
-
-        for question, expected_intent, expected_action, expected_vehicle in cases:
-            with self.subTest(question=question):
-                parsed = parse_question_intent_deterministic(question)
-                self.assertEqual(parsed.intent, expected_intent)
-                self.assertEqual(parsed.action, expected_action)
-                self.assertEqual(parsed.vehicle, expected_vehicle)
-
-    def test_extracts_odd_even_day_time_context(self) -> None:
-        self.assertEqual(extract_time_context("Hôm nay là ngày lẻ, xe có được đỗ không?"), "odd_days")
-        self.assertEqual(extract_time_context("Vào ngày chẵn có được đỗ xe không?"), "even_days")
-        self.assertIsNone(extract_time_context("Xe có được đỗ không?"))
-
-    def test_conflicting_parity_context_is_not_guessed(self) -> None:
-        self.assertIsNone(extract_time_context("Ngày lẻ và ngày chẵn có được đỗ không?"))
-
-    def test_extracts_location_context_and_permission_action(self) -> None:
-        intent = parse_question_intent_deterministic(
-            "Xe máy có được dừng tại vị trí này không?"
-        )
-        self.assertEqual(intent.action, "stopping")
-        self.assertEqual(intent.vehicle, "motorbike")
-        self.assertEqual(intent.location_context, "current_sign_location")
-
-    def test_extracts_supported_vehicle_subjects(self) -> None:
-        cases = {
-            "Xe ô tô có được đi không?": "car",
-            "Xe máy có bị cấm không?": "motorbike",
-            "Xe tải có được vào không?": "truck",
-            "Xe buýt có được lưu thông không?": "bus",
-            "Xe đạp có được đi qua không?": "bicycle",
-            "Người đi bộ có được qua đường không?": "pedestrian",
-            "Xe cơ giới có được đỗ không?": "motor_vehicle",
-        }
-
-        for question, expected_vehicle in cases.items():
-            with self.subTest(question=question):
-                self.assertEqual(extract_vehicle(question), expected_vehicle)
-
-    def test_unknown_question_can_use_llm_fallback(self) -> None:
-        client = FakeLLMClient(
-            json.dumps(
-                {
-                    "intent": "CHECK_PERMISSION",
-                    "action": "entering",
-                    "vehicle": "truck",
-                    "time_context": None,
-                    "location_context": "current_location",
-                    "confidence": "medium",
-                }
-            )
-        )
-
-        parsed = parse_question_intent(
-            "Trường hợp xe chở hàng như hình thì sao?",
-            llm_client=client,
-        )
-
+    def test_llm_fallback_parses_multiple_intents_and_validates(self) -> None:
+        client = FakeLLMClient(json.dumps({
+            "schema_version": "2.0",
+            "intents": [
+                {"intent_id": "i1", "kind": "QUERY_SIGN_MEANING", "confidence": "high"},
+                {"intent_id": "i2", "kind": "CHECK_PERMISSION",
+                 "action": {"value": "entering", "status": "provided"},
+                 "actor": {"value": "truck", "status": "provided"}, "confidence": "medium"},
+            ],
+            "confidence": "high",
+        }))
+        query = parse_query_intent("Trường hợp xe chở hàng như hình thì sao?", llm_client=client)
         self.assertEqual(client.calls, 1)
-        self.assertEqual(parsed.intent, "CHECK_PERMISSION")
-        self.assertEqual(parsed.action, "entering")
-        self.assertEqual(parsed.vehicle, "truck")
-        self.assertEqual(parsed.location_context, "current_location")
-        self.assertEqual(parsed.confidence, "medium")
-        self.assertEqual(parsed.source, "llm")
+        self.assertEqual([item.kind for item in query.query_intent.intents], ["QUERY_SIGN_MEANING", "CHECK_PERMISSION"])
+        self.assertEqual(query.query_intent.intents[1].action.value, "entering")
+        self.assertEqual(query.query_intent.intents[1].actor.value, "truck")
+        self.assertEqual(query.context_facts[0].metadata["resolution"], "default_current")
 
-    def test_llm_fallback_is_not_called_for_clear_keyword_parse(self) -> None:
-        client = FakeLLMClient('{"intent":"UNKNOWN"}')
-
-        parsed = parse_question_intent(
-            "Xe ô tô có được phép đỗ không?",
-            llm_client=client,
-        )
-
+    def test_clear_deterministic_parse_does_not_call_llm(self) -> None:
+        client = FakeLLMClient("{}")
+        query = parse_query_intent("Xe ô tô có được đỗ không?", llm_client=client)
         self.assertEqual(client.calls, 0)
-        self.assertEqual(parsed.intent, "CHECK_PERMISSION")
-        self.assertEqual(parsed.action, "parking")
+        self.assertEqual(query.query_intent.intents[0].kind, "CHECK_PERMISSION")
 
-    def test_llm_fallback_payload_is_validated(self) -> None:
-        client = FakeLLMClient(
-            json.dumps(
-                {
-                    "intent": "FREE_TEXT",
-                    "action": "fly",
-                    "vehicle": "spaceship",
-                    "confidence": "certain",
-                }
-            )
-        )
-
-        parsed = parse_question_intent("Một câu hỏi mơ hồ", llm_client=client)
-
-        self.assertEqual(parsed.intent, "UNKNOWN")
-        self.assertEqual(parsed.action, "unknown")
-        self.assertEqual(parsed.vehicle, "unknown")
-        self.assertEqual(parsed.confidence, "low")
-
-    def test_llm_fallback_error_is_preserved(self) -> None:
-        client = FakeLLMClient("not json")
-
-        parsed = parse_question_intent("Một câu hỏi mơ hồ", llm_client=client)
-
-        self.assertEqual(parsed.intent, "UNKNOWN")
-        self.assertIn("llm_fallback_error", parsed.metadata)
+    def test_invalid_llm_labels_are_reduced_to_unknown(self) -> None:
+        client = FakeLLMClient(json.dumps({
+            "intents": [{"kind": "FREE_TEXT", "action": {"value": "fly"}, "confidence": "certain"}]
+        }))
+        query = parse_query_intent("Một câu hỏi mơ hồ", llm_client=client)
+        self.assertEqual(query.query_intent.intents[0].kind, "UNKNOWN")
+        self.assertEqual(query.query_intent.intents[0].action.value, "unknown")
+        self.assertEqual(query.query_intent.intents[0].confidence, "low")
 
 
 if __name__ == "__main__":

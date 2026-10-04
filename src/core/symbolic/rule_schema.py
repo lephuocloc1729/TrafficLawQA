@@ -1,0 +1,96 @@
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any, Literal
+
+from src.core.symbolic.sign_schema import Decision, SerializableMixin, normalize_confidence, normalize_decision
+
+
+@dataclass
+class RuleCondition(SerializableMixin):
+    predicate: str
+    operator: str
+    expected_value: Any = None
+    required: bool = True
+    on_missing: str = "CONDITIONAL"
+    on_mismatch: str = "NOT_APPLICABLE"
+
+    def __post_init__(self) -> None:
+        self.predicate = str(self.predicate or "unknown").strip().lower()
+        self.operator = str(self.operator or "equals").strip().lower()
+        if self.operator not in {"equals", "not_equals", "exists", "contains", "gte", "lte", "in"}:
+            self.operator = "equals"
+        self.on_missing = normalize_decision(self.on_missing)
+        self.on_mismatch = str(self.on_mismatch or "NOT_APPLICABLE").strip().upper()
+        if self.on_mismatch not in {"ALLOWED", "PROHIBITED", "CONDITIONAL", "UNKNOWN", "NOT_APPLICABLE"}:
+            self.on_mismatch = "NOT_APPLICABLE"
+
+
+@dataclass
+class TrafficRule(SerializableMixin):
+    rule_id: str
+    legal_basis: list[dict[str, Any]]
+    trigger_sign_codes: list[str]
+    intent_kinds: list[str]
+    actions: list[str]
+    actor_scope: list[str]
+    outcome: Decision
+    conditions: list[RuleCondition] = field(default_factory=list)
+    reason: str = ""
+    priority: int = 100
+    verification_status: str = "unverified"
+    effective_from: str | None = None
+    effective_to: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+    schema_version: str = "2.0"
+
+    def __post_init__(self) -> None:
+        self.schema_version = str(self.schema_version or "2.0").strip()
+        self.rule_id = str(self.rule_id or "").strip()
+        self.trigger_sign_codes = [str(x).strip() for x in self.trigger_sign_codes]
+        self.intent_kinds = [str(x).strip().upper() for x in self.intent_kinds]
+        self.actions = [str(x).strip().lower() for x in self.actions]
+        self.actor_scope = [str(x).strip().lower() for x in self.actor_scope]
+        self.outcome = normalize_decision(self.outcome)
+        self.conditions = [
+            condition if isinstance(condition, RuleCondition) else RuleCondition(**condition)
+            for condition in self.conditions
+            if isinstance(condition, (RuleCondition, dict))
+        ]
+        self.reason = str(self.reason or "").strip()
+        self.legal_basis = [item for item in self.legal_basis if isinstance(item, dict)]
+        self.metadata = dict(self.metadata) if isinstance(self.metadata, dict) else {}
+        self.verification_status = str(self.verification_status or "unverified").strip().lower()
+        if self.verification_status not in {"verified", "unverified", "draft", "superseded"}:
+            self.verification_status = "unverified"
+
+
+@dataclass
+class RuleEvaluation(SerializableMixin):
+    rule_id: str
+    intent_id: str
+    observation_ids: list[str] = field(default_factory=list)
+    decision: Decision = "UNKNOWN"
+    status: Literal["applied", "incomplete", "unresolved", "not_applicable"] = "unresolved"
+    matched_facts: list[str] = field(default_factory=list)
+    missing_facts: list[str] = field(default_factory=list)
+    legal_basis: list[dict[str, Any]] = field(default_factory=list)
+    reason: str = ""
+    confidence: str = "low"
+    trace: list[dict[str, Any]] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        self.decision = normalize_decision(self.decision)
+        self.confidence = normalize_confidence(self.confidence)
+
+
+@dataclass
+class IntentEvaluation(SerializableMixin):
+    intent_id: str
+    decision: Decision = "UNKNOWN"
+    rule_evaluations: list[RuleEvaluation] = field(default_factory=list)
+    unresolved_items: list[str] = field(default_factory=list)
+    reason: str = ""
+
+    def __post_init__(self) -> None:
+        self.decision = normalize_decision(self.decision)

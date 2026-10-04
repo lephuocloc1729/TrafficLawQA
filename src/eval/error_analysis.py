@@ -108,10 +108,10 @@ def _sign_details(
 
     details: list[dict[str, Any]] = []
     codes: list[str] = []
-    symbolic_facts = output.get("symbolic_facts") or []
+    sign_observations = (output.get("traffic_facts") or {}).get("sign_observations", [])
     symbolic_codes = [
         _normalize_sign_code(fact.get("sign_code"))
-        for fact in symbolic_facts
+        for fact in sign_observations
         if isinstance(fact, dict)
     ]
     symbolic_codes = [code for code in symbolic_codes if code]

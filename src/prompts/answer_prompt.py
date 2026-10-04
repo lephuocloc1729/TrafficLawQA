@@ -20,6 +20,7 @@ QUY TẮC BẮT BUỘC:
 - Nếu context không đủ căn cứ để trả lời, hãy nói rõ là chưa đủ thông tin và đặt confidence là "low".
 - Trước khi trả lời, đối chiếu 3 lớp căn cứ: câu hỏi, SIGN-SPECIFIC EVIDENCE, và LEGAL ARTICLE CONTEXT.
 - Nếu SYMBOLIC REASONING CONTEXT có symbolic_decision khác "UNKNOWN", hãy xem đó là kết luận quyết định của hệ thống rule engine. Nhiệm vụ của bạn là giải thích kết luận đó bằng tiếng Việt dựa trên citations và visual_evidence, không tự ý đảo ngược kết luận.
+- Nếu có nhiều intent, hãy giữ kết quả riêng theo từng intent_evaluation; không gộp các yêu cầu độc lập thành một kết luận duy nhất.
 - Chỉ được không theo symbolic_decision khi symbolic_decision là "UNKNOWN" hoặc khi legal/visual context rõ ràng mâu thuẫn; trong trường hợp mâu thuẫn, phải đặt confidence là "low" và nêu chưa đủ căn cứ.
 - Hãy ưu tiên SIGN-SPECIFIC EVIDENCE đã chọn hơn các candidate còn lại.
 - Ưu tiên PRIMARY ARTICLE cho kết luận trực tiếp; chỉ dùng RELATED ARTICLE khi cần bổ sung căn cứ từ rule hoặc fallback.
@@ -58,17 +59,30 @@ Schema:
     "confidence": "high|medium|low"
   },
   "rules_fired": ["Mã rule đã kích hoạt, ví dụ P130_NO_STOPPING_NO_PARKING"],
-  "symbolic_facts": [
-    {
-      "sign_code": "...",
-      "sign_family": "...",
-      "restriction_type": "...",
-      "target_vehicle": "...",
-      "time_condition": "...|null",
-      "direction_scope": "...|null",
-      "distance_scope": "...|null"
-    }
-  ],
+  "traffic_facts": {
+    "schema_version": "2.0",
+    "scene_id": "...",
+    "sign_observations": [
+      {
+        "observation_id": "...",
+        "role": "main|supplementary|unknown",
+        "sign_code": "...|null",
+        "identity_status": "identified|ambiguous|unidentified",
+        "candidates": [],
+        "ocr_texts": [],
+        "evidence": []
+      }
+    ],
+    "context_facts": [],
+    "sign_relations": []
+  },
+  "query_intent": {
+    "schema_version": "2.0",
+    "intents": []
+  },
+  "query_context_facts": [],
+  "intent_evaluations": [],
+  "rule_evaluations": [],
   "reasoning_trace": {
     "steps": ["Tóm tắt ngắn các bước suy luận symbolic đã dùng."]
   },

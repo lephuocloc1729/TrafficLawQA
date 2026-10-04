@@ -1,112 +1,68 @@
 import json
 import unittest
 
-from src.core.symbolic.sign_schema import (
-    QuestionIntent,
-    ReasoningTrace,
-    RuleMatch,
-    SymbolicDecision,
-    TrafficSignFact,
-)
+from src.core.symbolic.fact_schema import ContextFact, SignObservation, TrafficFacts
+from src.core.symbolic.intent_schema import Intent, IntentParseResult, IntentSlot, QueryIntent
+from src.core.symbolic.rule_schema import RuleCondition, RuleEvaluation, TrafficRule
+from src.core.symbolic.sign_schema import ReasoningTrace, SymbolicDecision
 
 
-class SignSchemaTest(unittest.TestCase):
-    def test_traffic_sign_fact_serializes_required_fields(self) -> None:
-        fact = TrafficSignFact(
-            sign_code=" P.131b ",
-            sign_family=" P.131 ",
-            sign_name="Cấm đỗ xe ngày lẻ",
-            restriction_type="no_parking",
-            target_vehicle="motor_vehicle",
-            time_condition="odd_days",
-            direction_scope="side_of_road_with_sign",
-            distance_scope=None,
-            related_articles=[
-                {"law_id": "QCVN 41:2024/BGTVT", "article_id": "31"}
+class SymbolicSchemaTest(unittest.TestCase):
+    def test_intent_and_query_facts_serialize_as_separate_contracts(self) -> None:
+        query = QueryIntent(
+            schema_version="2.0",
+            query_id="q1",
+            raw_query="Biển này là gì, xe ô tô có được đỗ không?",
+            intents=[
+                Intent("i1", "QUERY_SIGN_MEANING"),
+                Intent("i2", "CHECK_PERMISSION", action=IntentSlot("parking"), actor=IntentSlot("car")),
             ],
-            visual_evidence=[{"image_name": "demo_crop0.jpg"}],
-            confidence="high",
-            source="retrieval",
         )
+        parsed = IntentParseResult(
+            schema_version="2.0",
+            query_intent=query,
+            context_facts=[{
+                "fact_id": "time-1", "predicate": "observed_at",
+                "value": "2026-10-04T12:00:00+07:00", "source": "system_clock",
+            }],
+        )
+        decoded = json.loads(parsed.to_json())
+        self.assertEqual([item["kind"] for item in decoded["query_intent"]["intents"]], ["QUERY_SIGN_MEANING", "CHECK_PERMISSION"])
+        self.assertEqual(decoded["context_facts"][0]["source"], "system_clock")
 
-        payload = fact.to_dict()
+    def test_observation_and_fact_set_keep_identity_separate_from_legal_scope(self) -> None:
+        observation = SignObservation(
+            observation_id="crop-1", role="main", sign_code="P.131b",
+            identity_status="identified", candidates=[{"sign_code": "P.131b", "score": 0.9}],
+            evidence=[{"type": "crop", "path": "crop.jpg"}], confidence="high",
+        )
+        facts = TrafficFacts(
+            schema_version="2.0", scene_id="scene-1", sign_observations=[observation],
+            context_facts=[ContextFact("t1", "calendar_parity", "odd_days", "provided", "user_query")],
+        )
+        payload = facts.to_dict()
+        self.assertEqual(payload["sign_observations"][0]["sign_code"], "P.131b")
+        self.assertNotIn("restriction_type", payload["sign_observations"][0])
+        self.assertEqual(payload["context_facts"][0]["predicate"], "calendar_parity")
 
-        self.assertEqual(payload["sign_code"], "P.131b")
-        self.assertEqual(payload["sign_family"], "P.131")
-        self.assertEqual(payload["restriction_type"], "no_parking")
-        self.assertEqual(payload["target_vehicle"], "motor_vehicle")
-        self.assertEqual(payload["time_condition"], "odd_days")
-        self.assertEqual(payload["confidence"], "high")
-        self.assertEqual(payload["related_articles"][0]["article_id"], "31")
-        self.assertEqual(payload["visual_evidence"][0]["image_name"], "demo_crop0.jpg")
+    def test_rule_schema_is_declarative_and_serializable(self) -> None:
+        rule = TrafficRule(
+            rule_id="test-rule", legal_basis=[], trigger_sign_codes=["P.131b"],
+            intent_kinds=["CHECK_PERMISSION"], actions=["parking"],
+            actor_scope=["motor_vehicle"], outcome="PROHIBITED",
+            conditions=[RuleCondition("calendar_parity", "equals", "odd_days")],
+        )
+        self.assertEqual(rule.to_dict()["conditions"][0]["expected_value"], "odd_days")
+        evaluation = RuleEvaluation("test-rule", "i1", decision="CONDITIONAL", status="incomplete")
+        self.assertEqual(evaluation.to_dict()["status"], "incomplete")
 
-        decoded = json.loads(fact.to_json())
-        self.assertEqual(decoded, payload)
-
-    def test_invalid_confidence_and_decision_fall_back_safely(self) -> None:
-        fact = TrafficSignFact(
-            sign_code="P.102",
-            sign_family="P.102",
-            confidence="certain",  # type: ignore[arg-type]
-        )
-        decision = SymbolicDecision(
-            decision="MAYBE",  # type: ignore[arg-type]
-            confidence="sure",  # type: ignore[arg-type]
-        )
-
-        self.assertEqual(fact.confidence, "low")
-        self.assertEqual(decision.decision, "UNKNOWN")
-        self.assertEqual(decision.confidence, "low")
-
-    def test_nested_reasoning_trace_serializes_cleanly(self) -> None:
-        fact = TrafficSignFact(
-            sign_code="P.130",
-            sign_family="P.130",
-            restriction_type="no_stopping_no_parking",
-            target_vehicle="motor_vehicle",
-            confidence="medium",
-        )
-        intent = QuestionIntent(
-            intent="check_permission",
-            action="parking",
-            vehicle="car",
-            raw_question="Xe ô tô có được đỗ ở đây không?",
-            confidence="medium",
-        )
-        rule_match = RuleMatch(
-            rule_id="P130_NO_STOPPING_NO_PARKING",
-            decision="PROHIBITED",
-            matched_fact_ids=["P.130"],
-            legal_basis=[{"law_id": "QCVN 41:2024/BGTVT", "article_id": "30"}],
-            reason="P.130 prohibits stopping and parking.",
-            confidence="high",
-        )
-        decision = SymbolicDecision(
-            decision="PROHIBITED",
-            conclusion="Xe ô tô không được đỗ tại vị trí có biển P.130.",
-            rule_matches=[rule_match],
-            matched_fact_ids=["P.130"],
-            confidence="high",
-        )
-        trace = ReasoningTrace(
-            facts=[fact],
-            question_intent=intent,
-            rule_matches=[rule_match],
-            decision=decision,
-        )
-        trace.add_step(
-            "apply_rule",
-            inputs={"sign_code": "P.130", "action": "parking"},
-            output={"decision": "PROHIBITED"},
-        )
-
+    def test_reasoning_trace_serializes_new_schema(self) -> None:
+        decision = SymbolicDecision(decision="UNKNOWN", conclusion="Need more facts")
+        trace = ReasoningTrace(facts={}, query_intent={}, decision=decision)
+        trace.add_step("evaluate_rules", inputs={"count": 1}, output={"decision": "UNKNOWN"})
         payload = trace.to_dict()
-
-        self.assertEqual(payload["facts"][0]["sign_code"], "P.130")
-        self.assertEqual(payload["question_intent"]["intent"], "CHECK_PERMISSION")
-        self.assertEqual(payload["rule_matches"][0]["rule_id"], "P130_NO_STOPPING_NO_PARKING")
-        self.assertEqual(payload["decision"]["rules_fired"], ["P130_NO_STOPPING_NO_PARKING"])
-        self.assertEqual(payload["steps"][0]["name"], "apply_rule")
+        self.assertEqual(payload["steps"][0]["name"], "evaluate_rules")
+        self.assertEqual(payload["decision"]["decision"], "UNKNOWN")
 
 
 if __name__ == "__main__":

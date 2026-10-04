@@ -26,7 +26,7 @@ def test_full_trace_classifies_rank_variant_symbolic_citation_answer_and_json():
                     ],
                 }
             ],
-            "symbolic_facts": [{"sign_code": "P.131c"}],
+            "traffic_facts": {"sign_observations": [{"sign_code": "P.131c"}]},
             "symbolic_decision": {"decision": "CONDITIONAL"},
             "citations": [article("30")],
             "freeform_answer": "Được phép.",

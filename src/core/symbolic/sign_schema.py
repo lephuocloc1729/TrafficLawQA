@@ -52,76 +52,12 @@ class SerializableMixin:
 
 
 @dataclass
-class TrafficSignFact(SerializableMixin):
-    sign_code: str
-    sign_family: str
-    sign_name: str = ""
-    restriction_type: str = "unknown"
-    target_vehicle: str = "unknown"
-    time_condition: str | None = None
-    direction_scope: str | None = None
-    distance_scope: str | None = None
-    related_articles: list[dict[str, str]] = field(default_factory=list)
-    visual_evidence: list[dict[str, Any]] = field(default_factory=list)
-    confidence: Confidence = "low"
-    source: str = "retrieval"
-    metadata: dict[str, Any] = field(default_factory=dict)
-
-    def __post_init__(self) -> None:
-        self.sign_code = str(self.sign_code or "").strip()
-        self.sign_family = str(self.sign_family or "").strip()
-        self.sign_name = str(self.sign_name or "").strip()
-        self.restriction_type = str(self.restriction_type or "unknown").strip()
-        self.target_vehicle = str(self.target_vehicle or "unknown").strip()
-        self.confidence = normalize_confidence(self.confidence)
-        self.source = str(self.source or "retrieval").strip()
-
-
-@dataclass
-class QuestionIntent(SerializableMixin):
-    intent: str = "UNKNOWN"
-    action: str = "unknown"
-    vehicle: str = "unknown"
-    time_context: str | None = None
-    location_context: str | None = None
-    raw_question: str = ""
-    confidence: Confidence = "low"
-    source: str = "parser"
-    metadata: dict[str, Any] = field(default_factory=dict)
-
-    def __post_init__(self) -> None:
-        self.intent = str(self.intent or "UNKNOWN").strip().upper()
-        self.action = str(self.action or "unknown").strip()
-        self.vehicle = str(self.vehicle or "unknown").strip()
-        self.raw_question = str(self.raw_question or "").strip()
-        self.confidence = normalize_confidence(self.confidence)
-        self.source = str(self.source or "parser").strip()
-
-
-@dataclass
-class RuleMatch(SerializableMixin):
-    rule_id: str
-    decision: Decision
-    matched_fact_ids: list[str] = field(default_factory=list)
-    matched_facts: list[dict[str, Any]] = field(default_factory=list)
-    legal_basis: list[dict[str, str]] = field(default_factory=list)
-    reason: str = ""
-    confidence: Confidence = "low"
-    metadata: dict[str, Any] = field(default_factory=dict)
-
-    def __post_init__(self) -> None:
-        self.rule_id = str(self.rule_id or "").strip()
-        self.decision = normalize_decision(self.decision)
-        self.reason = str(self.reason or "").strip()
-        self.confidence = normalize_confidence(self.confidence)
-
-
-@dataclass
 class SymbolicDecision(SerializableMixin):
     decision: Decision = "UNKNOWN"
     conclusion: str = ""
     rules_fired: list[str] = field(default_factory=list)
-    rule_matches: list[RuleMatch] = field(default_factory=list)
+    intent_evaluations: list[dict[str, Any]] = field(default_factory=list)
+    rule_evaluations: list[dict[str, Any]] = field(default_factory=list)
     matched_fact_ids: list[str] = field(default_factory=list)
     legal_basis: list[dict[str, str]] = field(default_factory=list)
     confidence: Confidence = "low"
@@ -133,15 +69,21 @@ class SymbolicDecision(SerializableMixin):
         self.conclusion = str(self.conclusion or "").strip()
         self.reason = str(self.reason or "").strip()
         self.confidence = normalize_confidence(self.confidence)
-        if not self.rules_fired and self.rule_matches:
-            self.rules_fired = [match.rule_id for match in self.rule_matches]
+        if not self.rules_fired and self.rule_evaluations:
+            self.rules_fired = [
+                str(item.get("rule_id"))
+                for item in self.rule_evaluations
+                if item.get("rule_id") and item.get("status") == "applied"
+            ]
 
 
 @dataclass
 class ReasoningTrace(SerializableMixin):
-    facts: list[TrafficSignFact] = field(default_factory=list)
-    question_intent: QuestionIntent | None = None
-    rule_matches: list[RuleMatch] = field(default_factory=list)
+    facts: dict[str, Any] = field(default_factory=dict)
+    query_intent: dict[str, Any] = field(default_factory=dict)
+    query_context_facts: list[dict[str, Any]] = field(default_factory=list)
+    rule_evaluations: list[dict[str, Any]] = field(default_factory=list)
+    intent_evaluations: list[dict[str, Any]] = field(default_factory=list)
     decision: SymbolicDecision | None = None
     steps: list[dict[str, Any]] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)

@@ -2,211 +2,202 @@ from __future__ import annotations
 
 from typing import Any, Iterable
 
-from src.core.symbolic.question_intent import parse_question_intent
-from src.core.symbolic.sign_schema import (
-    QuestionIntent,
-    ReasoningTrace,
-    RuleMatch,
-    SymbolicDecision,
-    TrafficSignFact,
-)
-from src.core.symbolic.traffic_rules import TRAFFIC_RULES, TrafficRule, find_matching_rules
+from src.core.symbolic.fact_schema import SignObservation, TrafficFacts
+from src.core.symbolic.intent_schema import IntentParseResult, QueryIntent
+from src.core.symbolic.question_intent import parse_query_intent
+from src.core.symbolic.rule_schema import IntentEvaluation, RuleEvaluation, TrafficRule
+from src.core.symbolic.sign_schema import ReasoningTrace, SymbolicDecision
+from src.core.symbolic.traffic_rules import TRAFFIC_RULES, find_matching_rules
 
 
-def _coerce_fact(fact: TrafficSignFact | dict) -> TrafficSignFact:
-    if isinstance(fact, TrafficSignFact):
-        return fact
-    return TrafficSignFact(**fact)
+def _coerce_facts(facts: TrafficFacts | Iterable[SignObservation | dict[str, Any]]) -> TrafficFacts:
+    if isinstance(facts, TrafficFacts):
+        return facts
+    if isinstance(facts, dict):
+        return TrafficFacts(**facts)
+    observations = [
+        item if isinstance(item, SignObservation) else SignObservation(**item)
+        for item in facts
+        if isinstance(item, (SignObservation, dict))
+    ]
+    return TrafficFacts(schema_version="2.0", scene_id="scene-1", sign_observations=observations)
 
 
-def _coerce_intent(intent: QuestionIntent | dict | str) -> QuestionIntent:
-    if isinstance(intent, QuestionIntent):
-        return intent
-    if isinstance(intent, dict):
-        return QuestionIntent(**intent)
-    return parse_question_intent(str(intent))
+def _coerce_query(query: IntentParseResult | QueryIntent | dict[str, Any] | str) -> IntentParseResult:
+    if isinstance(query, IntentParseResult):
+        return query
+    if isinstance(query, QueryIntent):
+        return IntentParseResult("2.0", query)
+    if isinstance(query, dict):
+        return IntentParseResult(**query)
+    return parse_query_intent(str(query))
 
 
-def _dedupe_articles(rule_matches: Iterable[RuleMatch]) -> list[dict[str, str]]:
-    seen: set[tuple[str, str]] = set()
-    articles: list[dict[str, str]] = []
-    for rule_match in rule_matches:
-        for article in rule_match.legal_basis:
-            law_id = str(article.get("law_id") or "").strip()
-            article_id = str(article.get("article_id") or "").strip()
-            key = (law_id, article_id)
-            if not law_id or not article_id or key in seen:
-                continue
-            seen.add(key)
-            articles.append(article)
-    return articles
-
-
-def build_symbolic_decision(rule_matches: list[RuleMatch]) -> SymbolicDecision:
-    if not rule_matches:
-        return SymbolicDecision(
-            decision="UNKNOWN",
-            conclusion="Không có rule thủ công nào khớp với câu hỏi và biển báo đã chuẩn hóa.",
-            confidence="low",
-            reason="No manual traffic-law rule fired.",
-        )
-
-    matched_fact_ids = sorted(
-        {
-            fact_id
-            for rule_match in rule_matches
-            for fact_id in rule_match.matched_fact_ids
-        }
-    )
-    decisions = {match.decision for match in rule_matches}
-    conflict = "PROHIBITED" in decisions and "ALLOWED" in decisions
-    if conflict:
-        selected_decision = "CONDITIONAL"
-        conclusion = (
-            "Nhiều rule áp dụng trực tiếp đưa ra kết luận ALLOWED và PROHIBITED "
-            "cùng lúc; cần kiểm tra vị trí, phạm vi và biển phụ trước khi kết luận."
-        )
-        reason = "Conflicting direct rule outcomes were detected."
-        confidence = "low"
+def _evaluate_intent(intent_id: str, evaluations: list[RuleEvaluation]) -> IntentEvaluation:
+    relevant = [item for item in evaluations if item.intent_id == intent_id and item.status != "not_applicable"]
+    if not relevant:
+        return IntentEvaluation(intent_id, "UNKNOWN", [], ["no_matching_rule"], "Không tìm thấy rule phù hợp với dữ kiện đã xác minh.")
+    decisions = {item.decision for item in relevant}
+    missing = sorted({field for item in relevant for field in item.missing_facts})
+    if "PROHIBITED" in decisions and "ALLOWED" in decisions:
+        decision = "CONDITIONAL"
+        reason = "Các rule phù hợp đưa ra kết quả đối nghịch; cần kiểm tra phạm vi hoặc biển phụ."
+        missing.append("conflicting_rule_outcomes")
     elif "PROHIBITED" in decisions:
-        selected = next(
-            match for match in rule_matches if match.decision == "PROHIBITED"
-        )
-        selected_decision = "PROHIBITED"
-        conclusion = selected.reason
-        reason = selected.reason
-        confidence = selected.confidence
+        decision = "PROHIBITED"
+        reason = next(item.reason for item in relevant if item.decision == decision)
     elif "CONDITIONAL" in decisions:
-        selected = next(
-            match for match in rule_matches if match.decision == "CONDITIONAL"
-        )
-        selected_decision = "CONDITIONAL"
-        conclusion = selected.reason
-        reason = selected.reason
-        confidence = selected.confidence
+        decision = "CONDITIONAL"
+        reason = next(item.reason for item in relevant if item.decision == decision)
     elif "ALLOWED" in decisions:
-        selected = next(match for match in rule_matches if match.decision == "ALLOWED")
-        selected_decision = "ALLOWED"
-        conclusion = selected.reason
-        reason = selected.reason
-        confidence = selected.confidence
+        decision = "ALLOWED"
+        reason = next(item.reason for item in relevant if item.decision == decision)
     else:
-        selected = rule_matches[0]
-        selected_decision = "UNKNOWN"
-        conclusion = selected.reason
-        reason = selected.reason
-        confidence = selected.confidence
+        decision = "UNKNOWN"
+        reason = next((item.reason for item in relevant if item.reason), "Chưa đủ dữ kiện.")
+    return IntentEvaluation(intent_id, decision, relevant, missing, reason)
 
+
+def build_symbolic_decision(
+    intent_evaluations: list[IntentEvaluation],
+    rule_evaluations: list[RuleEvaluation],
+) -> SymbolicDecision:
+    if not intent_evaluations:
+        return SymbolicDecision(decision="UNKNOWN", conclusion="Không có intent để đánh giá.")
+    decisions = {item.decision for item in intent_evaluations}
+    if len(intent_evaluations) > 1:
+        # Keep separate answers per requested task; only collapse when they agree.
+        decision = next(iter(decisions)) if len(decisions) == 1 else "UNKNOWN"
+        conclusion = "Một hoặc nhiều yêu cầu cần được trả lời riêng; xem intent_evaluations."
+    else:
+        decision = intent_evaluations[0].decision
+        conclusion = intent_evaluations[0].reason
+    fired = [
+        item.rule_id for item in rule_evaluations
+        if item.status in {"applied", "incomplete"}
+    ]
+    unique_fired = list(dict.fromkeys(fired))
+    basis, seen = [], set()
+    for evaluation in rule_evaluations:
+        if evaluation.status not in {"applied", "incomplete", "unresolved"}:
+            continue
+        for ref in evaluation.legal_basis:
+            key = (ref.get("law_id"), ref.get("article_id"), ref.get("document"), ref.get("section"))
+            if key not in seen:
+                seen.add(key)
+                basis.append(ref)
+    fact_ids = list(dict.fromkeys(
+        fact_id for evaluation in rule_evaluations for fact_id in evaluation.matched_facts
+    ))
+    unresolved = [note for result in intent_evaluations for note in result.unresolved_items]
+    applied_confidences = [
+        item.confidence for item in rule_evaluations
+        if item.status in {"applied", "incomplete"}
+    ]
+    confidence = "low"
+    if (
+        decision in {"ALLOWED", "PROHIBITED"}
+        and applied_confidences
+        and all(value == "high" for value in applied_confidences)
+        and not unresolved
+    ):
+        confidence = "high"
+    elif applied_confidences and all(value != "low" for value in applied_confidences):
+        confidence = "medium"
     return SymbolicDecision(
-        decision=selected_decision,
+        decision=decision,
         conclusion=conclusion,
-        rules_fired=[rule_match.rule_id for rule_match in rule_matches],
-        rule_matches=rule_matches,
-        matched_fact_ids=matched_fact_ids,
-        legal_basis=_dedupe_articles(rule_matches),
+        rules_fired=unique_fired,
+        intent_evaluations=[item.to_dict() for item in intent_evaluations],
+        rule_evaluations=[item.to_dict() for item in rule_evaluations],
+        matched_fact_ids=fact_ids,
+        legal_basis=basis,
         confidence=confidence,
-        reason=reason,
-        metadata={
-            "conflict_detected": conflict,
-            "candidate_decisions": sorted(decisions),
-        },
+        reason="; ".join(dict.fromkeys(result.reason for result in intent_evaluations if result.reason)),
+        metadata={"unresolved_items": unresolved},
     )
 
 
 def reason_over_facts(
-    facts: Iterable[TrafficSignFact | dict],
-    question_intent: QuestionIntent | dict | str,
+    facts: TrafficFacts | Iterable[SignObservation | dict[str, Any]],
+    query_intent: IntentParseResult | QueryIntent | dict[str, Any] | str,
     rules: Iterable[TrafficRule] = TRAFFIC_RULES,
 ) -> ReasoningTrace:
-    coerced_facts = [_coerce_fact(fact) for fact in facts]
-    coerced_intent = _coerce_intent(question_intent)
+    fact_set = _coerce_facts(facts)
+    query = _coerce_query(query_intent)
     rule_list = tuple(rules)
-    rule_matches = find_matching_rules(
-        facts=coerced_facts,
-        intent=coerced_intent,
+    evaluations = find_matching_rules(
+        fact_set,
+        query.query_intent,
+        query.context_facts,
         rules=rule_list,
     )
-    decision = build_symbolic_decision(rule_matches)
+    intent_results = [
+        _evaluate_intent(intent.intent_id, evaluations)
+        for intent in query.query_intent.intents
+    ]
+    decision = build_symbolic_decision(intent_results, evaluations)
     trace = ReasoningTrace(
-        facts=coerced_facts,
-        question_intent=coerced_intent,
-        rule_matches=rule_matches,
+        facts=fact_set.to_dict(),
+        query_intent=query.query_intent.to_dict(),
+        query_context_facts=[item.to_dict() for item in query.context_facts],
+        rule_evaluations=[item.to_dict() for item in evaluations],
+        intent_evaluations=[item.to_dict() for item in intent_results],
         decision=decision,
     )
     trace.add_step(
         "normalize_inputs",
-        inputs={
-            "num_facts": len(coerced_facts),
-            "intent": coerced_intent.intent,
-            "action": coerced_intent.action,
-            "vehicle": coerced_intent.vehicle,
-            "time_context": coerced_intent.time_context,
-            "location_context": coerced_intent.location_context,
-        },
-        output={"candidate_sign_codes": [fact.sign_code for fact in coerced_facts]},
+        inputs={"observation_count": len(fact_set.sign_observations),
+                "intent_count": len(query.query_intent.intents),
+                "context_fact_count": len([*fact_set.context_facts, *query.context_facts])},
+        output={"sign_codes": [item.sign_code for item in fact_set.sign_observations]},
     )
     trace.add_step(
-        "apply_manual_rules",
+        "evaluate_rules",
         inputs={"rule_count": len(rule_list)},
-        output={
-            "rules_fired": decision.rules_fired,
-            "decision": decision.decision,
-            "confidence": decision.confidence,
-        },
+        output={"evaluations": [item.to_dict() for item in evaluations]},
     )
     trace.add_step(
-        "aggregate_rule_outcomes",
-        inputs={
-            "rule_outcomes": [
-                {"rule_id": match.rule_id, "decision": match.decision}
-                for match in rule_matches
-            ]
-        },
-        output={
-            "decision": decision.decision,
-            "conflict_detected": decision.metadata.get("conflict_detected", False),
-            "reason": decision.reason,
-        },
+        "aggregate_intents",
+        inputs={"intent_results": [item.to_dict() for item in intent_results]},
+        output={"decision": decision.decision, "reason": decision.reason},
     )
     return trace
 
 
 def decide_symbolically(
-    facts: Iterable[TrafficSignFact | dict],
-    question_intent: QuestionIntent | dict | str,
+    facts: TrafficFacts | Iterable[SignObservation | dict[str, Any]],
+    query_intent: IntentParseResult | QueryIntent | dict[str, Any] | str,
     rules: Iterable[TrafficRule] = TRAFFIC_RULES,
 ) -> SymbolicDecision:
-    return reason_over_facts(
-        facts=facts,
-        question_intent=question_intent,
-        rules=rules,
-    ).decision or SymbolicDecision()
+    return reason_over_facts(facts, query_intent, rules).decision or SymbolicDecision()
 
 
 def build_symbolic_reasoning_context(
-    symbolic_facts: Iterable[TrafficSignFact | dict],
+    traffic_facts: TrafficFacts | Iterable[SignObservation | dict[str, Any]],
     question: str,
     llm_client: Any | None = None,
     use_llm_fallback: bool = True,
     temperature: float = 0.0,
-    max_tokens: int = 300,
+    max_tokens: int = 500,
 ) -> dict[str, Any]:
-    question_intent = parse_question_intent(
+    query = parse_query_intent(
         question=question,
         llm_client=llm_client,
         use_llm_fallback=use_llm_fallback,
         temperature=temperature,
         max_tokens=max_tokens,
     )
-    reasoning_trace = reason_over_facts(
-        facts=symbolic_facts,
-        question_intent=question_intent,
-    )
-    symbolic_decision = reasoning_trace.decision or SymbolicDecision()
+    fact_set = _coerce_facts(traffic_facts)
+    trace = reason_over_facts(fact_set, query)
+    decision = trace.decision or SymbolicDecision()
     return {
-        "symbolic_facts": [fact.to_dict() for fact in reasoning_trace.facts],
-        "question_intent": question_intent.to_dict(),
-        "rules_fired": symbolic_decision.rules_fired,
-        "symbolic_decision": symbolic_decision.to_dict(),
-        "reasoning_trace": reasoning_trace.to_dict(),
+        "facts": fact_set.to_dict(),
+        "query_intent": query.query_intent.to_dict(),
+        "query_context_facts": [item.to_dict() for item in query.context_facts],
+        "intent_evaluations": decision.intent_evaluations,
+        "rule_evaluations": decision.rule_evaluations,
+        "rules_fired": decision.rules_fired,
+        "symbolic_decision": decision.to_dict(),
+        "reasoning_trace": trace.to_dict(),
     }

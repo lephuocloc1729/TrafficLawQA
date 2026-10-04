@@ -135,7 +135,9 @@ def json_validity(result: dict[str, Any]) -> dict[str, float]:
             "confidence",
             "symbolic_decision",
             "rules_fired",
-            "symbolic_facts",
+            "traffic_facts",
+            "query_intent",
+            "query_context_facts",
             "reasoning_trace",
         }
         ok = isinstance(parsed, dict) and required.issubset(parsed)
