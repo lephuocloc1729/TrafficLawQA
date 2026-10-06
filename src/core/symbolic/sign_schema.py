@@ -63,6 +63,7 @@ class SymbolicDecision(SerializableMixin):
     confidence: Confidence = "low"
     reason: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
+    sign_meaning_evaluations: list[dict[str, Any]] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         self.decision = normalize_decision(self.decision)
@@ -87,6 +88,7 @@ class ReasoningTrace(SerializableMixin):
     decision: SymbolicDecision | None = None
     steps: list[dict[str, Any]] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
+    sign_meaning_evaluations: list[dict[str, Any]] = field(default_factory=list)
 
     def add_step(
         self,

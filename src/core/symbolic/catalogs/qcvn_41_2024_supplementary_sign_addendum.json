@@ -1,0 +1,181 @@
+{
+  "source_document": "QCVN 41:2024/BGTVT",
+  "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+  "accessed_at": "2026-10-05",
+  "source_file_sha256": "b6b99d0a0aeb13fe79072831857ece15bb254d8fb7817e80e4a2739a0d2145ce",
+  "review_status": "unreviewed_extraction",
+  "eligible_for_automatic_decision": false,
+  "items": [
+    {
+      "family": "S.501",
+      "codes": ["S.501"],
+      "official_name": "Phạm vi tác dụng của biển",
+      "sign_category": "supplementary",
+      "legal_meaning": "Thông báo chiều dài đoạn đường nguy hiểm, cấm, hiệu lệnh hoặc hạn chế được nêu dưới biển chính; chiều dài ghi bằng mét và lấy chẵn đến hàng chục mét.",
+      "section_or_figure": "Phụ lục F.1, Hình F.1",
+      "pdf_pages": [151],
+      "supplementary_sign_relationships": [{"relation_type": "modifies_scope_of", "target_categories": ["warning", "prohibition", "command"], "basis": "Appendix F.1"}],
+      "source_excerpt": "Biển số S.501 ... để thông báo chiều dài đoạn đường nguy hiểm hoặc cấm hoặc hiệu lệnh hoặc hạn chế bên dưới một số biển báo chính. Chiều dài ... ghi theo đơn vị mét (m) và lấy chẵn đến hàng chục mét."
+    },
+    {
+      "family": "S.502",
+      "codes": ["S.502"],
+      "official_name": "Khoảng cách đến đối tượng báo hiệu",
+      "sign_category": "supplementary",
+      "legal_meaning": "Khi vị trí đặt biển nguy hiểm, cấm, hiệu lệnh hoặc chỉ dẫn khác quy định chung, biển báo khoảng cách thực tế từ vị trí đặt biển đến đối tượng báo hiệu phía trước; trị số tính bằng mét và lấy chẵn đến hàng chục mét.",
+      "section_or_figure": "Phụ lục F.2, Hình F.2",
+      "pdf_pages": [151],
+      "supplementary_sign_relationships": [{"relation_type": "adds_distance_to", "target_categories": ["warning", "prohibition", "command", "guidance"], "basis": "Appendix F.2"}],
+      "source_excerpt": "Trong trường hợp vị trí đặt các biển báo đó khác với quy định chung, đặt biển số S.502 ... để thông báo khoảng cách thực tế từ vị trí đặt biển đến đối tượng báo hiệu ở phía trước. Con số ... ghi theo đơn vị mét (m) và lấy chẵn đến hàng chục mét."
+    },
+    {
+      "family": "S.503",
+      "codes": ["S.503a", "S.503b", "S.503c", "S.503d", "S.503e", "S.503f"],
+      "official_name": "Hướng tác dụng của biển",
+      "sign_category": "supplementary",
+      "legal_meaning": "Các biến thể S.503a/b/c đặt dưới biển cấm hoặc hiệu lệnh để chỉ hướng tác dụng vuông góc với chiều đi; S.503b chỉ đồng thời hai hướng trái và phải. Các biến thể S.503d/e/f đặt dưới P.124(a–f), P.130 hoặc P.131(a–c) để chỉ hướng tác dụng song song với chiều đi; S.503e chỉ đồng thời hai hướng trước và sau tại nơi đặt biển nhắc lại lệnh cấm dừng/đỗ. Hình F.3a/F.3b minh họa mũi tên riêng cho từng mã; hướng của biển chính tại hiện trường và kết quả cho phép/cấm trong một tình huống phải được xác định riêng.",
+      "visual_descriptions_by_code": {
+        "S.503a": "Biển phụ hình chữ nhật; Hình F.3a vẽ một mũi tên ngang hướng sang phải.",
+        "S.503b": "Biển phụ hình chữ nhật; Hình F.3a vẽ hai mũi tên ngang ngược chiều trái và phải.",
+        "S.503c": "Biển phụ hình chữ nhật; Hình F.3a vẽ một mũi tên ngang hướng sang trái.",
+        "S.503d": "Biển phụ hình chữ nhật; Hình F.3b vẽ một mũi tên dọc hướng xuống.",
+        "S.503e": "Biển phụ hình chữ nhật; Hình F.3b vẽ hai mũi tên dọc ngược chiều lên và xuống.",
+        "S.503f": "Biển phụ hình chữ nhật; Hình F.3b vẽ một mũi tên dọc hướng lên."
+      },
+      "legal_meaning_by_code": {
+        "S.503a": "Đặt dưới biển cấm hoặc hiệu lệnh để chỉ hướng tác dụng vuông góc với chiều đi; Hình F.3a minh họa mũi tên ngang hướng sang phải.",
+        "S.503b": "Đặt dưới biển cấm hoặc hiệu lệnh để chỉ hướng tác dụng vuông góc với chiều đi; quy chuẩn nêu biển này chỉ đồng thời hai hướng trái và phải, Hình F.3a minh họa hai mũi tên ngang ngược chiều.",
+        "S.503c": "Đặt dưới biển cấm hoặc hiệu lệnh để chỉ hướng tác dụng vuông góc với chiều đi; Hình F.3a minh họa mũi tên ngang hướng sang trái.",
+        "S.503d": "Đặt dưới P.124(a–f), P.130 hoặc P.131(a–c) để chỉ hướng tác dụng song song với chiều đi; Hình F.3b minh họa mũi tên dọc hướng xuống.",
+        "S.503e": "Đặt dưới P.124(a–f), P.130 hoặc P.131(a–c) để chỉ hướng tác dụng song song với chiều đi; quy chuẩn nêu biển này chỉ đồng thời hai hướng trước và sau tại nơi đặt biển nhắc lại lệnh cấm dừng/đỗ, Hình F.3b minh họa hai mũi tên dọc ngược chiều.",
+        "S.503f": "Đặt dưới P.124(a–f), P.130 hoặc P.131(a–c) để chỉ hướng tác dụng song song với chiều đi; Hình F.3b minh họa mũi tên dọc hướng lên."
+      },
+      "section_or_figure": "Phụ lục F.3(a–d), Hình F.3a–F.3b",
+      "pdf_pages": [151, 152],
+      "legal_basis_by_code": {
+        "S.503a": [{"section_or_figure": "Phụ lục F.3(a), Hình F.3a", "verification_status": "verified"}],
+        "S.503b": [{"section_or_figure": "Phụ lục F.3(a–b), Hình F.3a", "verification_status": "verified"}],
+        "S.503c": [{"section_or_figure": "Phụ lục F.3(a), Hình F.3a", "verification_status": "verified"}],
+        "S.503d": [{"section_or_figure": "Phụ lục F.3(c), Hình F.3b", "verification_status": "verified"}],
+        "S.503e": [{"section_or_figure": "Phụ lục F.3(c–d), Hình F.3b", "verification_status": "verified"}],
+        "S.503f": [{"section_or_figure": "Phụ lục F.3(c), Hình F.3b", "verification_status": "verified"}]
+      },
+      "supplementary_sign_relationships": [{"relation_type": "directional_scope_for", "target_sign_families": ["P.124", "P.130", "P.131"], "variant_scope": {"S.503a-S.503c": ["prohibition", "command"], "S.503d-S.503f": ["P.124", "P.130", "P.131"]}, "basis": "Appendix F.3"}],
+      "source_excerpt": "Các biển số S.503 (a,b,c) đặt bên dưới các biển báo cấm, biển hiệu lệnh để chỉ hướng tác dụng của biển là hướng vuông góc với chiều đi. Biển số S.503b để chỉ đồng thời hai hướng tác dụng (trái và phải). Các biển số S.503 (d,e,f) đặt bên dưới P.124(a,b,c,d,e,f), P.130, P.131(a,b,c) để chỉ hướng tác dụng song song với chiều đi. Biển số S.503e để chỉ đồng thời hai hướng tác dụng (trước và sau) nơi đặt biển báo nhắc lại lệnh cấm dừng và cấm đỗ xe.",
+      "review_notes": "Official source PDF was checked directly on 2026-10-05 (SHA-256 recorded above), including the text on PDF page 151 and the actual arrow illustrations on PDF page 152. Variant-specific arrow depictions are transcribed from Figures F.3a/F.3b, not inferred from code suffixes. Team legal review is still required before using any item for an automatic permission/limit decision; the scene's main-sign link and road-relative orientation remain separate facts."
+    },
+    {
+      "family": "S.504",
+      "codes": ["S.504"],
+      "official_name": "Làn đường",
+      "sign_category": "supplementary",
+      "legal_meaning": "Đặt trên làn đường và dưới biển cấm/hiệu lệnh hoặc dưới đèn tín hiệu để chỉ làn đường chịu hiệu lực; khi kết hợp trên cùng một mặt biển, có thể chỉ cần vẽ mũi tên chỉ làn đường.",
+      "section_or_figure": "Phụ lục F.4, Hình F.4",
+      "pdf_pages": [152],
+      "supplementary_sign_relationships": [{"relation_type": "lane_scope_for", "target_categories": ["prohibition", "command", "traffic_signal"], "basis": "Appendix F.4"}],
+      "source_excerpt": "Biển số S.504 được đặt bên trên làn đường và dưới các biển báo cấm và biển hiệu lệnh hay bên dưới đèn tín hiệu để chỉ làn đường chịu hiệu lực ... (khi kết hợp trên cùng một mặt biển, chỉ cần vẽ mũi tên chỉ làn đường)."
+    },
+    {
+      "family": "S.505",
+      "codes": ["S.505a", "S.505b", "S.505c"],
+      "official_name": "Loại xe / tải trọng hạn chế qua cầu",
+      "official_names_by_code": {
+        "S.505a": "Loại xe",
+        "S.505b": "Loại xe hạn chế qua cầu",
+        "S.505c": "Tải trọng trục hạn chế qua cầu"
+      },
+      "visual_descriptions_by_code": {
+        "S.505b": "Hình F.6 vẽ ba dòng, mỗi dòng có một biểu tượng hình xe tải màu đen ở bên trái và một trị số trọng tải tính bằng tấn ở bên phải. Văn bản QCVN không đặt tên riêng cho ba biểu tượng/dòng này."
+      },
+      "review_notes_by_code": {
+        "S.505b": "QCVN nêu ngưỡng tương ứng với từng loại xe nhưng không định danh bằng chữ ba hình xe trong Hình F.6. table_row_index 1–3 chỉ là khóa nội bộ neo OCR vào vị trí từ trên xuống, không phải mã biển hoặc phân loại xe pháp lý. Chỉ kết luận khi có bằng chứng ghép đúng xe thực tế với đúng biểu tượng/dòng."
+      },
+      "sign_category": "supplementary",
+      "legal_meaning_by_code": {
+        "S.505a": "Đặt dưới biển cấm, hiệu lệnh hoặc chỉ dẫn để chỉ loại xe chịu hiệu lực của biển chính; hình xe được bố trí phù hợp.",
+        "S.505b": "Đặt dưới P.106a để chỉ các loại xe tải chịu hiệu lực và trọng tải toàn bộ xe cho phép tương ứng với mỗi loại xe; trị số không phụ thuộc số lượng trục. Quy chuẩn còn quy định vị trí lắp đặt và bảng hướng dẫn trong trường hợp cầu hư hỏng hoặc có tải trọng khai thác thấp.",
+        "S.505c": "Đặt dưới P.106a để chỉ tải trọng trục lớn nhất cho phép tương ứng với trục đơn, trục kép, trục ba. Khi đặt cùng S.505b dưới P.106, xe qua cầu phải thỏa mãn điều kiện của cả hai biển phụ."
+      },
+      "legal_basis_by_code": {
+        "S.505b": [{"section_or_figure": "Phụ lục F.6, Hình F.6", "verification_status": "verified"}],
+        "S.505c": [{"section_or_figure": "Phụ lục F.7(a–b), Hình F.7", "verification_status": "verified"}]
+      },
+      "section_or_figure": "Phụ lục F.5–F.7, Hình F.5–F.7",
+      "pdf_pages": [152, 153],
+      "supplementary_sign_relationships": [{"relation_type": "vehicle_or_axle_scope_for", "target_codes": ["P.106a"], "variant_scope": {"S.505a": ["prohibition", "command", "guidance"], "S.505b": ["P.106a"], "S.505c": ["P.106a"]}, "joint_conditions": {"S.505b+S.505c": "Cả hai điều kiện phải được thỏa mãn khi hai biển được đặt cùng nhau."}, "basis": "Appendix F.5–F.7"}],
+      "source_excerpt": "S.505a chỉ loại xe chịu hiệu lực của biển chính. S.505b chỉ loại xe tải và trọng tải toàn bộ xe cho phép. S.505c chỉ tải trọng trục lớn nhất cho phép; khi kết hợp S.505b và S.505c, xe qua cầu phải thỏa mãn điều kiện của cả hai biển."
+    },
+    {
+      "family": "S.506",
+      "codes": ["S.506a", "S.506b"],
+      "official_name": "Hướng đường ưu tiên",
+      "sign_category": "supplementary",
+      "legal_meaning_by_code": {
+        "S.506a": "Đặt dưới I.401 trên đường ưu tiên để chỉ hướng đường ưu tiên ở ngã tư cho người tham gia giao thông trên đường đó.",
+        "S.506b": "Đặt dưới W.208 hoặc R.122 trên đường không ưu tiên để chỉ hướng đường ưu tiên ở ngã tư cho người tham gia giao thông trên đường đó."
+      },
+      "section_or_figure": "Phụ lục F.8, Hình F.8",
+      "pdf_pages": [153],
+      "supplementary_sign_relationships": [{"relation_type": "priority_road_direction_for", "target_codes": ["I.401", "W.208", "R.122"], "variant_scope": {"S.506a": ["I.401"], "S.506b": ["W.208", "R.122"]}, "basis": "Appendix F.8"}],
+      "source_excerpt": "S.506a ... bên dưới ... I.401 trên đường ưu tiên ... hướng đường ưu tiên ở ngã tư. S.506b ... bên dưới W.208 và R.122 trên đường không ưu tiên ... hướng đường ưu tiên ở ngã tư."
+    },
+    {
+      "family": "S.507",
+      "codes": ["S.507"],
+      "official_name": "Hướng rẽ",
+      "sign_category": "supplementary",
+      "legal_meaning": "Được sử dụng độc lập để báo trước chỗ rẽ nguy hiểm và chỉ hướng rẽ khi người tham gia giao thông khó nhận biết hướng rẽ; có thể đặt hai biển ngược chiều nhau để chỉ hướng rẽ trái và phải. Biển không thay thế biển cảnh báo W.201(a,b) và W.202(a,b,c).",
+      "section_or_figure": "Phụ lục F.9, Hình F.9",
+      "pdf_pages": [154],
+      "supplementary_sign_relationships": [{"relation_type": "standalone_sign", "target_codes": [], "basis": "Appendix F.9; text states S.507 is used independently"}],
+      "source_excerpt": "Biển số S.507 được sử dụng độc lập để báo trước ... chỗ rẽ nguy hiểm và để chỉ hướng rẽ ... Biển không thay thế ... W.201 (a,b) và W.202 (a,b,c)."
+    },
+    {
+      "family": "S.508",
+      "codes": ["S.508a", "S.508b"],
+      "official_name": "Biểu thị thời gian",
+      "sign_category": "supplementary",
+      "legal_meaning": "Đặt dưới biển cấm hoặc hiệu lệnh để quy định phạm vi thời gian hiệu lực; thời gian có thể là khoảng giờ trong ngày, ngày chẵn/lẻ, thứ trong tuần hoặc khoảng thời lượng ghi trên biển.",
+      "section_or_figure": "Phụ lục F.10, Hình F.10",
+      "pdf_pages": [154],
+      "supplementary_sign_relationships": [{"relation_type": "time_scope_for", "target_categories": ["prohibition", "command"], "basis": "Appendix F.10"}],
+      "source_excerpt": "S.508 (a,b) được đặt dưới biển báo cấm hoặc biển hiệu lệnh nhằm quy định phạm vi thời gian hiệu lực ... có thể là khoảng thời gian trong ngày, ngày chẵn/lẻ, thứ trong tuần hoặc một khoảng thời gian nhất định."
+    },
+    {
+      "family": "S.509",
+      "codes": ["S.509a", "S.509b"],
+      "official_name": "Thuyết minh biển chính",
+      "official_names_by_code": {
+        "S.509a": "Chiều cao an toàn",
+        "S.509b": "Cấm đỗ xe"
+      },
+      "sign_category": "supplementary",
+      "legal_meaning_by_code": {
+        "S.509a": "Có thể đặt dưới W.239 để chỉ chiều cao an toàn cho phương tiện đi qua.",
+        "S.509b": "Khi cần thiết, có thể đặt dưới P.130 hoặc P.131(a,b,c) để làm rõ thông tin."
+      },
+      "section_or_figure": "Phụ lục F.11, Hình F.11",
+      "pdf_pages": [154, 155],
+      "supplementary_sign_relationships": [{"relation_type": "explains_primary_sign", "target_codes": ["W.239", "P.130", "P.131a", "P.131b", "P.131c"], "variant_scope": {"S.509a": ["W.239"], "S.509b": ["P.130", "P.131a", "P.131b", "P.131c"]}, "basis": "Appendix F.11"}],
+      "source_excerpt": "Để bổ sung cho W.239, có thể đặt S.509a 'Chiều cao an toàn' ... chỉ rõ chiều cao cho phương tiện đi qua an toàn. Khi cần thiết, có thể đặt S.509b 'Cấm đỗ xe' bên dưới P.130, P.131(a,b,c)."
+    },
+    {
+      "family": "S.510",
+      "codes": ["S.510a", "S.510b"],
+      "official_name": "Biển chỉ dẫn chú ý",
+      "official_names_by_code": {
+        "S.510a": "Chú ý đường trơn có băng tuyết",
+        "S.510b": "Chú ý đường sắt"
+      },
+      "sign_category": "supplementary",
+      "legal_meaning_by_code": {
+        "S.510a": "Dùng để cảnh báo đường trơn có tuyết trong những ngày trời có tuyết.",
+        "S.510b": "Dùng để cảnh báo khi rẽ vào đường nhánh sẽ giao cắt với đường sắt; quy chuẩn nêu khoảng cách giữa đường sắt và đoạn đường đặt biển dưới 100 m."
+      },
+      "section_or_figure": "Phụ lục F.12, Hình F.12",
+      "pdf_pages": [155],
+      "supplementary_sign_relationships": [{"relation_type": "standalone_warning_or_advisory", "target_codes": [], "basis": "Appendix F.12"}],
+      "source_excerpt": "S.510a cảnh báo đường trơn có tuyết trong những ngày trời có tuyết. S.510b cảnh báo khi rẽ vào đường nhánh có giao cắt đường sắt, với khoảng cách ... dưới 100 m."
+    }
+  ]
+}

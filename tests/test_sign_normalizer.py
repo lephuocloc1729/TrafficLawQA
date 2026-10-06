@@ -70,6 +70,17 @@ class SignObservationNormalizerTest(unittest.TestCase):
         self.assertEqual([item.sign_code for item in observations], ["P.123a", "P.123b"])
         self.assertEqual([item.observation_id for item in observations], ["crop-a.jpg", "crop-b.jpg"])
 
+    def test_explicit_visual_attributes_are_preserved_for_rule_facts(self) -> None:
+        observation = normalize_payload_to_observation({
+            "sign_code": "P.115",
+            "visual_attributes": {
+                "normalized_conditions": {"total_weight_limit_t": 10},
+                "measurement_confidence": "high",
+            },
+        })
+        self.assertEqual(observation.visual_attributes["normalized_conditions"]["total_weight_limit_t"], 10)
+        self.assertEqual(observation.visual_attributes["measurement_confidence"], "high")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -220,6 +220,7 @@ def render_debug(result: dict[str, Any]) -> None:
         "traffic_facts": result.get("traffic_facts"),
         "intent_evaluations": result.get("intent_evaluations"),
         "rule_evaluations": result.get("rule_evaluations"),
+        "sign_meaning_evaluations": result.get("sign_meaning_evaluations"),
         "reasoning_trace": result.get("reasoning_trace"),
         "detected_signs": result.get("detected_signs"),
         "answer_prompt_parts": result.get("answer_prompt_parts"),

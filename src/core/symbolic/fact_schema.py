@@ -96,10 +96,25 @@ class TrafficFacts(SerializableMixin):
     context_facts: list[ContextFact] = field(default_factory=list)
     sign_relations: list[SignRelation] = field(default_factory=list)
     unresolved_items: list[str] = field(default_factory=list)
+    sign_inventory_status: str = "unknown"
+    sign_inventory_evidence: list[dict[str, Any]] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         self.schema_version = str(self.schema_version or "1.0").strip()
         self.scene_id = str(self.scene_id or "scene-unknown").strip()
+        self.sign_inventory_status = str(self.sign_inventory_status or "unknown").strip().lower()
+        if self.sign_inventory_status not in {"complete", "partial", "unknown"}:
+            self.sign_inventory_status = "unknown"
+        self.sign_inventory_evidence = [
+            item for item in self.sign_inventory_evidence if isinstance(item, dict)
+        ]
+        has_inventory_provenance = any(
+            str(item.get("source") or "").strip() and item.get("evidence")
+            for item in self.sign_inventory_evidence
+        )
+        if self.sign_inventory_status == "complete" and not has_inventory_provenance:
+            self.sign_inventory_status = "unknown"
+            self.unresolved_items.append("sign_inventory_complete_without_evidence")
         self.sign_observations = [
             item if isinstance(item, SignObservation) else SignObservation(**item)
             for item in self.sign_observations

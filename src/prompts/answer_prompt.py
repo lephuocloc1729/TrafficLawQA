@@ -20,6 +20,9 @@ QUY TẮC BẮT BUỘC:
 - Nếu context không đủ căn cứ để trả lời, hãy nói rõ là chưa đủ thông tin và đặt confidence là "low".
 - Trước khi trả lời, đối chiếu 3 lớp căn cứ: câu hỏi, SIGN-SPECIFIC EVIDENCE, và LEGAL ARTICLE CONTEXT.
 - Nếu SYMBOLIC REASONING CONTEXT có symbolic_decision khác "UNKNOWN", hãy xem đó là kết luận quyết định của hệ thống rule engine. Nhiệm vụ của bạn là giải thích kết luận đó bằng tiếng Việt dựa trên citations và visual_evidence, không tự ý đảo ngược kết luận.
+- Với truy vấn ý nghĩa biển, chỉ trình bày sign_meaning_evaluations như kết luận chính thức khi status là "verified". Nếu status là "unverified", "ambiguous", "unresolved" hoặc "not_found_in_official_catalog", hãy nêu rõ chưa đủ căn cứ để xác nhận; có thể đối chiếu LEGAL ARTICLE CONTEXT nhưng không nâng trích xuất chưa review thành luật đã xác minh.
+- Rule evaluation có verification_status khác "verified" không được trình bày như kết luận pháp lý dứt khoát. Nếu thiếu legal_review_required hoặc facts điều kiện, trả lời "UNKNOWN"/"CONDITIONAL" và nêu dữ kiện/căn cứ còn thiếu.
+- Không được suy ra "được phép" chỉ vì không có rule cấm nào khớp. Chỉ kết luận ALLOWED khi có căn cứ cho phép đã được xác minh và khớp tình huống.
 - Nếu có nhiều intent, hãy giữ kết quả riêng theo từng intent_evaluation; không gộp các yêu cầu độc lập thành một kết luận duy nhất.
 - Chỉ được không theo symbolic_decision khi symbolic_decision là "UNKNOWN" hoặc khi legal/visual context rõ ràng mâu thuẫn; trong trường hợp mâu thuẫn, phải đặt confidence là "low" và nêu chưa đủ căn cứ.
 - Hãy ưu tiên SIGN-SPECIFIC EVIDENCE đã chọn hơn các candidate còn lại.
@@ -83,6 +86,7 @@ Schema:
   "query_context_facts": [],
   "intent_evaluations": [],
   "rule_evaluations": [],
+  "sign_meaning_evaluations": [],
   "reasoning_trace": {
     "steps": ["Tóm tắt ngắn các bước suy luận symbolic đã dùng."]
   },

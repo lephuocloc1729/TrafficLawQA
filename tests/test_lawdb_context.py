@@ -268,3 +268,38 @@ def test_citations_are_whitelisted_to_context_articles():
 
     assert [(citation["law_id"], citation["article_id"])
             for citation in result["citations"]] == [(LAW_ID, "B.10")]
+
+
+def test_llm_cannot_promote_unknown_sign_permission_to_allowed():
+    symbolic_context = {
+        "query_intent": {"intents": [{"kind": "CHECK_PERMISSION", "target": {"kind": "scene"}}]},
+        "facts": {"sign_observations": [{"sign_code": None, "identity_status": "ambiguous"}]},
+        "symbolic_decision": {
+            "decision": "UNKNOWN",
+            "conclusion": "Chưa có rule đã được rà soát cho phạm vi này.",
+        },
+    }
+    result = normalize_freeform_response(
+        '{"answer":"Được phép.","confidence":"high"}',
+        [{"law_id": LAW_ID, "article_id": "B.10", "title": "Điều B.10", "text": "text"}],
+        [],
+        symbolic_context,
+    )
+
+    assert "UNKNOWN" in result["freeform_answer"]
+    assert "Được phép" not in result["freeform_answer"]
+    assert result["confidence"] == "low"
+    assert result["citations"] == []
+
+
+def test_old_pipeline_is_not_overridden_for_non_sign_intents():
+    symbolic_context = {
+        "query_intent": {"intents": [{"kind": "GENERAL_LEGAL_QA"}]},
+        "facts": {"sign_observations": []},
+        "symbolic_decision": {"decision": "UNKNOWN"},
+    }
+    result = normalize_freeform_response(
+        '{"answer":"Câu trả lời cũ.","confidence":"medium"}', [], [], symbolic_context,
+    )
+
+    assert result["freeform_answer"] == "Câu trả lời cũ."

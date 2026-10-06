@@ -6,8 +6,10 @@ from src.core.symbolic.fact_schema import SignObservation, TrafficFacts
 from src.core.symbolic.intent_schema import IntentParseResult, QueryIntent
 from src.core.symbolic.question_intent import parse_query_intent
 from src.core.symbolic.rule_schema import IntentEvaluation, RuleEvaluation, TrafficRule
+from src.core.symbolic.sign_catalog import SignMeaningEvaluation, load_default_sign_catalog
 from src.core.symbolic.sign_schema import ReasoningTrace, SymbolicDecision
 from src.core.symbolic.traffic_rules import TRAFFIC_RULES, find_matching_rules
+from src.core.symbolic.sign_catalog import normalize_official_sign_code
 
 
 def _coerce_facts(facts: TrafficFacts | Iterable[SignObservation | dict[str, Any]]) -> TrafficFacts:
@@ -39,7 +41,17 @@ def _evaluate_intent(intent_id: str, evaluations: list[RuleEvaluation]) -> Inten
         return IntentEvaluation(intent_id, "UNKNOWN", [], ["no_matching_rule"], "Không tìm thấy rule phù hợp với dữ kiện đã xác minh.")
     decisions = {item.decision for item in relevant}
     missing = sorted({field for item in relevant for field in item.missing_facts})
-    if "PROHIBITED" in decisions and "ALLOWED" in decisions:
+    has_unresolved = any(item.status == "unresolved" for item in relevant)
+    has_decisive = bool(decisions.intersection({"ALLOWED", "PROHIBITED"}))
+    if has_unresolved and has_decisive:
+        decision = "CONDITIONAL"
+        reason = "Có rule cho một phần dữ kiện nhưng còn biển hoặc phạm vi áp dụng chưa được xử lý; chưa thể kết luận tổng thể."
+        missing.append("unresolved_sign_rule_coverage_or_facts")
+    elif "CONDITIONAL" in decisions:
+        decision = "CONDITIONAL"
+        reason = next(item.reason for item in relevant if item.decision == decision)
+        missing.append("unresolved_applicability_conditions")
+    elif "PROHIBITED" in decisions and "ALLOWED" in decisions:
         decision = "CONDITIONAL"
         reason = "Các rule phù hợp đưa ra kết quả đối nghịch; cần kiểm tra phạm vi hoặc biển phụ."
         missing.append("conflicting_rule_outcomes")
@@ -58,9 +70,108 @@ def _evaluate_intent(intent_id: str, evaluations: list[RuleEvaluation]) -> Inten
     return IntentEvaluation(intent_id, decision, relevant, missing, reason)
 
 
+def _add_sign_rule_coverage_gaps(
+    facts: TrafficFacts,
+    query: QueryIntent,
+    evaluations: list[RuleEvaluation],
+    rules: tuple[TrafficRule, ...],
+) -> list[RuleEvaluation]:
+    """Expose identified signs that have no applicable rule record for this intent.
+
+    A rule for some other sign in the same scene must not hide a coverage gap.
+    These records are diagnostic UNKNOWNs, never inferred legal effects.
+    """
+    if query.kind not in {"CHECK_PERMISSION", "ASK_CONDITION"}:
+        return evaluations
+
+    observations = facts.sign_observations
+    if query.target.kind == "sign_observation" and query.target.observation_ids:
+        wanted = set(query.target.observation_ids)
+        observations = [item for item in observations if item.observation_id in wanted]
+    elif query.target.kind == "sign_code" and query.target.sign_codes:
+        wanted = {normalize_official_sign_code(code) for code in query.target.sign_codes}
+        observations = [
+            item for item in observations
+            if normalize_official_sign_code(item.sign_code) in wanted
+            or any(normalize_official_sign_code(candidate.get("sign_code")) in wanted
+                   for candidate in item.candidates)
+        ]
+
+    result = list(evaluations)
+    for observation in observations:
+        code = normalize_official_sign_code(observation.sign_code)
+        explicitly_targeted = (
+            query.target.kind == "sign_observation"
+            and observation.observation_id in query.target.observation_ids
+        ) or (
+            query.target.kind == "sign_code"
+            and code in {normalize_official_sign_code(item) for item in query.target.sign_codes}
+        )
+        # Most supplementary signs modify a main sign rather than carrying an
+        # independent permission rule. Their scope is checked against the
+        # linked primary-sign rule in traffic_rules; adding a second generic
+        # coverage gap here would keep a correctly modeled main-sign result
+        # conditional forever. Preserve a gap when the user explicitly asks
+        # about that panel, and for S.507 which QCVN allows to be standalone.
+        if (
+            (observation.role == "supplementary" or code.startswith("S."))
+            and not explicitly_targeted
+            and code != "S.507"
+        ):
+            continue
+        already_evaluated = any(
+            item.intent_id == query.intent_id
+            and observation.observation_id in item.observation_ids
+            for item in result
+        )
+        if already_evaluated:
+            continue
+
+        catalog = load_default_sign_catalog()
+        entry = catalog.lookup(code) if code else None
+        if observation.identity_status != "identified" or not code:
+            missing = ["canonical_sign_identity"]
+            if observation.candidates:
+                missing.append("candidate_sign_rule_coverage")
+            reason = "Biển chưa được nhận diện chắc chắn nên chưa thể chọn rule."
+        else:
+            sign_has_rule = any(
+                code in {normalize_official_sign_code(item) for item in rule.trigger_sign_codes}
+                for rule in rules
+            )
+            missing = [
+                f"sign_rule_coverage:{code}" if not sign_has_rule
+                else f"intent_action_scope_coverage:{code}"
+            ]
+            if entry is None:
+                missing.append("official_sign_catalog_entry")
+            reason = f"Chưa có rule đã áp dụng cho biển {code} trong câu hỏi này."
+
+        result.append(RuleEvaluation(
+            rule_id=f"COVERAGE_GAP_{observation.observation_id}",
+            intent_id=query.intent_id,
+            observation_ids=[observation.observation_id],
+            decision="UNKNOWN",
+            status="unresolved",
+            missing_facts=missing,
+            legal_basis=list(entry.legal_basis) if entry else [],
+            reason=reason,
+            confidence="low",
+            trace=[{
+                "step": "sign_rule_coverage",
+                "sign_code": code or None,
+                "catalog_status": entry.status if entry else "not_found",
+                "state": "gap",
+            }],
+            verification_status="unverified",
+        ))
+    return result
+
+
 def build_symbolic_decision(
     intent_evaluations: list[IntentEvaluation],
     rule_evaluations: list[RuleEvaluation],
+    sign_meaning_evaluations: list[SignMeaningEvaluation] | None = None,
 ) -> SymbolicDecision:
     if not intent_evaluations:
         return SymbolicDecision(decision="UNKNOWN", conclusion="Không có intent để đánh giá.")
@@ -115,6 +226,7 @@ def build_symbolic_decision(
         confidence=confidence,
         reason="; ".join(dict.fromkeys(result.reason for result in intent_evaluations if result.reason)),
         metadata={"unresolved_items": unresolved},
+        sign_meaning_evaluations=[item.__dict__ for item in (sign_meaning_evaluations or [])],
     )
 
 
@@ -132,11 +244,29 @@ def reason_over_facts(
         query.context_facts,
         rules=rule_list,
     )
+    for intent in query.query_intent.intents:
+        evaluations = _add_sign_rule_coverage_gaps(
+            fact_set, intent, evaluations, rule_list,
+        )
+    catalog = load_default_sign_catalog()
+    meaning_evaluations = [
+        result
+        for intent_item in query.query_intent.intents
+        for result in catalog.evaluate_meaning(fact_set, intent_item)
+    ]
     intent_results = [
-        _evaluate_intent(intent.intent_id, evaluations)
+        (
+            IntentEvaluation(
+                intent_id=intent.intent_id,
+                decision="UNKNOWN",
+                reason="Ý nghĩa biển được tra từ catalog nguồn chính thức; xem sign_meaning_evaluations.",
+            )
+            if intent.kind in {"QUERY_SIGN_MEANING", "IDENTIFY_SIGN"}
+            else _evaluate_intent(intent.intent_id, evaluations)
+        )
         for intent in query.query_intent.intents
     ]
-    decision = build_symbolic_decision(intent_results, evaluations)
+    decision = build_symbolic_decision(intent_results, evaluations, meaning_evaluations)
     trace = ReasoningTrace(
         facts=fact_set.to_dict(),
         query_intent=query.query_intent.to_dict(),
@@ -144,6 +274,7 @@ def reason_over_facts(
         rule_evaluations=[item.to_dict() for item in evaluations],
         intent_evaluations=[item.to_dict() for item in intent_results],
         decision=decision,
+        sign_meaning_evaluations=[item.__dict__ for item in meaning_evaluations],
     )
     trace.add_step(
         "normalize_inputs",
@@ -197,6 +328,7 @@ def build_symbolic_reasoning_context(
         "query_context_facts": [item.to_dict() for item in query.context_facts],
         "intent_evaluations": decision.intent_evaluations,
         "rule_evaluations": decision.rule_evaluations,
+        "sign_meaning_evaluations": decision.sign_meaning_evaluations,
         "rules_fired": decision.rules_fired,
         "symbolic_decision": decision.to_dict(),
         "reasoning_trace": trace.to_dict(),

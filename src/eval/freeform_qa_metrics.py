@@ -135,6 +135,7 @@ def json_validity(result: dict[str, Any]) -> dict[str, float]:
             "confidence",
             "symbolic_decision",
             "rules_fired",
+            "sign_meaning_evaluations",
             "traffic_facts",
             "query_intent",
             "query_context_facts",

@@ -114,6 +114,13 @@ def normalize_payload_to_observation(
 
     name = str(payload.get("sign_name") or payload.get("name") or "").strip()
     description = str(payload.get("sign_description") or payload.get("description") or "").strip()
+    visual_attributes = payload.get("visual_attributes")
+    visual_attributes = dict(visual_attributes) if isinstance(visual_attributes, dict) else {}
+    top_level_conditions = payload.get("normalized_conditions")
+    if isinstance(top_level_conditions, dict) and "normalized_conditions" not in visual_attributes:
+        visual_attributes["normalized_conditions"] = dict(top_level_conditions)
+    visual_attributes.setdefault("name", name or None)
+    visual_attributes.setdefault("description", description or None)
     ocr = payload.get("ocr_texts", payload.get("ocr_text"))
     if isinstance(ocr, str):
         ocr_texts = [{"raw_text": ocr, "source": "ocr"}]
@@ -135,7 +142,7 @@ def normalize_payload_to_observation(
         sign_code=sign_code or None,
         identity_status=identity_status,
         candidates=candidates,
-        visual_attributes={"name": name or None, "description": description or None},
+        visual_attributes=visual_attributes,
         ocr_texts=ocr_texts,
         legal_refs=_article_refs(payload),
         evidence=evidence,

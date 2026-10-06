@@ -1,0 +1,65 @@
+{
+  "document": "QCVN 41:2024/BGTVT",
+  "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+  "accessed_at": "2026-10-05",
+  "purpose": "Preserve suspicious extracted code candidates outside the canonical legal sign catalog until team review.",
+  "items": [
+    {
+      "candidate_code": "P.133",
+      "candidate_name": "Hết cấm vượt",
+      "source_pdf_pages": [
+        88
+      ],
+      "extracted_context": "Biển hết hiệu lực cấm khi có biển số P.133 \"Hết cấm vượt\" hoặc đến vị trí đặt biển số P.135 \"Hết tất cả các lệnh cấm\".",
+      "official_cross_check": "The official PDF itself says P.133 in a B.26 end-effect cross-reference on PDF page 88, while the formal sign heading and figure in B.33 identify DP.133 on PDF page 95. This is an internal code conflict in the published text, not merely an OCR issue.",
+      "disposition": "excluded_from_canonical_catalog_as_no_distinct_P_sign_definition;retain_as_source_conflict_pending_team_review",
+      "status": "confirmed_official_text_code_conflict"
+    },
+    {
+      "candidate_code": "P.134",
+      "candidate_name": "Hết hạn chế tốc độ tối đa",
+      "source_pdf_pages": [
+        145
+      ],
+      "extracted_context": "Khi cần thiết có thể đặt thêm biển P.127 ... và biển số P.134 \"Hết hạn chế tốc độ tối đa\" khi kết thúc đoạn đường thi công.",
+      "official_cross_check": "The official PDF itself refers to P.134 in Appendix E.44 on PDF page 145, while the formal sign heading and figure in B.34 identify DP.134 on PDF page 95. This is an internal code conflict in the published text, not merely an OCR issue.",
+      "disposition": "excluded_from_canonical_catalog_as_no_distinct_P_sign_definition;retain_as_source_conflict_pending_team_review",
+      "status": "confirmed_official_text_code_conflict"
+    },
+    {
+      "candidate_code": "P.135",
+      "candidate_name": "Hết tất cả các lệnh cấm",
+      "source_pdf_pages": [
+        87,
+        88
+      ],
+      "extracted_context": "References to \"Hết tất cả các lệnh cấm\" adjacent to the P.121 and P.125 sections were extracted as P.135.",
+      "official_cross_check": "The official PDF refers to P.135 in B.22 on PDF page 87 and B.26 on page 88, while the formal sign heading and figure in B.35 identify DP.135 on PDF page 95. This is an internal code conflict in the published text, not merely an OCR issue.",
+      "disposition": "excluded_from_canonical_catalog_as_no_distinct_P_sign_definition;retain_as_source_conflict_pending_team_review",
+      "status": "confirmed_official_text_code_conflict"
+    },
+    {
+      "candidate_code": "I.453c",
+      "candidate_name": "Hết đường cao tốc",
+      "source_pdf_pages": [
+        47
+      ],
+      "extracted_context": "Hình 10b subcaption labels the sign I.453c; §47.4.2 and the figure caption label it IE.453c.",
+      "official_cross_check": "The official PDF has an internal code conflict: the operative §47.4.2 text and Hình 10b caption use IE.453c, while the subfigure label uses I.453c. The catalog keeps IE.453c and preserves I.453c as a conflicting printed label, not a separate canonical sign.",
+      "disposition": "excluded_from_canonical_catalog_as_conflicting_figure_sublabel;retain_as_source_conflict_pending_team_review",
+      "status": "confirmed_official_text_code_conflict"
+    },
+    {
+      "candidate_code": "R.413i–R.413o",
+      "candidate_name": "Kết thúc làn đường dành riêng cho từng loại xe hoặc nhóm xe",
+      "source_pdf_pages": [
+        125,
+        126
+      ],
+      "extracted_context": "Appendix D.15 prose defines R.413i–R.413o; figure subcaptions a–g label the same variants R.412i–R.412o. Figure D.17 caption is R.413; subcaption h is R.413p.",
+      "official_cross_check": "This is an internal code conflict in the published QCVN. Catalog entries retain the explicit D.15 prose codes and meanings as unreviewed candidates; no rule may use them until team review resolves the mismatch.",
+      "disposition": "retain_prose_defined_R413_variants_as_unreviewed_candidates;block_automatic_decision_pending_team_review",
+      "status": "confirmed_official_text_code_conflict"
+    }
+  ]
+}

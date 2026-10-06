@@ -223,6 +223,50 @@ def normalize_freeform_response(
         answer = "Chưa đủ thông tin trong context được cung cấp để trả lời chắc chắn."
         confidence = "low"
 
+    # Do not let the free-form model turn an uncovered or incomplete sign rule
+    # into a permission claim. For sign permission/condition intents, the
+    # symbolic outcome is the authority; the LLM may explain it, but it cannot
+    # promote UNKNOWN/CONDITIONAL to ALLOWED (or PROHIBITED).
+    query_intent = symbolic_context.get("query_intent", {})
+    intents = query_intent.get("intents", []) if isinstance(query_intent, dict) else []
+    sign_permission_intent = any(
+        isinstance(item, dict)
+        and str(item.get("kind") or "").upper() in {"CHECK_PERMISSION", "ASK_CONDITION"}
+        for item in intents
+    )
+    traffic_facts = symbolic_context.get("facts", {})
+    observations = traffic_facts.get("sign_observations", []) if isinstance(traffic_facts, dict) else []
+    # An ambiguous/unidentified observation is still a sign-focused request;
+    # it must not fall through to a free-form permission inference.
+    target_has_sign = isinstance(observations, list) and bool(observations)
+    if not target_has_sign:
+        for item in intents:
+            target = item.get("target") if isinstance(item, dict) else None
+            if isinstance(target, dict) and (
+                target.get("sign_codes") or target.get("kind") == "sign_observation"
+            ):
+                target_has_sign = True
+                break
+    symbolic_decision = symbolic_context.get("symbolic_decision", {})
+    outcome = (
+        str(symbolic_decision.get("decision") or "UNKNOWN").upper()
+        if isinstance(symbolic_decision, dict)
+        else "UNKNOWN"
+    )
+    if sign_permission_intent and target_has_sign and outcome in {"UNKNOWN", "CONDITIONAL"}:
+        conclusion = (
+            str(symbolic_decision.get("conclusion") or symbolic_decision.get("reason") or "").strip()
+            if isinstance(symbolic_decision, dict)
+            else ""
+        )
+        answer = (
+            f"Chưa thể kết luận được phép hay bị cấm (kết quả {outcome})."
+            + (f" {conclusion}" if conclusion else "")
+        )
+        reasoning = "Kết quả được giữ ở trạng thái fail-closed từ rule engine; câu trả lời tự do không được nâng thành kết luận pháp lý."
+        citations = []
+        confidence = "low"
+
     return {
         "freeform_answer": answer,
         "citations": citations,
@@ -237,6 +281,7 @@ def normalize_freeform_response(
         "query_context_facts": symbolic_context.get("query_context_facts", []),
         "intent_evaluations": symbolic_context.get("intent_evaluations", []),
         "rule_evaluations": symbolic_context.get("rule_evaluations", []),
+        "sign_meaning_evaluations": symbolic_context.get("sign_meaning_evaluations", []),
         "reasoning_trace": symbolic_context.get("reasoning_trace", {}),
     }
 
@@ -753,6 +798,7 @@ def get_freeform_answer(
             "query_context_facts": [],
             "intent_evaluations": [],
             "rule_evaluations": [],
+            "sign_meaning_evaluations": [],
             "reasoning_trace": {},
         }
 
@@ -864,6 +910,7 @@ def main() -> None:
             "query_context_facts",
             "intent_evaluations",
             "rule_evaluations",
+            "sign_meaning_evaluations",
             "reasoning_trace",
         ):
             sample[field] = response[field]
@@ -896,6 +943,7 @@ def main() -> None:
                     "query_context_facts": sample.get("query_context_facts", []),
                     "intent_evaluations": sample.get("intent_evaluations", []),
                     "rule_evaluations": sample.get("rule_evaluations", []),
+                    "sign_meaning_evaluations": sample.get("sign_meaning_evaluations", []),
                     "reasoning_trace": sample.get("reasoning_trace", {}),
                 }
             )
