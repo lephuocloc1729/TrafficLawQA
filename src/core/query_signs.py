@@ -115,11 +115,15 @@ def query_relevant_signs(
     collection_name: str,
     limit: int = 1,
     set_name: str = "train",
+    unknown_only: bool = False,
 ) -> dict[str, Any]:
     payload_groups: list[list[dict[str, Any]]] = []
     for sign_info in sample.get("detected_signs", []):
         if not sign_info.get("is_chosen"):
             continue
+        if unknown_only and sign_info.get("identity_status") == "identified" and sign_info.get("sign_code"):
+            continue
+        sign_info["retrieval_attempted"] = True
 
         image_path = sign_dir / sign_info["image_name"]
         with Image.open(image_path) as source_image:
@@ -149,9 +153,16 @@ def query_relevant_signs(
             sign_info["sign_name"] = primary_payload.get("sign_name", "")
 
     articles = retrieved_article_references(payload_groups)
-    if not articles:
+    queried_any = any(
+        sign.get("is_chosen")
+        and not (unknown_only and sign.get("identity_status") == "identified" and sign.get("sign_code"))
+        for sign in sample.get("detected_signs", [])
+    )
+    if not articles and queried_any:
         articles = [fallback_article_reference()]
 
+    if not queried_any:
+        return sample
     if set_name == "train":
         sample["predicted_articles"] = articles
     elif set_name in {"public_test", "private_test"}:

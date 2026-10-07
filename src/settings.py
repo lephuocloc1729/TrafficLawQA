@@ -52,7 +52,12 @@ class ProjectSettings(ProjectBaseSettings):
 
     # Detection Model
     image_lawdb_detection_model: str = "ImageProcessing"
-    image_query_detection_model: str = "YoloE"
+    image_query_detection_model: str = "YoloV8m"
+    sign_model_path: str = str(
+        Path(__file__).resolve().parents[1] / "models" / "yolov8m_final.pt"
+    )
+    sign_detection_confidence_threshold: float = 0.25
+    enable_sign_retrieval_fallback: bool = False
 
     # LawDB directory
     lawdb_json_path: str = "data/law_db/vlsp2025_law_new.json"

@@ -117,10 +117,18 @@ def normalize_payload_to_observation(
     visual_attributes = payload.get("visual_attributes")
     visual_attributes = dict(visual_attributes) if isinstance(visual_attributes, dict) else {}
     top_level_conditions = payload.get("normalized_conditions")
-    if isinstance(top_level_conditions, dict) and "normalized_conditions" not in visual_attributes:
-        visual_attributes["normalized_conditions"] = dict(top_level_conditions)
+    if isinstance(top_level_conditions, dict):
+        visual_attributes.setdefault("normalized_conditions", dict(top_level_conditions))
+    class_attributes = payload.get("attributes")
+    if isinstance(class_attributes, dict):
+        visual_attributes["class_attributes"] = dict(class_attributes)
+        if "speed_limit_kmh" in class_attributes:
+            conditions = dict(visual_attributes.get("normalized_conditions") or {})
+            conditions.setdefault("speed_limit_value", class_attributes["speed_limit_kmh"])
+            visual_attributes["normalized_conditions"] = conditions
     visual_attributes.setdefault("name", name or None)
     visual_attributes.setdefault("description", description or None)
+    visual_attributes.setdefault("sign_family", payload.get("sign_family") or None)
     ocr = payload.get("ocr_texts", payload.get("ocr_text"))
     if isinstance(ocr, str):
         ocr_texts = [{"raw_text": ocr, "source": "ocr"}]
@@ -155,6 +163,9 @@ def normalize_payload_to_observation(
             "legal_conditions_unverified": payload.get("legal_conditions"),
             "variant_decision": payload.get("variant_decision"),
             "candidate_count": len(candidates),
+            "sign_family": payload.get("sign_family") or sign_family(sign_code),
+            "qcvn_mapping_status": payload.get("qcvn_mapping_status"),
+            "qcvn_section": payload.get("qcvn_section"),
         },
     )
 

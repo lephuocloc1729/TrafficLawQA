@@ -26,9 +26,9 @@ from src.core.sub_task_2 import get_freeform_answer, sanitize_prompt_parts
 @dataclass
 class FreeformQAResources:
     llm_client: LLMClient
-    embedder: Any
+    embedder: Any | None
     sign_extractor: SignExtractor
-    vector_store: QdrantVectorStore
+    vector_store: QdrantVectorStore | None
     article_lookup: LawDBArticleLookup
     device: str
 
@@ -40,12 +40,17 @@ def create_freeform_qa_resources(device: str | None = None) -> FreeformQAResourc
         api_keys=[api_key for api_key in settings.llm_api_keys.split(",")],
         model_id=settings.llm_model,
     )
-    embedder, _ = get_embedding_model(settings.embedding_name, device=device)
+    embedder = None
+    vector_store = None
+    if settings.enable_sign_retrieval_fallback:
+        embedder, _ = get_embedding_model(settings.embedding_name, device=device)
+        vector_store = QdrantVectorStore(uri=settings.qdrant_uri)
     sign_extractor = SignExtractor(
         detector=settings.image_query_detection_model,
         device=device,
+        model_path=settings.sign_model_path,
+        confidence_threshold=settings.sign_detection_confidence_threshold,
     )
-    vector_store = QdrantVectorStore(uri=settings.qdrant_uri)
     article_lookup = LawDBArticleLookup()
     return FreeformQAResources(
         llm_client=llm_client,
@@ -126,15 +131,21 @@ def answer_image_question(
     timings["filter_relevant_signs"] = round(time.perf_counter() - t0, 5)
 
     t0 = time.perf_counter()
-    sample = query_relevant_signs(
-        embedding_model=resources.embedder,
-        vector_store=resources.vector_store,
-        sample=sample,
-        sign_dir=sign_dir,
-        collection_name=settings.collection_name,
-        limit=settings.limit,
-        set_name="public_test",
-    )
+    if (
+        settings.enable_sign_retrieval_fallback
+        and resources.embedder is not None
+        and resources.vector_store is not None
+    ):
+        sample = query_relevant_signs(
+            embedding_model=resources.embedder,
+            vector_store=resources.vector_store,
+            sample=sample,
+            sign_dir=sign_dir,
+            collection_name=settings.collection_name,
+            limit=settings.limit,
+            set_name="public_test",
+            unknown_only=True,
+        )
     timings["retrieve_lawdb"] = round(time.perf_counter() - t0, 5)
 
     t0 = time.perf_counter()

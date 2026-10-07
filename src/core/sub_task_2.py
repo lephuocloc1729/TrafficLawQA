@@ -463,8 +463,8 @@ def disambiguate_sign_payloads(
 def collect_retrieved_context(
     sample: dict[str, Any],
     sign_dir: Path,
-    embedding_model: Callable,
-    vector_store: QdrantVectorStore,
+    embedding_model: Callable | None,
+    vector_store: QdrantVectorStore | None,
     collection_name: str,
     article_lookup: LawDBArticleLookup,
     llm_client: LLMClient | None = None,
@@ -495,7 +495,17 @@ def collect_retrieved_context(
             for payload in sign.get("retrieved_payloads", [])
             if isinstance(payload, dict)
         ]
-        if not sign_payloads:
+        can_query_fallback = (
+            not sign_payloads
+            and not sign.get("retrieval_attempted")
+            and settings.enable_sign_retrieval_fallback
+            and embedding_model is not None
+            and vector_store is not None
+            and not (
+                sign.get("identity_status") == "identified" and sign.get("sign_code")
+            )
+        )
+        if can_query_fallback:
             embedding = embedding_model.embed_image(sign_image)
             retrieved_results = vector_store.query(collection_name, embedding, top_k=limit)
             sign_payloads = [
@@ -503,14 +513,36 @@ def collect_retrieved_context(
                 for retrieved_result in retrieved_results
             ]
 
-        sign_payloads, variant_decision = disambiguate_sign_payloads(
-            llm_client=llm_client,
-            sample=sample,
-            sign_image=sign_image,
-            sign_payloads=sign_payloads,
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
+        if sign_payloads:
+            sign_payloads, variant_decision = disambiguate_sign_payloads(
+                llm_client=llm_client,
+                sample=sample,
+                sign_image=sign_image,
+                sign_payloads=sign_payloads,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+        else:
+            detector_confidence = float(sign.get("confidence") or 0.0)
+            variant_decision = {
+                "selected_index": None,
+                "confidence": (
+                    "high" if detector_confidence >= 0.8 else
+                    "medium" if detector_confidence >= 0.6 else "low"
+                ),
+                "reason": (
+                    "Canonical identity came directly from the YOLOv8m QCVN crosswalk."
+                    if sign.get("sign_code")
+                    else f"YOLOv8m mapped the sign to family {sign.get('sign_family')}; exact variant remains unresolved."
+                    if sign.get("sign_family")
+                    else "No retrieval fallback was run; sign identity remains unresolved."
+                ),
+                "method": (
+                    "yolov8m_qcvn_crosswalk"
+                    if sign.get("sign_code") or sign.get("sign_family")
+                    else "retrieval_disabled"
+                ),
+            }
         primary_payload = sign_payloads[0] if sign_payloads else {}
         sign["variant_decision"] = variant_decision
         if primary_payload:
@@ -541,10 +573,12 @@ def collect_retrieved_context(
             visual_evidence.append(evidence_item)
 
         sign["retrieved_payloads"] = sign_payloads
+        observation_source = "yolov8m" if sign.get("source") == "yolov8m" else "retrieval"
         sign_observation = normalize_detected_sign_to_observation(
             sign=sign,
             payloads=sign_payloads,
             visual_evidence=sign_visual_evidence,
+            source=observation_source,
         )
         sign["sign_observation"] = sign_observation.to_dict()
         traffic_sign_observations.append(sign["sign_observation"])
@@ -710,8 +744,8 @@ def get_freeform_answer(
     sample: dict[str, Any],
     image_dir: Path,
     sign_dir: Path,
-    embedding_model: Callable,
-    vector_store: QdrantVectorStore,
+    embedding_model: Callable | None,
+    vector_store: QdrantVectorStore | None,
     collection_name: str,
     article_lookup: LawDBArticleLookup,
     limit: int = 1,

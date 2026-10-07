@@ -6,6 +6,7 @@ class DetectionName(Enum):
     ImageProcessing = "ImageProcessing"
     YoloE = "YoloE"
     YoloESegment = "YoloESegment"
+    YoloV8m = "YoloV8m"
 
 
 class QuestionType(Enum):

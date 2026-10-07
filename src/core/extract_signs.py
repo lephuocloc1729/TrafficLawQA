@@ -15,14 +15,28 @@ def extract_signs(
     try:
         image_id = sample["image_id"]
         image_path = image_dir / f"{image_id}.jpg"
-        cropped_signs = sign_extractor.crop_signs(image_path=image_path)
-        for i, sign in enumerate(cropped_signs):
+        detections = sign_extractor.detect_and_crop(image_path=str(image_path))
+        for i, (sign, metadata) in enumerate(detections):
             sign = sign.convert("RGB")
             sign_name = f"{sample['image_id']}_crop{i}.jpg"
             sign.save(sign_dir / sign_name, format="JPEG")
-            sample["detected_signs"].append(
-                {"image_name": sign_name, "is_chosen": False}
+            detected = {"image_name": sign_name, "is_chosen": False, **metadata}
+            sign_code = detected.get("sign_code")
+            detected["identity_status"] = detected.get("identity_status") or (
+                "identified" if sign_code else "ambiguous"
             )
+            detected["candidates"] = detected.get("candidates") or (
+                [
+                    {
+                        "sign_code": sign_code,
+                        "confidence": detected.get("confidence"),
+                        "source": "yolov8m",
+                    }
+                ]
+                if sign_code
+                else []
+            )
+            sample["detected_signs"].append(detected)
     except Exception as e:
         logger.error(f"Error extracting signs: {e}")
         return sample

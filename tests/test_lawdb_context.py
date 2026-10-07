@@ -149,6 +149,46 @@ def test_no_retrieval_result_uses_only_documented_fallback(tmp_path):
     ]
 
 
+def test_unknown_only_retrieval_skips_canonical_yolo_detection(tmp_path):
+    image_path = tmp_path / "crop.jpg"
+    Image.new("RGB", (4, 4), color="white").save(image_path)
+
+    class Embedder:
+        called = False
+
+        def embed_image(self, image):
+            self.called = True
+            return [0.0]
+
+    class VectorStore:
+        def query(self, *args, **kwargs):
+            raise AssertionError("known YOLO signs must bypass retrieval")
+
+    embedder = Embedder()
+    sample = {
+        "detected_signs": [
+            {
+                "image_name": image_path.name,
+                "is_chosen": True,
+                "identity_status": "identified",
+                "sign_code": "P.131b",
+            }
+        ]
+    }
+    result = query_relevant_signs(
+        sample=sample,
+        sign_dir=tmp_path,
+        embedding_model=embedder,
+        vector_store=VectorStore(),
+        collection_name="test",
+        set_name="train",
+        unknown_only=True,
+    )
+
+    assert embedder.called is False
+    assert "predicted_articles" not in result
+
+
 def test_missing_lawdb_article_is_excluded_from_context():
     contexts = build_article_contexts(
         [payload("missing", "P.999")],
