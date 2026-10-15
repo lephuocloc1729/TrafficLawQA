@@ -10,6 +10,7 @@ from src.core.symbolic.question_intent import (
     normalize_question_text,
     parse_query_intent,
     parse_query_intent_deterministic,
+    VALID_VEHICLES,
 )
 
 
@@ -24,12 +25,85 @@ class FakeLLMClient:
 
 
 class QueryIntentTest(unittest.TestCase):
+    def test_compact_intent_output_matches_the_public_schema(self) -> None:
+        examples = [
+            (
+                "Xe máy có được rẽ trái ở đây không?",
+                {"kind": "CHECK_PERMISSION", "action": "turn_left", "actor": "motorcycle_or_moped", "target": "scene"},
+            ),
+            (
+                "Biển báo trong ảnh này có ý nghĩa gì?",
+                {"kind": "QUERY_SIGN", "target": "scene"},
+            ),
+            (
+                "Biển này cấm những phương tiện nào?",
+                {"kind": "INFORMATION", "information_type": "prohibited_subjects", "target": "scene"},
+            ),
+            (
+                "Đi sai làn thì mức phạt là bao nhiêu?",
+                {"kind": "PENALTY"},
+            ),
+            (
+                "Thủ đô Nhật Bản là thành phố nào?",
+                {"kind": "UNKNOWN"},
+            ),
+        ]
+        for question, expected_intent in examples:
+            with self.subTest(question=question):
+                payload = parse_query_intent_deterministic(question).to_dict()
+                self.assertEqual(payload["question"], question)
+                self.assertEqual(payload["intents"], [expected_intent])
+                self.assertNotIn("query_id", payload)
+                self.assertNotIn("parser", payload)
+
+    def test_llm_accepts_flat_action_actor_and_target_values(self) -> None:
+        client = FakeLLMClient(json.dumps({
+            "schema_version": "3.0",
+            "intents": [{
+                "kind": "CHECK_PERMISSION",
+                "action": "turn_left",
+                "actor": "motorcycle_or_moped",
+                "target": "scene",
+            }],
+            "confidence": "high",
+        }))
+        question = "Xe máy có được rẽ trái ở đây không?"
+        result = parse_query_intent(question, llm_client=client)
+        self.assertEqual(result.to_dict()["intents"], [{
+            "kind": "CHECK_PERMISSION", "action": "turn_left",
+            "actor": "motorcycle_or_moped", "target": "scene",
+        }])
+
+    def test_actor_schema_uses_common_vehicle_groups(self) -> None:
+        expected = {
+            "motorcycle", "moped", "motorcycle_or_moped", "automobile", "passenger_car", "bus", "truck",
+            "tractor_unit", "other_motor_vehicle", "non_motor_vehicle", "pedestrian", "unknown",
+        }
+        self.assertEqual(VALID_VEHICLES, expected)
+        cases = {
+            "Xe mô tô có được đi vào không?": "motorcycle",
+            "Xe gắn máy có được đi vào không?": "moped",
+            "Ô tô có được đi vào không?": "automobile",
+            "Xe con có được đi vào không?": "passenger_car",
+            "Xe khách có được đi vào không?": "bus",
+            "Xe tải có được đi vào không?": "truck",
+            "Xe đầu kéo có được đi vào không?": "tractor_unit",
+            "Xe ba gác máy có được đi vào không?": "other_motor_vehicle",
+            "Xe đạp có được đi vào không?": "non_motor_vehicle",
+            "Xe máy có được đi vào không?": "motorcycle_or_moped",
+        }
+        for question, expected_actor in cases.items():
+            with self.subTest(question=question):
+                parsed = parse_query_intent_deterministic(question)
+                self.assertEqual(parsed.query_intent.intents[0].actor.value, expected_actor)
+                self.assertEqual(parsed.query_intent.intents[0].actor.status, "provided")
+
     def test_accent_normalization_and_basic_slots(self) -> None:
         query = parse_query_intent_deterministic("Xe ô tô có được phép đỗ tại đây không?")
         self.assertEqual(normalize_question_text("Xe ô tô"), "xe o to")
         self.assertEqual(query.query_intent.intents[0].kind, "CHECK_PERMISSION")
         self.assertEqual(query.query_intent.intents[0].action.value, "parking")
-        self.assertEqual(query.query_intent.intents[0].actor.value, "car")
+        self.assertEqual(query.query_intent.intents[0].actor.value, "automobile")
         self.assertEqual(query.query_intent.intents[0].target.kind, "scene")
         self.assertEqual(query.query_intent.intents[0].requested_answer["kind"], "decision_with_explanation")
 
@@ -290,7 +364,7 @@ class QueryIntentTest(unittest.TestCase):
         query = parse_query_intent("Một câu hỏi mơ hồ", llm_client=client)
         self.assertEqual(query.query_intent.intents[0].kind, "UNKNOWN")
         self.assertEqual(query.query_intent.intents[0].action.value, "unknown")
-        self.assertEqual(query.query_intent.intents[0].confidence, "low")
+        self.assertEqual(query.query_intent.parser["confidence"], "low")
 
 
 if __name__ == "__main__":

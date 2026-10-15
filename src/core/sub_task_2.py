@@ -252,6 +252,9 @@ def normalize_freeform_response(
     if not target_has_sign:
         for item in intents:
             target = item.get("target") if isinstance(item, dict) else None
+            if isinstance(target, str) and target in {"scene", "sign_observation", "sign_code"}:
+                target_has_sign = True
+                break
             if isinstance(target, dict) and (
                 target.get("sign_codes") or target.get("kind") == "sign_observation"
             ):

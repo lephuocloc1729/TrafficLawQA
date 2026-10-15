@@ -17,7 +17,6 @@ from src.core.symbolic.intent_schema import (
     normalize_intent_kind,
 )
 from src.core.symbolic.sign_schema import normalize_confidence
-from src.core.symbolic.vehicle_taxonomy import ROAD_USER_ACTORS
 
 
 VALID_INTENTS = VALID_INTENT_KINDS
@@ -27,7 +26,56 @@ VALID_ACTIONS = {
     "reversing", "lane_change", "using_horn", "following_distance",
     "passing_obstacle", "roundabout_circulation", "reduce_speed", "unknown",
 }
-VALID_VEHICLES = ROAD_USER_ACTORS
+VALID_VEHICLES = frozenset({
+    "motorcycle", "moped", "motorcycle_or_moped", "automobile", "passenger_car", "bus", "truck",
+    "tractor_unit", "other_motor_vehicle", "non_motor_vehicle", "pedestrian", "unknown",
+})
+ACTOR_VALUE_ALIASES = {
+    "motorbike": "motorcycle", "motorcycle": "motorcycle",
+    "moped": "moped", "motorcycle_or_moped": "motorcycle_or_moped",
+    "car": "automobile", "taxi": "automobile",
+    "four_wheel_passenger_vehicle": "passenger_car",
+    "four_wheel_goods_vehicle": "truck", "truck": "truck", "bus": "bus",
+    "tractor_unit": "tractor_unit",
+    "motor_vehicle": "other_motor_vehicle", "motorized_tricycle": "other_motor_vehicle",
+    "trailer": "other_motor_vehicle", "semi_trailer": "other_motor_vehicle",
+    "tractor_towed_trailer": "other_motor_vehicle", "priority_vehicle": "other_motor_vehicle",
+    "emergency_vehicle": "other_motor_vehicle",
+    "vehicle": "unknown",
+    "bicycle": "non_motor_vehicle", "bicycle_machine": "non_motor_vehicle",
+    "electric_bicycle": "non_motor_vehicle", "cargo_bicycle": "non_motor_vehicle",
+    "non_motor_vehicle": "non_motor_vehicle", "non_motorized_tricycle": "non_motor_vehicle",
+    "pedicab": "non_motor_vehicle", "animal_drawn_vehicle": "non_motor_vehicle",
+    "hand_cart": "non_motor_vehicle", "human_pushed_vehicle": "non_motor_vehicle",
+    "pack_animal": "non_motor_vehicle", "child_stroller": "non_motor_vehicle",
+    "wheelchair": "non_motor_vehicle", "mobility_aid": "non_motor_vehicle",
+    "special_use_machine": "other_motor_vehicle", "special_use_vehicle": "other_motor_vehicle",
+    "construction_machine": "other_motor_vehicle",
+    "agricultural_forestry_machine": "other_motor_vehicle", "tractor": "other_motor_vehicle",
+    "cong_nong_vehicle": "other_motor_vehicle", "special_function_machine": "other_motor_vehicle",
+    "defense_security_special_vehicle": "other_motor_vehicle",
+    "pedestrian": "pedestrian",
+    "unknown": "unknown",
+    "similar_motor_vehicle": "unknown",
+    "similar_non_motor_vehicle": "unknown",
+}
+
+
+def normalize_intent_actor(value: str | None) -> str:
+    actor = str(value or "unknown").strip().lower()
+    if actor in ACTOR_VALUE_ALIASES:
+        return ACTOR_VALUE_ALIASES[actor]
+    if actor in VALID_VEHICLES:
+        return actor
+    return "unknown"
+
+
+def classify_intent_actor(question: str, detailed_actor: str | None = None) -> str:
+    """Map wording/detail to the smaller, user-facing actor vocabulary."""
+    text = normalize_question_text(question)
+    if re.search(r"(?<!\w)(?:xe con|o to con)(?!\w)", text):
+        return "passenger_car"
+    return normalize_intent_actor(detailed_actor or extract_vehicle(question))
 
 INTENT_PATTERNS = (
     ("PENALTY", (
@@ -532,6 +580,24 @@ def _intent_kinds(question: str, action: str) -> list[str]:
     return list(dict.fromkeys(found))
 
 
+def _information_type(question: str) -> str | None:
+    text = normalize_question_text(question)
+    if any(term in text for term in (
+        "cam nhung phuong tien nao", "cam phuong tien nao", "loai xe nao bi cam",
+        "xe nao bi cam", "cam xe nao", "ap dung cho loai phuong tien nao",
+    )):
+        return "prohibited_subjects"
+    if any(term in text for term in ("thoi gian", "luc nao", "ngay nao", "hieu luc khi nao")):
+        return "time_condition"
+    if any(term in text for term in ("huong nao", "chieu nao", "ben nao", "phia nao", "re huong")):
+        return "direction_scope"
+    if any(term in text for term in ("toc do", "van toc", "km h")):
+        return "speed"
+    if any(term in text for term in ("khoang cach", "pham vi", "bao xa", "bao nhieu met")):
+        return "distance_scope"
+    return None
+
+
 def _answer_spec(kind: str) -> dict[str, Any]:
     answer_types = {
         "CHECK_PERMISSION": "decision_with_explanation",
@@ -569,20 +635,24 @@ def parse_query_intent_deterministic(
     timezone_name: str = "Asia/Ho_Chi_Minh",
 ) -> IntentParseResult:
     action_value = extract_action(question)
-    vehicle_value = extract_vehicle(question)
+    detailed_actor = extract_vehicle(question)
+    vehicle_value = classify_intent_actor(question, detailed_actor)
     kinds = _intent_kinds(question, action_value)
     location = extract_location_context(question)
     action = IntentSlot(action_value, question if action_value != "unknown" else None,
-                        "provided" if action_value != "unknown" else "not_stated",
-                        "user_query")
-    actor = IntentSlot(vehicle_value, question if vehicle_value != "unknown" else None,
-                       "provided" if vehicle_value != "unknown" else "not_stated",
-                       "user_query")
+                        "provided" if action_value != "unknown" else "not_stated")
+    actor = IntentSlot(vehicle_value, question if detailed_actor != "unknown" else None,
+                       "provided" if detailed_actor != "unknown" else "not_stated")
     explicit_sign_codes = list(dict.fromkeys(match.group(1).strip() for match in SIGN_CODE_RE.finditer(question or "")))
+    normalized_question = normalize_question_text(question)
+    refers_to_scene = location is not None or any(phrase in normalized_question for phrase in (
+        "bien nay", "bien bao nay", "bien bao trong anh", "bien trong anh",
+        "anh nay", "hinh nay", "trong hinh", "trong anh",
+    ))
     target = (
         IntentTarget(kind="sign_code", sign_codes=explicit_sign_codes)
         if explicit_sign_codes
-        else IntentTarget(kind="scene" if location else "unresolved")
+        else IntentTarget(kind="scene" if refers_to_scene else "unresolved")
     )
     intents = [
         Intent(
@@ -592,18 +662,14 @@ def parse_query_intent_deterministic(
             action=action,
             actor=actor,
             requested_answer=_requested_answer(kind, action_value, question),
-            confidence="high" if kind != "UNKNOWN" else "low",
+            information_type=_information_type(question) if kind == "INFORMATION" else None,
         )
         for index, kind in enumerate(kinds)
     ]
-    if any(intent.kind == "CHECK_PERMISSION" for intent in intents):
-        for intent in intents:
-            if intent.kind == "CHECK_PERMISSION" and action_value != "unknown":
-                intent.confidence = "high" if vehicle_value != "unknown" else "medium"
     return IntentParseResult(
-        schema_version="2.0",
+        schema_version="3.0",
         query_intent=QueryIntent(
-            schema_version="2.0",
+            schema_version="3.0",
             query_id="query-1",
             raw_query=question,
             intents=intents,
@@ -634,36 +700,46 @@ def _validate_llm_query(payload: dict[str, Any], question: str, now: datetime | 
         if not isinstance(item, dict):
             continue
         kind = normalize_intent_kind(item.get("kind"))
-        action_obj = item.get("action") if isinstance(item.get("action"), dict) else {}
-        actor_obj = item.get("actor") if isinstance(item.get("actor"), dict) else {}
-        action_value = str(action_obj.get("value") or "unknown").lower()
-        actor_value = str(actor_obj.get("value") or "unknown").lower()
+        action_payload = item.get("action")
+        actor_payload = item.get("actor")
+        action_obj = action_payload if isinstance(action_payload, dict) else {}
+        actor_obj = actor_payload if isinstance(actor_payload, dict) else {}
+        action_value = str(action_obj.get("value") if action_obj else action_payload or "unknown").lower()
+        raw_actor_value = str(actor_obj.get("value") if actor_obj else actor_payload or "unknown").lower()
+        actor_value = normalize_intent_actor(raw_actor_value)
         if action_value not in VALID_ACTIONS:
             action_value = "unknown"
-        actor_status = str(actor_obj.get("status") or "not_stated")
-        if actor_value not in VALID_VEHICLES:
-            # Keep new vehicle labels observable rather than silently erasing them.
-            actor_value = re.sub(r"[^a-z0-9]+", "_", normalize_question_text(actor_value)).strip("_") or "unknown"
-            actor_status = "needs_resolution" if actor_value != "unknown" else "not_stated"
-        target_obj = item.get("target") if isinstance(item.get("target"), dict) else {}
-        target_kind = str(target_obj.get("kind") or "unresolved")
+        actor_status = str(actor_obj.get("status") or ("provided" if raw_actor_value != "unknown" else "not_stated"))
+        actor_raw_text = actor_obj.get("raw_text") or (question if raw_actor_value != "unknown" else None)
+        if actor_value == "unknown" and raw_actor_value != "unknown":
+            actor_raw_text = actor_raw_text or raw_actor_value
+            actor_status = "needs_resolution"
+        target_payload = item.get("target")
+        target_obj = target_payload if isinstance(target_payload, dict) else {}
+        target_kind = str(target_obj.get("kind") if target_obj else target_payload or "unresolved")
         if target_kind not in {"scene", "sign_observation", "sign_code", "unresolved"}:
             target_kind = "unresolved"
+        explicit_sign_codes = list(dict.fromkeys(
+            match.group(1).strip() for match in SIGN_CODE_RE.finditer(question or "")
+        ))
+        if explicit_sign_codes and target_kind in {"scene", "sign_code"}:
+            target_kind = "sign_code"
         target = IntentTarget(
             kind=target_kind,
             observation_ids=[str(x) for x in target_obj.get("observation_ids", []) if isinstance(x, str)],
-            sign_codes=[str(x) for x in target_obj.get("sign_codes", []) if isinstance(x, str)],
+            sign_codes=[str(x) for x in target_obj.get("sign_codes", []) if isinstance(x, str)] or (
+                explicit_sign_codes
+            ),
         )
         requested = item.get("requested_answer") if isinstance(item.get("requested_answer"), dict) else _answer_spec(kind)
         parsed_intents.append(Intent(
             intent_id=str(item.get("intent_id") or f"intent-{index + 1}"),
             kind=kind,
             target=target,
-            action=IntentSlot(action_value, action_obj.get("raw_text"), str(action_obj.get("status") or "not_stated"), "user_query"),
-            actor=IntentSlot(actor_value, actor_obj.get("raw_text"), actor_status, "user_query"),
+            action=IntentSlot(action_value, action_obj.get("raw_text"), str(action_obj.get("status") or "not_stated")),
+            actor=IntentSlot(actor_value, actor_raw_text, actor_status),
             requested_answer=requested,
-            confidence=normalize_confidence(item.get("confidence")),
-            unresolved_items=[str(x) for x in item.get("unresolved_items", [])],
+            information_type=str(item.get("information_type") or "").strip().lower() or None,
         ))
 
     if not parsed_intents:
@@ -681,9 +757,9 @@ def _validate_llm_query(payload: dict[str, Any], question: str, now: datetime | 
         if not any(item.get("predicate") in {"observed_at", "calendar_parity", "temporal_reference"} for item in context_facts):
             context_facts.extend(_context_facts(question, [item.kind for item in parsed_intents], now, timezone_name))
     return IntentParseResult(
-        schema_version="2.0",
+        schema_version="3.0",
         query_intent=QueryIntent(
-            schema_version="2.0",
+            schema_version="3.0",
             query_id=str(payload.get("query_id") or "query-1"),
             raw_query=question,
             intents=parsed_intents,
@@ -719,17 +795,18 @@ def parse_query_intent_with_llm(
         "được phép tự đưa ra mức phạt.\n"
         "- UNKNOWN: câu hỏi ngoài phạm vi giao thông/biển báo hoặc không thể xác định ý định. Câu hỏi lạ cách "
         "diễn đạt nhưng vẫn rõ nghĩa không được gán UNKNOWN chỉ vì không khớp từ khóa.\n"
+        "Chỉ thêm trường liên quan đến kind: CHECK_PERMISSION dùng action, actor; INFORMATION dùng "
+        "information_type; target chỉ thêm khi câu hỏi nhắm tới biển/cảnh cụ thể. "
+        "Với cách gọi chung 'xe máy', dùng actor=motorcycle_or_moped, không tự chọn mô tô hay xe gắn máy.\n"
         "Intent mô tả điều người dùng muốn biết; không suy đoán dữ kiện từ ảnh. Dữ kiện thời gian/vị trí "
         "được nêu rõ đưa vào context_facts với source=user_query. Trả về JSON hợp lệ, không thêm văn xuôi.\n"
-        'Schema: {"schema_version":"2.0","intents":[{"intent_id":"intent-1",'
-        '"kind":"CHECK_PERMISSION|QUERY_SIGN|INFORMATION|PENALTY|UNKNOWN","target":{"kind":"scene|'
-        'sign_observation|sign_code|unresolved","observation_ids":[],"sign_codes":[]},'
-        '"action":{"value":"parking|stopping|yielding|turn_left|turn_right|u_turn|going_straight|entering|exiting|speed|reduce_speed|circulation|crossing|overtaking|reversing|lane_change|using_horn|following_distance|passing_obstacle|roundabout_circulation|unknown",'
-        '"raw_text":null,"status":"provided|not_stated"},"actor":{"value":"'
-        + vehicle_enum + '",'
-        '"raw_text":null,"status":"provided|not_stated"},'
-        '"requested_answer":{"kind":"...","include_legal_basis":true,"requested_speed_kmh":null},"confidence":"high|medium|low",'
-        '"unresolved_items":[]}],"context_facts":[],"unresolved_items":[]}\n'
+        'Schema: {"schema_version":"3.0","intents":[{"kind":"CHECK_PERMISSION|QUERY_SIGN|INFORMATION|PENALTY|UNKNOWN",'
+        '"target":"scene|sign_observation|sign_code|unresolved",'
+        '"action":"parking|stopping|yielding|turn_left|turn_right|u_turn|going_straight|entering|exiting|speed|reduce_speed|circulation|crossing|overtaking|reversing|lane_change|using_horn|following_distance|passing_obstacle|roundabout_circulation|unknown",'
+        '"actor":"'
+        + vehicle_enum + '","information_type":"prohibited_subjects|time_condition|direction_scope|speed|distance_scope|unknown",'
+        '"requested_answer":{}}],'
+        '"context_facts":[],"unresolved_items":[],"confidence":"high|medium|low"}\n'
         f"Câu hỏi: {question}"
     )
     response = llm_client.generate_content(
@@ -783,8 +860,11 @@ def _fill_missing_permission_slots(
             continue
         if intent.action.value == "unknown" and fallback.action.value != "unknown":
             intent.action = fallback.action
-        if intent.actor.value == "unknown" and fallback.actor.value != "unknown":
+        if intent.actor.value == "unknown" and fallback.actor.status == "provided":
             intent.actor = fallback.actor
+        elif intent.actor.value != "unknown" and not intent.actor.raw_text:
+            intent.actor.raw_text = deterministic_result.query_intent.raw_query
+            intent.actor.status = "provided"
         requested = _requested_answer("CHECK_PERMISSION", fallback.action.value, deterministic_result.query_intent.raw_query)
         for key, value in requested.items():
             intent.requested_answer.setdefault(key, value)

@@ -27,8 +27,39 @@ class SymbolicSchemaTest(unittest.TestCase):
             }],
         )
         decoded = json.loads(parsed.to_json())
-        self.assertEqual([item["kind"] for item in decoded["query_intent"]["intents"]], ["QUERY_SIGN", "CHECK_PERMISSION"])
+        self.assertEqual([item["kind"] for item in decoded["intents"]], ["QUERY_SIGN", "CHECK_PERMISSION"])
         self.assertEqual(decoded["context_facts"][0]["source"], "system_clock")
+        permission = decoded["intents"][1]
+        self.assertEqual(set(permission), {"kind", "action", "actor"})
+        self.assertEqual(permission["action"], "parking")
+        self.assertEqual(permission["actor"], "car")
+
+    def test_legacy_intent_metadata_is_accepted_but_not_repeated(self) -> None:
+        query = QueryIntent(
+            schema_version="2.0", query_id="q1", raw_query="Xe tải có được đi vào không?",
+            intents=[{
+                "intent_id": "i1", "kind": "CHECK_PERMISSION", "confidence": "high",
+                "unresolved_items": [], "action": {"value": "entering", "source": "user_query"},
+                "actor": {"value": "truck", "status": "provided", "source": "user_query", "confidence": 0.9},
+            }],
+        )
+        payload = query.to_dict()
+        self.assertEqual(payload["intents"][0]["actor"], "truck")
+        self.assertNotIn("confidence", payload["intents"][0])
+        self.assertNotIn("unresolved_items", payload["intents"][0])
+
+    def test_compact_intent_values_can_be_loaded_again(self) -> None:
+        query = QueryIntent(
+            schema_version="3.0", query_id="q1", raw_query="Biển này cấm những xe nào?",
+            intents=[{
+                "kind": "INFORMATION", "information_type": "prohibited_subjects", "target": "scene",
+            }],
+        )
+        self.assertEqual(query.intents[0].information_type, "prohibited_subjects")
+        self.assertEqual(query.intents[0].target.kind, "scene")
+        self.assertEqual(query.to_dict()["intents"], [{
+            "kind": "INFORMATION", "information_type": "prohibited_subjects", "target": "scene",
+        }])
 
     def test_observation_and_fact_set_keep_identity_separate_from_legal_scope(self) -> None:
         observation = SignObservation(
@@ -48,7 +79,7 @@ class SymbolicSchemaTest(unittest.TestCase):
     def test_rule_schema_is_declarative_and_serializable(self) -> None:
         rule = TrafficRule(
             rule_id="test-rule", legal_basis=[], trigger_sign_codes=["P.131b"],
-            intent_kinds=["CHECK_PERMISSION"], actions=["parking"],
+            actions=["parking"],
             actor_scope=["motor_vehicle"], outcome="PROHIBITED",
             conditions=[RuleCondition("calendar_parity", "equals", "odd_days")],
         )

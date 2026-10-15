@@ -82,8 +82,11 @@ Schema:
     "sign_relations": []
   },
   "query_intent": {
-    "schema_version": "2.0",
-    "intents": []
+    "schema_version": "3.0",
+    "question": "...",
+    "intents": [
+      {"kind": "CHECK_PERMISSION", "action": "turn_left", "actor": "motorcycle_or_moped", "target": "scene"}
+    ]
   },
   "query_context_facts": [],
   "intent_evaluations": [],

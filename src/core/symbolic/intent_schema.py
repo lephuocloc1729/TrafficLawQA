@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 from src.core.symbolic.fact_schema import ContextFact
-from src.core.symbolic.sign_schema import Confidence, SerializableMixin, normalize_confidence
+from src.core.symbolic.sign_schema import SerializableMixin
 
 
 IntentKind = Literal["CHECK_PERMISSION", "QUERY_SIGN", "INFORMATION", "PENALTY", "UNKNOWN"]
@@ -36,20 +36,12 @@ class IntentSlot(SerializableMixin):
     value: str = "unknown"
     raw_text: str | None = None
     status: str = "not_stated"
-    source: str = "user_query"
-    confidence: float | None = None
 
     def __post_init__(self) -> None:
         self.value = str(self.value or "unknown").strip().lower()
         self.status = str(self.status or "not_stated").strip().lower()
-        self.source = str(self.source or "user_query").strip().lower()
         if self.raw_text is not None:
             self.raw_text = str(self.raw_text)
-        if self.confidence is not None:
-            try:
-                self.confidence = max(0.0, min(1.0, float(self.confidence)))
-            except (TypeError, ValueError):
-                self.confidence = None
 
 
 @dataclass
@@ -74,20 +66,54 @@ class Intent(SerializableMixin):
     action: IntentSlot = field(default_factory=IntentSlot)
     actor: IntentSlot = field(default_factory=IntentSlot)
     requested_answer: dict[str, Any] = field(default_factory=dict)
-    confidence: Confidence = "low"
-    unresolved_items: list[str] = field(default_factory=list)
+    information_type: str | None = None
 
     def __post_init__(self) -> None:
         self.intent_id = str(self.intent_id or "intent-1").strip()
         self.kind = normalize_intent_kind(self.kind)
+        if isinstance(self.target, str):
+            self.target = IntentTarget(kind=self.target)
         if isinstance(self.target, dict):
             self.target = IntentTarget(**self.target)
+        if isinstance(self.action, str):
+            self.action = IntentSlot(self.action, status="provided" if self.action != "unknown" else "not_stated")
         if isinstance(self.action, dict):
-            self.action = IntentSlot(**self.action)
+            self.action = IntentSlot(**{
+                key: value for key, value in self.action.items()
+                if key in {"value", "raw_text", "status"}
+            })
+        if isinstance(self.actor, str):
+            self.actor = IntentSlot(self.actor, status="provided" if self.actor != "unknown" else "not_stated")
         if isinstance(self.actor, dict):
-            self.actor = IntentSlot(**self.actor)
-        self.confidence = normalize_confidence(self.confidence)
-        self.unresolved_items = [str(item) for item in self.unresolved_items]
+            self.actor = IntentSlot(**{
+                key: value for key, value in self.actor.items()
+                if key in {"value", "raw_text", "status"}
+            })
+        self.requested_answer = dict(self.requested_answer or {})
+        self.information_type = str(self.information_type).strip().lower() if self.information_type else None
+
+    def to_dict(self) -> dict[str, Any]:
+        """Expose the compact intent contract while retaining richer runtime slots."""
+        payload: dict[str, Any] = {"kind": self.kind}
+        if self.kind == "CHECK_PERMISSION":
+            if self.action.value != "unknown":
+                payload["action"] = self.action.value
+            if self.actor.value != "unknown":
+                payload["actor"] = self.actor.value
+            if self.target.kind != "unresolved":
+                payload["target"] = "scene" if self.target.kind in {"scene", "sign_observation", "sign_code"} else self.target.kind
+            requested_values = {
+                key: value for key, value in self.requested_answer.items()
+                if key.startswith("requested_") and value is not None
+            }
+            if requested_values:
+                payload["requested_answer"] = requested_values
+        elif self.kind in {"QUERY_SIGN", "INFORMATION"}:
+            if self.kind == "INFORMATION" and self.information_type:
+                payload["information_type"] = self.information_type
+            if self.target.kind != "unresolved":
+                payload["target"] = "scene" if self.target.kind in {"scene", "sign_observation", "sign_code"} else self.target.kind
+        return payload
 
 
 @dataclass
@@ -102,12 +128,21 @@ class QueryIntent(SerializableMixin):
     unresolved_items: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        self.schema_version = str(self.schema_version or "1.0").strip()
+        self.schema_version = str(self.schema_version or "3.0").strip()
         self.query_id = str(self.query_id or "query-unknown").strip()
         self.raw_query = str(self.raw_query or "").strip()
         self.intents = [
-            item if isinstance(item, Intent) else Intent(**item)
-            for item in self.intents
+            item if isinstance(item, Intent) else Intent(**{
+                "intent_id": item.get("intent_id") or f"intent-{index + 1}",
+                **{
+                    key: value for key, value in item.items()
+                    if key in {
+                        "kind", "target", "action", "actor", "requested_answer",
+                        "information_type",
+                    }
+                },
+            })
+            for index, item in enumerate(self.intents)
             if isinstance(item, (Intent, dict))
         ]
         self.parser = dict(self.parser or {}) if isinstance(self.parser, dict) else {}
@@ -116,6 +151,13 @@ class QueryIntent(SerializableMixin):
         if len(intent_ids) != len(set(intent_ids)):
             self.unresolved_items.append("duplicate_intent_id")
         self.unresolved_items = list(dict.fromkeys(self.unresolved_items))
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "question": self.raw_query,
+            "intents": [item.to_dict() for item in self.intents],
+        }
 
 
 @dataclass
@@ -127,7 +169,7 @@ class IntentParseResult(SerializableMixin):
     context_facts: list[ContextFact] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        self.schema_version = str(self.schema_version or "2.0").strip()
+        self.schema_version = str(self.schema_version or "3.0").strip()
         if isinstance(self.query_intent, dict):
             self.query_intent = QueryIntent(**self.query_intent)
         self.context_facts = [
@@ -135,3 +177,9 @@ class IntentParseResult(SerializableMixin):
             for item in self.context_facts
             if isinstance(item, (ContextFact, dict))
         ]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            **self.query_intent.to_dict(),
+            "context_facts": [item.to_dict() for item in self.context_facts],
+        }

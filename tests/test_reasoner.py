@@ -201,7 +201,7 @@ class ReasonerTest(unittest.TestCase):
 
     def test_context_output_exposes_new_intent_and_fact_schemas(self) -> None:
         context = build_symbolic_reasoning_context(facts("P.131a"), "Xe ô tô có được đỗ không?")
-        self.assertEqual(context["query_intent"]["schema_version"], "2.0")
+        self.assertEqual(context["query_intent"]["schema_version"], "3.0")
         self.assertEqual(context["facts"]["sign_observations"][0]["sign_code"], "P.131a")
         self.assertEqual(context["symbolic_decision"]["decision"], "UNKNOWN")
         self.assertEqual(context["sign_meaning_evaluations"], [])
