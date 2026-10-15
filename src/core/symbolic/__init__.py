@@ -3,6 +3,7 @@
 from src.core.symbolic.fact_schema import ContextFact, SignObservation, SignRelation, TrafficFacts
 from src.core.symbolic.intent_schema import (
     Intent,
+    IntentKind,
     IntentParseResult,
     IntentSlot,
     IntentTarget,
@@ -52,7 +53,7 @@ from src.core.symbolic.traffic_rules import (
 )
 
 __all__ = [
-    "ContextFact", "Intent", "IntentEvaluation", "IntentParseResult", "IntentSlot", "IntentTarget",
+    "ContextFact", "Intent", "IntentEvaluation", "IntentKind", "IntentParseResult", "IntentSlot", "IntentTarget",
     "QueryIntent", "ReasoningTrace", "RuleCondition", "RuleEffect", "RuleEvaluation",
     "OfficialSignCatalog", "SignMeaningEvaluation", "SignMeaningLookup",
     "SignObservation", "SignRelation", "SymbolicDecision", "TRAFFIC_RULEBOOK_METADATA", "TRAFFIC_RULES",

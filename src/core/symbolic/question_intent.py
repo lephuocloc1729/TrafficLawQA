@@ -13,23 +13,14 @@ from src.core.symbolic.intent_schema import (
     IntentSlot,
     IntentTarget,
     QueryIntent,
+    VALID_INTENT_KINDS,
+    normalize_intent_kind,
 )
 from src.core.symbolic.sign_schema import normalize_confidence
 from src.core.symbolic.vehicle_taxonomy import ROAD_USER_ACTORS
 
 
-VALID_INTENTS = {
-    "CHECK_PERMISSION",
-    "QUERY_SIGN_MEANING",
-    "ASK_CONDITION",
-    "ASK_PENALTY",
-    "QUERY_PROHIBITED_SUBJECTS",
-    "QUERY_TIME_CONDITION",
-    "QUERY_DIRECTION_SCOPE",
-    "QUERY_DISTANCE_SCOPE",
-    "IDENTIFY_SIGN",
-    "UNKNOWN",
-}
+VALID_INTENTS = VALID_INTENT_KINDS
 VALID_ACTIONS = {
     "parking", "stopping", "yielding", "turn_left", "turn_right", "u_turn", "going_straight",
     "entering", "exiting", "speed", "circulation", "crossing", "overtaking",
@@ -39,14 +30,23 @@ VALID_ACTIONS = {
 VALID_VEHICLES = ROAD_USER_ACTORS
 
 INTENT_PATTERNS = (
-    ("ASK_PENALTY", ("muc phat", "phat bao nhieu", "bi phat bao nhieu", "bao nhieu tien", "tien phat", "xu phat", "vi pham se bi gi")),
-    ("QUERY_PROHIBITED_SUBJECTS", ("cam nhung phuong tien nao", "cam phuong tien nao", "loai xe nao bi cam", "xe nao bi cam", "cam xe nao")),
-    ("QUERY_DIRECTION_SCOPE", ("huong nao", "chieu nao", "re huong", "ben nao", "phia nao")),
-    ("QUERY_DISTANCE_SCOPE", ("bao xa", "khoang cach", "pham vi", "bao nhieu met")),
-    ("QUERY_TIME_CONDITION", ("thoi gian nao", "thoi diem nao", "hieu luc vao luc nao", "co hieu luc khi nao")),
-    ("ASK_CONDITION", ("dieu kien gi", "truong hop nao", "ap dung khi nao", "toc do toi da", "gioi han toc do", "bao nhieu km h", "co phai dung", "phai dung", "bat buoc dung", "co can dung", "phai nhuong", "co phai nhuong", "nhuong duong", "phai bam coi", "bat buoc bam coi", "co can bam coi", "phai an coi", "bat buoc an coi", "co can an coi", "phai giam toc do", "co can giam toc do", "co phai giam toc do")),
-    ("QUERY_SIGN_MEANING", ("y nghia gi", "co nghia gi", "bien nay la gi", "noi dung bien")),
-    ("IDENTIFY_SIGN", ("nhan dien bien", "xac dinh bien", "bien nao trong hinh", "ma bien gi")),
+    ("PENALTY", ("muc phat", "phat bao nhieu", "bi phat bao nhieu", "bao nhieu tien", "tien phat", "xu phat", "vi pham se bi gi")),
+    ("INFORMATION", (
+        "cam nhung phuong tien nao", "cam phuong tien nao", "loai xe nao bi cam", "xe nao bi cam", "cam xe nao",
+        "huong nao", "chieu nao", "re huong", "ben nao", "phia nao",
+        "bao xa", "khoang cach", "pham vi", "bao nhieu met",
+        "thoi gian nao", "thoi diem nao", "hieu luc vao luc nao", "co hieu luc khi nao",
+        "toc do toi da", "gioi han toc do", "bao nhieu km h", "toc do bao nhieu", "van toc bao nhieu",
+        "dieu kien gi", "truong hop nao", "ap dung khi nao",
+    )),
+    ("QUERY_SIGN", ("y nghia gi", "co nghia gi", "bien nay la gi", "noi dung bien", "nhan dien bien", "xac dinh bien", "bien nao trong hinh", "ma bien gi")),
+)
+INFORMATION_SCOPE_PHRASES = (
+    "cam nhung phuong tien nao", "cam phuong tien nao", "loai xe nao bi cam", "xe nao bi cam", "cam xe nao",
+    "huong nao", "chieu nao", "re huong", "ben nao", "phia nao",
+    "bao xa", "khoang cach", "pham vi", "bao nhieu met",
+    "thoi gian nao", "thoi diem nao", "hieu luc vao luc nao", "co hieu luc khi nao",
+    "toc do toi da", "gioi han toc do", "bao nhieu km h", "toc do bao nhieu", "van toc bao nhieu",
 )
 ACTION_PATTERNS = (
     ("parking", ("do xe", "dau xe", "dung do", "duoc do", "phep do", "cam do", "do tai", "do khong")),
@@ -148,7 +148,17 @@ TIME_MENTION_RE = re.compile(
     r"chu nhat|ngay le|ngay chan|\d{1,2}\s*(?:gio|h)(?:\s*\d{1,2}\s*(?:phut|p))?|"
     r"\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\b"
 )
-PERMISSION_TERMS = ("duoc phep", "co duoc", "duoc khong", "co bi cam", "bi cam khong", "duoc", "cam")
+MANDATORY_ACTION_TERMS = (
+    "co phai dung", "phai dung", "bat buoc dung", "co can dung",
+    "co phai nhuong", "phai nhuong", "nhuong duong",
+    "phai bam coi", "bat buoc bam coi", "co can bam coi", "phai an coi",
+    "bat buoc an coi", "co can an coi", "phai giam toc do", "co can giam toc do",
+    "co phai giam toc do",
+)
+PERMISSION_TERMS = (
+    "duoc phep", "co duoc", "duoc khong", "co bi cam khong", "bi cam khong",
+    *MANDATORY_ACTION_TERMS,
+)
 LOCATION_PATTERNS = (
     ("current_sign_location", ("tai day", "tai vi tri nay", "tren doan duong nay", "o day")),
     ("sign_scope", ("trong pham vi bien", "trong khu vuc nay", "tren tuyen duong nay")),
@@ -488,7 +498,19 @@ def _context_facts(question: str, intent_kinds: list[str], now: datetime | None,
 def _intent_kinds(question: str, action: str) -> list[str]:
     text = normalize_question_text(question)
     found = [kind for kind, phrases in INTENT_PATTERNS if any(_contains(text, p) for p in phrases)]
-    if action != "unknown" and any(_contains(text, p) for p in PERMISSION_TERMS):
+    asks_for_scope_information = any(_contains(text, p) for p in INFORMATION_SCOPE_PHRASES)
+    asks_yes_no_permission = (
+        "duoc khong" in text
+        or ("co duoc" in text and "khong" in text)
+        or "co bi cam khong" in text
+        or "bi cam khong" in text
+    )
+    asks_for_mandatory_action = any(_contains(text, p) for p in MANDATORY_ACTION_TERMS)
+    if (
+        action != "unknown"
+        and any(_contains(text, p) for p in PERMISSION_TERMS)
+        and (not asks_for_scope_information or asks_for_mandatory_action or asks_yes_no_permission)
+    ):
         found.append("CHECK_PERMISSION")
     if not found:
         found = ["UNKNOWN"]
@@ -498,14 +520,9 @@ def _intent_kinds(question: str, action: str) -> list[str]:
 def _answer_spec(kind: str) -> dict[str, Any]:
     answer_types = {
         "CHECK_PERMISSION": "decision_with_explanation",
-        "QUERY_SIGN_MEANING": "sign_meaning",
-        "ASK_CONDITION": "applicability_conditions",
-        "ASK_PENALTY": "penalty_and_legal_basis",
-        "QUERY_PROHIBITED_SUBJECTS": "prohibited_subjects",
-        "QUERY_TIME_CONDITION": "time_condition",
-        "QUERY_DIRECTION_SCOPE": "direction_scope",
-        "QUERY_DISTANCE_SCOPE": "distance_scope",
-        "IDENTIFY_SIGN": "sign_identity",
+        "QUERY_SIGN": "sign_information",
+        "INFORMATION": "traffic_sign_information",
+        "PENALTY": "unsupported_penalty_query",
     }
     return {"kind": answer_types.get(kind, "clarification"), "include_legal_basis": True}
 
@@ -601,9 +618,7 @@ def _validate_llm_query(payload: dict[str, Any], question: str, now: datetime | 
     for index, item in enumerate(raw_intents if isinstance(raw_intents, list) else []):
         if not isinstance(item, dict):
             continue
-        kind = str(item.get("kind") or "UNKNOWN").upper()
-        if kind not in VALID_INTENTS:
-            kind = "UNKNOWN"
+        kind = normalize_intent_kind(item.get("kind"))
         action_obj = item.get("action") if isinstance(item.get("action"), dict) else {}
         actor_obj = item.get("actor") if isinstance(item.get("actor"), dict) else {}
         action_value = str(action_obj.get("value") or "unknown").lower()
@@ -679,9 +694,7 @@ def parse_query_intent_with_llm(
         "Một câu hỏi có thể có nhiều intents. Intent chỉ mô tả yêu cầu; dữ kiện thời gian/vị trí "
         "đưa vào context_facts kèm source=user_query. Không suy đoán dữ kiện ảnh.\n"
         'Schema: {"schema_version":"2.0","intents":[{"intent_id":"intent-1",'
-        '"kind":"CHECK_PERMISSION|QUERY_SIGN_MEANING|ASK_CONDITION|ASK_PENALTY|'
-        'QUERY_PROHIBITED_SUBJECTS|QUERY_TIME_CONDITION|QUERY_DIRECTION_SCOPE|'
-        'QUERY_DISTANCE_SCOPE|IDENTIFY_SIGN|UNKNOWN","target":{"kind":"scene|'
+        '"kind":"CHECK_PERMISSION|QUERY_SIGN|INFORMATION|PENALTY|UNKNOWN","target":{"kind":"scene|'
         'sign_observation|sign_code|unresolved","observation_ids":[],"sign_codes":[]},'
         '"action":{"value":"parking|stopping|yielding|turn_left|turn_right|u_turn|going_straight|entering|exiting|speed|reduce_speed|circulation|crossing|overtaking|reversing|lane_change|using_horn|following_distance|passing_obstacle|roundabout_circulation|unknown",'
         '"raw_text":null,"status":"provided|not_stated"},"actor":{"value":"'

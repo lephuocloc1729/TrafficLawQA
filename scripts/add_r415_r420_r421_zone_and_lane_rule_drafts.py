@@ -72,7 +72,7 @@ def make_rules() -> list[dict]:
         make_rule(
             "R415A_LANE_AND_VEHICLE_DIAGRAM_MEANING",
             "R.415a",
-            ["QUERY_SIGN_MEANING", "CHECK_PERMISSION", "ASK_CONDITION"],
+            ["QUERY_SIGN", "CHECK_PERMISSION", "CHECK_PERMISSION"],
             ["unknown", "circulation", "entering", "lane_change"],
             [
                 "sign_effective_scope_confirmed",
@@ -98,7 +98,7 @@ def make_rules() -> list[dict]:
         make_rule(
             "R415B_END_OF_VEHICLE_LANE_SCOPE_MEANING",
             "R.415b",
-            ["QUERY_SIGN_MEANING", "CHECK_PERMISSION", "ASK_CONDITION"],
+            ["QUERY_SIGN", "CHECK_PERMISSION", "CHECK_PERMISSION"],
             ["unknown", "circulation", "entering", "lane_change"],
             [
                 "sign_effective_scope_confirmed",
@@ -116,7 +116,7 @@ def make_rules() -> list[dict]:
         make_rule(
             "R420_START_POPULATED_AREA_SCOPE_NOT_SPEED_VALUE",
             "R.420",
-            ["QUERY_SIGN_MEANING", "CHECK_PERMISSION", "ASK_CONDITION"],
+            ["QUERY_SIGN", "CHECK_PERMISSION", "CHECK_PERMISSION"],
             ["unknown", "speed", "circulation"],
             [
                 "sign_effective_scope_confirmed",
@@ -136,7 +136,7 @@ def make_rules() -> list[dict]:
         make_rule(
             "R421_END_POPULATED_AREA_SCOPE_NO_PERMISSION_INFERENCE",
             "R.421",
-            ["QUERY_SIGN_MEANING", "CHECK_PERMISSION", "ASK_CONDITION"],
+            ["QUERY_SIGN", "CHECK_PERMISSION", "CHECK_PERMISSION"],
             ["unknown", "speed", "circulation"],
             [
                 "sign_effective_scope_confirmed",

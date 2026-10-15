@@ -165,11 +165,9 @@ P131B = {
 - [x] Start with deterministic keyword parsing.
   - Intents:
     - `CHECK_PERMISSION`
-    - `QUERY_SIGN_MEANING`
-    - `QUERY_PROHIBITED_SUBJECTS`
-    - `QUERY_TIME_CONDITION`
-    - `QUERY_DIRECTION_SCOPE`
-    - `QUERY_DISTANCE_SCOPE`
+    - `QUERY_SIGN`
+    - `INFORMATION`
+    - `PENALTY`
     - `UNKNOWN`
 
 - [x] Extract action.

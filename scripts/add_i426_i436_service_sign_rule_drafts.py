@@ -64,7 +64,7 @@ def meaning_rule(code: str, section: str, description: str) -> dict:
     return {
         "rule_id": f"{code.replace('.', '').upper().replace('-', '_')}_OFFICIAL_SIGN_MEANING",
         "code": code,
-        "intent_kinds": ["QUERY_SIGN_MEANING"],
+        "intent_kinds": ["QUERY_SIGN"],
         "actions": ["unknown"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],
@@ -85,7 +85,7 @@ def duty_rule(rule_id: str, action: str, effect_type: str, description: str) -> 
     return {
         "rule_id": rule_id,
         "code": "I.436",
-        "intent_kinds": ["CHECK_PERMISSION", "ASK_CONDITION"],
+        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
         "actions": [action],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

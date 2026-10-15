@@ -167,7 +167,7 @@ def test_sign_meaning_evaluation_returns_unknown_when_identity_is_ambiguous() ->
         candidates=[{"sign_code": "P.123a", "confidence": 0.52}],
     )])
     intent = Intent(
-        "intent-1", "QUERY_SIGN_MEANING",
+        "intent-1", "QUERY_SIGN",
         target=IntentTarget(kind="scene"),
     )
     result = catalog.evaluate_meaning(facts, intent)[0]

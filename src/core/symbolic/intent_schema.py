@@ -1,10 +1,34 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Literal
 
 from src.core.symbolic.fact_schema import ContextFact
 from src.core.symbolic.sign_schema import Confidence, SerializableMixin, normalize_confidence
+
+
+IntentKind = Literal["CHECK_PERMISSION", "QUERY_SIGN", "INFORMATION", "PENALTY", "UNKNOWN"]
+VALID_INTENT_KINDS = frozenset({
+    "CHECK_PERMISSION", "QUERY_SIGN", "INFORMATION", "PENALTY", "UNKNOWN",
+})
+LEGACY_INTENT_KIND_ALIASES = {
+    "QUERY_SIGN_MEANING": "QUERY_SIGN",
+    "IDENTIFY_SIGN": "QUERY_SIGN",
+    "ASK_CONDITION": "CHECK_PERMISSION",
+    "ASK_PENALTY": "PENALTY",
+    "QUERY_PROHIBITED_SUBJECTS": "INFORMATION",
+    "QUERY_TIME_CONDITION": "INFORMATION",
+    "QUERY_DIRECTION_SCOPE": "INFORMATION",
+    "QUERY_DISTANCE_SCOPE": "INFORMATION",
+}
+
+
+def normalize_intent_kind(value: str | None) -> IntentKind:
+    kind = str(value or "UNKNOWN").strip().upper()
+    kind = LEGACY_INTENT_KIND_ALIASES.get(kind, kind)
+    if kind not in VALID_INTENT_KINDS:
+        kind = "UNKNOWN"
+    return kind  # type: ignore[return-value]
 
 
 @dataclass
@@ -45,7 +69,7 @@ class IntentTarget(SerializableMixin):
 @dataclass
 class Intent(SerializableMixin):
     intent_id: str
-    kind: str
+    kind: IntentKind
     target: IntentTarget = field(default_factory=IntentTarget)
     action: IntentSlot = field(default_factory=IntentSlot)
     actor: IntentSlot = field(default_factory=IntentSlot)
@@ -55,7 +79,7 @@ class Intent(SerializableMixin):
 
     def __post_init__(self) -> None:
         self.intent_id = str(self.intent_id or "intent-1").strip()
-        self.kind = str(self.kind or "UNKNOWN").strip().upper()
+        self.kind = normalize_intent_kind(self.kind)
         if isinstance(self.target, dict):
             self.target = IntentTarget(**self.target)
         if isinstance(self.action, dict):

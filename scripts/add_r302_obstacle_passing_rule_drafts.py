@@ -37,7 +37,7 @@ def main() -> None:
         rules.append({
             "rule_id": f"{code.replace('.', '').upper()}_OBSTACLE_PASSING_DIRECTION",
             "code": code,
-            "intent_kinds": ["CHECK_PERMISSION", "ASK_CONDITION"],
+            "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
             "actions": ["passing_obstacle"],
             "actor_scope": ["vehicle"],
             "excluded_actor_scope": [],

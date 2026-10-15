@@ -59,7 +59,7 @@ def make_rule(code: str, with_s508: bool) -> dict:
     return {
         "rule_id": rule_id,
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION", "ASK_CONDITION"],
+        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
         "actions": ["parking"],
         "actor_scope": ["motor_vehicle"],
         "excluded_actor_scope": ["priority_vehicle"],

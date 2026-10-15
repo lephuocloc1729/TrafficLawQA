@@ -22,7 +22,7 @@ def main() -> None:
     rule = {
         "rule_id": "P140_PROHIBIT_CONG_NONG_VEHICLES",
         "code": "P.140",
-        "intent_kinds": ["CHECK_PERMISSION", "ASK_CONDITION"],
+        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
         "actions": ["entering", "circulation"],
         "actor_scope": ["cong_nong_vehicle"],
         "excluded_actor_scope": [],

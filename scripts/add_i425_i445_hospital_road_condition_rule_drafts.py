@@ -42,7 +42,7 @@ def make_rule(rule_id: str, codes: list[str], actions: list[str], predicates: li
         "rule_id": rule_id,
         "code": codes[0],
         "trigger_sign_codes": codes,
-        "intent_kinds": ["CHECK_PERMISSION", "ASK_CONDITION", "QUERY_SIGN_MEANING"],
+        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION", "QUERY_SIGN"],
         # `unknown` lets a sign-meaning query reach the rule; it does not
         # declare any driving action permitted.
         "actions": [*actions, "unknown"],

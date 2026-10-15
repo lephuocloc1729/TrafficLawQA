@@ -41,7 +41,7 @@ def main() -> None:
         additions.append({
             "rule_id": f"{code.replace('.', '').upper()}_END_DESIGNATED_VEHICLE_ROAD_SCOPE",
             "code": code,
-            "intent_kinds": ["CHECK_PERMISSION", "ASK_CONDITION"],
+            "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
             "actions": ["entering", "circulation"],
             "actor_scope": ["vehicle"],
             "excluded_actor_scope": [],

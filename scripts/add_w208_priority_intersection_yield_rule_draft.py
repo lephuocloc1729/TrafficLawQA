@@ -33,7 +33,7 @@ def main() -> None:
     rule = {
         "rule_id": "W208_YIELD_TO_PRIORITY_ROAD_AT_UNCONTROLLED_INTERSECTION",
         "code": "W.208",
-        "intent_kinds": ["CHECK_PERMISSION", "ASK_CONDITION"],
+        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
         "actions": [
             "yielding", "entering", "circulation", "going_straight", "turn_left",
             "turn_right", "u_turn", "crossing",

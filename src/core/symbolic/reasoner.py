@@ -81,7 +81,7 @@ def _add_sign_rule_coverage_gaps(
     A rule for some other sign in the same scene must not hide a coverage gap.
     These records are diagnostic UNKNOWNs, never inferred legal effects.
     """
-    if query.kind not in {"CHECK_PERMISSION", "ASK_CONDITION"}:
+    if query.kind != "CHECK_PERMISSION":
         return evaluations
 
     observations = facts.sign_observations
@@ -259,9 +259,14 @@ def reason_over_facts(
             IntentEvaluation(
                 intent_id=intent.intent_id,
                 decision="UNKNOWN",
-                reason="Ý nghĩa biển được tra từ catalog nguồn chính thức; xem sign_meaning_evaluations.",
+                reason={
+                    "QUERY_SIGN": "Thông tin biển được tra từ catalog nguồn chính thức; xem sign_meaning_evaluations.",
+                    "INFORMATION": "Intent thông tin được chuyển cho pipeline LLM dựa trên dữ kiện biển báo/OCR.",
+                    "PENALTY": "Intent mức phạt hiện chưa được hệ thống hỗ trợ.",
+                    "UNKNOWN": "Chưa xác định được intent; hệ thống chưa hỗ trợ yêu cầu này.",
+                }.get(intent.kind, "Intent chưa được hệ thống hỗ trợ."),
             )
-            if intent.kind in {"QUERY_SIGN_MEANING", "IDENTIFY_SIGN"}
+            if intent.kind != "CHECK_PERMISSION"
             else _evaluate_intent(intent.intent_id, evaluations)
         )
         for intent in query.query_intent.intents

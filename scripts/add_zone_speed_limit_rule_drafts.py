@@ -40,7 +40,7 @@ def start_zone_rule() -> dict:
     return {
         "rule_id": "RE9D_MAXIMUM_SPEED_WITHIN_CONFIRMED_ZONE",
         "code": "R.E.9d",
-        "intent_kinds": ["ASK_CONDITION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
         "actions": ["speed"],
         "actor_scope": ["motor_vehicle"],
         "excluded_actor_scope": ["priority_vehicle"],
@@ -84,7 +84,7 @@ def end_zone_rule() -> dict:
     return {
         "rule_id": "RE10D_END_OF_ZONE_MAXIMUM_SPEED_RESTRICTION",
         "code": "R.E.10d",
-        "intent_kinds": ["ASK_CONDITION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
         "actions": ["speed", "circulation", "entering"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

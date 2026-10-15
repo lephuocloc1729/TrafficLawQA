@@ -14,7 +14,7 @@ class SymbolicSchemaTest(unittest.TestCase):
             query_id="q1",
             raw_query="Biển này là gì, xe ô tô có được đỗ không?",
             intents=[
-                Intent("i1", "QUERY_SIGN_MEANING"),
+                Intent("i1", "QUERY_SIGN"),
                 Intent("i2", "CHECK_PERMISSION", action=IntentSlot("parking"), actor=IntentSlot("car")),
             ],
         )
@@ -27,7 +27,7 @@ class SymbolicSchemaTest(unittest.TestCase):
             }],
         )
         decoded = json.loads(parsed.to_json())
-        self.assertEqual([item["kind"] for item in decoded["query_intent"]["intents"]], ["QUERY_SIGN_MEANING", "CHECK_PERMISSION"])
+        self.assertEqual([item["kind"] for item in decoded["query_intent"]["intents"]], ["QUERY_SIGN", "CHECK_PERMISSION"])
         self.assertEqual(decoded["context_facts"][0]["source"], "system_clock")
 
     def test_observation_and_fact_set_keep_identity_separate_from_legal_scope(self) -> None:

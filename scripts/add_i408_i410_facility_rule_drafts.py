@@ -47,7 +47,7 @@ def rule(code: str, rule_id: str, action: str, section: str, extra_conditions: l
     return {
         "rule_id": rule_id,
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION", "ASK_CONDITION"],
+        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
         "actions": [action],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

@@ -224,14 +224,24 @@ def normalize_freeform_response(
         confidence = "low"
 
     # Do not let the free-form model turn an uncovered or incomplete sign rule
-    # into a permission claim. For sign permission/condition intents, the
+    # into a permission claim. For sign permission intents, the
     # symbolic outcome is the authority; the LLM may explain it, but it cannot
     # promote UNKNOWN/CONDITIONAL to ALLOWED (or PROHIBITED).
     query_intent = symbolic_context.get("query_intent", {})
     intents = query_intent.get("intents", []) if isinstance(query_intent, dict) else []
+    intent_kinds = {
+        str(item.get("kind") or "UNKNOWN").upper()
+        for item in intents
+        if isinstance(item, dict)
+    }
+    if intent_kinds and intent_kinds.issubset({"PENALTY", "UNKNOWN"}):
+        answer = "Hiện hệ thống chưa hỗ trợ câu hỏi về mức phạt hoặc chưa xác định được yêu cầu."
+        citations = []
+        confidence = "low"
+        reasoning = "Intent thuộc nhóm PENALTY/UNKNOWN, hiện chưa được hệ thống hỗ trợ."
     sign_permission_intent = any(
         isinstance(item, dict)
-        and str(item.get("kind") or "").upper() in {"CHECK_PERMISSION", "ASK_CONDITION"}
+        and str(item.get("kind") or "").upper() == "CHECK_PERMISSION"
         for item in intents
     )
     traffic_facts = symbolic_context.get("facts", {})

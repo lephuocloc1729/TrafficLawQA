@@ -30,7 +30,7 @@ def rule(rule_id: str, code: str, actions: list[str], outcome: str,
     return {
         "rule_id": rule_id,
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION", "ASK_CONDITION"],
+        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
         "actions": actions,
         "actor_scope": ACTORS,
         "excluded_actor_scope": [],

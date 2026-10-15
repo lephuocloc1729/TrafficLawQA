@@ -1368,6 +1368,8 @@ def find_matching_rules(
     matches: list[RuleEvaluation] = []
     scenario_facts = list(context_facts)
     for query_intent in intent.intents:
+        if query_intent.kind != "CHECK_PERMISSION":
+            continue
         action = query_intent.action.value
         actor = query_intent.actor.value
         intent_context = list(scenario_facts)

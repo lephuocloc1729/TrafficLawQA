@@ -39,7 +39,7 @@ class QueryIntentTest(unittest.TestCase):
         )
         self.assertEqual(
             [item.kind for item in query.query_intent.intents],
-            ["QUERY_SIGN_MEANING", "CHECK_PERMISSION"],
+            ["QUERY_SIGN", "CHECK_PERMISSION"],
         )
 
     def test_permission_defaults_to_a_system_clock_fact(self) -> None:
@@ -202,7 +202,7 @@ class QueryIntentTest(unittest.TestCase):
             "Xe ô tô có phải ấn còi tại vị trí đặt biển không?"
         )
         intent = parsed.query_intent.intents[0]
-        self.assertEqual(intent.kind, "ASK_CONDITION")
+        self.assertEqual(intent.kind, "CHECK_PERMISSION")
         self.assertEqual(intent.action.value, "using_horn")
         position = next(item for item in parsed.context_facts
                         if item.predicate == "vehicle_at_r309_sign_position")
@@ -232,7 +232,7 @@ class QueryIntentTest(unittest.TestCase):
     def test_inspection_obligation_question_maps_to_stopping_condition(self) -> None:
         parsed = parse_query_intent_deterministic("Xe tải có phải dừng ở trạm kiểm tra không?")
         intent = parsed.query_intent.intents[0]
-        self.assertEqual(intent.kind, "ASK_CONDITION")
+        self.assertEqual(intent.kind, "CHECK_PERMISSION")
         self.assertEqual(intent.action.value, "stopping")
         self.assertEqual(intent.actor.value, "truck")
 
@@ -248,18 +248,18 @@ class QueryIntentTest(unittest.TestCase):
         slow_down = parse_query_intent_deterministic(
             "Xe ô tô có phải giảm tốc độ khi gặp biển không?"
         ).query_intent.intents[0]
-        self.assertEqual((slow_down.kind, slow_down.action.value), ("ASK_CONDITION", "reduce_speed"))
+        self.assertEqual((slow_down.kind, slow_down.action.value), ("CHECK_PERMISSION", "reduce_speed"))
 
         safe_distance = parse_query_intent_deterministic(
             "Xe ô tô phải giữ khoảng cách an toàn bao nhiêu mét?"
         ).query_intent.intents[0]
-        self.assertEqual((safe_distance.kind, safe_distance.action.value), ("QUERY_DISTANCE_SCOPE", "following_distance"))
+        self.assertEqual((safe_distance.kind, safe_distance.action.value), ("INFORMATION", "following_distance"))
 
     def test_llm_fallback_parses_multiple_intents_and_validates(self) -> None:
         client = FakeLLMClient(json.dumps({
             "schema_version": "2.0",
             "intents": [
-                {"intent_id": "i1", "kind": "QUERY_SIGN_MEANING", "confidence": "high"},
+                {"intent_id": "i1", "kind": "QUERY_SIGN", "confidence": "high"},
                 {"intent_id": "i2", "kind": "CHECK_PERMISSION",
                  "action": {"value": "entering", "status": "provided"},
                  "actor": {"value": "truck", "status": "provided"}, "confidence": "medium"},
@@ -268,7 +268,7 @@ class QueryIntentTest(unittest.TestCase):
         }))
         query = parse_query_intent("Trường hợp xe chở hàng như hình thì sao?", llm_client=client)
         self.assertEqual(client.calls, 1)
-        self.assertEqual([item.kind for item in query.query_intent.intents], ["QUERY_SIGN_MEANING", "CHECK_PERMISSION"])
+        self.assertEqual([item.kind for item in query.query_intent.intents], ["QUERY_SIGN", "CHECK_PERMISSION"])
         self.assertEqual(query.query_intent.intents[1].action.value, "entering")
         self.assertEqual(query.query_intent.intents[1].actor.value, "truck")
         self.assertEqual(query.context_facts[0].metadata["resolution"], "default_current")

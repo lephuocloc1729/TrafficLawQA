@@ -45,7 +45,7 @@ def main() -> None:
         {
             "rule_id": "R122_REQUIRE_STOP_BEFORE_SIGN_OR_LINE",
             "code": "R.122",
-            "intent_kinds": ["ASK_CONDITION"],
+            "intent_kinds": ["CHECK_PERMISSION"],
             "actions": ["stopping"],
             "actor_scope": ["vehicle"],
             "excluded_actor_scope": [],
