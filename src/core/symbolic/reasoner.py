@@ -16,7 +16,75 @@ def _coerce_facts(facts: TrafficFacts | Iterable[SignObservation | dict[str, Any
     if isinstance(facts, TrafficFacts):
         return facts
     if isinstance(facts, dict):
-        return TrafficFacts(**facts)
+        payload = dict(facts)
+        legacy_context_facts = payload.pop("context_facts", [])
+        inventory = payload.pop("sign_inventory", None)
+        if isinstance(inventory, dict):
+            payload["sign_inventory_status"] = inventory.get("status", "unknown")
+            payload["sign_inventory_evidence"] = [
+                {
+                    "source": item.get("source"),
+                    "evidence": item.get("ref"),
+                }
+                for item in inventory.get("evidence", [])
+                if isinstance(item, dict)
+            ]
+        payload["scene_facts"] = payload.pop("scene_facts", [])
+        observations = []
+        observation_facts = []
+        for raw in payload.get("sign_observations", []):
+            if not isinstance(raw, dict):
+                continue
+            item = dict(raw)
+            identity = item.pop("identity", {})
+            if isinstance(identity, dict) and identity:
+                item.setdefault("observation_id", item.pop("id", None))
+                item["sign_code"] = identity.get("sign_code")
+                item["identity_status"] = identity.get("status", "unidentified")
+                item["confidence"] = identity.get("confidence", "low")
+                item["candidates"] = identity.get("candidates", [])
+                item["visual_attributes"] = {
+                    "name": (item.get("catalog") or {}).get("official_name"),
+                    "description": (item.get("catalog") or {}).get("legal_meaning"),
+                }
+            elif "id" in item:
+                item["observation_id"] = item.pop("id")
+            if isinstance(item.get("catalog"), dict):
+                item["catalog"] = dict(item["catalog"])
+            for fact_index, fact in enumerate(item.pop("facts", [])):
+                if isinstance(fact, dict):
+                    observation_facts.append({
+                        **fact,
+                        "fact_id": fact.get("fact_id") or f"{item['observation_id']}:fact-{fact_index + 1}",
+                        "metadata": {"subject_observation_id": item["observation_id"]},
+                    })
+            item["source"] = "image"
+            observations.append(item)
+        payload["sign_observations"] = observations
+        payload["context_facts"] = observation_facts + [
+            item for item in legacy_context_facts if isinstance(item, dict)
+        ] + [
+            {
+                **item,
+                "fact_id": item.get("fact_id") or f"scene-fact-{index + 1}",
+            }
+            for index, item in enumerate(payload.pop("scene_facts", []))
+            if isinstance(item, dict)
+        ]
+        payload["sign_relations"] = [
+            {
+                "relation_id": item.get("id") or item.get("relation_id") or f"relation-{index + 1}",
+                "relation_type": item.get("type", item.get("relation_type", "unknown")),
+                "source_observation_id": item.get("from", item.get("source_observation_id", "")),
+                "target_observation_id": item.get("to", item.get("target_observation_id", "")),
+                "confidence": item.get("confidence", "low"),
+            }
+            for index, item in enumerate(payload.get("sign_relations", []))
+            if isinstance(item, dict)
+        ]
+        payload.pop("schema_version", None)
+        payload.pop("scene_id", None)
+        return TrafficFacts(**payload)
     observations = [
         item if isinstance(item, SignObservation) else SignObservation(**item)
         for item in facts

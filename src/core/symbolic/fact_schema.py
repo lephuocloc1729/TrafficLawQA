@@ -21,6 +21,7 @@ class SignObservation(SerializableMixin):
     confidence: Confidence = "low"
     source: str = "image"
     metadata: dict[str, Any] = field(default_factory=dict)
+    catalog: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.observation_id = str(self.observation_id or "observation-unknown").strip()
@@ -44,6 +45,49 @@ class SignObservation(SerializableMixin):
         self.legal_refs = [item for item in self.legal_refs if isinstance(item, dict)]
         self.evidence = [item for item in self.evidence if isinstance(item, dict)]
         self.metadata = dict(self.metadata) if isinstance(self.metadata, dict) else {}
+        self.catalog = dict(self.catalog) if isinstance(self.catalog, dict) else {}
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize an observation using the compact public traffic-facts schema."""
+        identity = {
+            "sign_code": self.sign_code,
+            "status": self.identity_status,
+            "confidence": self.confidence,
+            "candidates": [
+                {
+                    "sign_code": item.get("sign_code"),
+                    "confidence": item.get("confidence", item.get("score")),
+                }
+                for item in self.candidates
+            ],
+        }
+        return {
+            "id": self.observation_id,
+            "role": self.role,
+            "bbox": self.bbox,
+            "identity": identity,
+            "catalog": {
+                "official_name": self.catalog.get("official_name"),
+                "legal_meaning": self.catalog.get("legal_meaning"),
+                "status": self.catalog.get("status", "unresolved"),
+            },
+            "ocr_texts": [
+                {
+                    "raw_text": item.get("raw_text"),
+                    "normalized_value": item.get("normalized_value"),
+                    "confidence": normalize_confidence(item.get("confidence")),
+                }
+                for item in self.ocr_texts
+            ],
+            "facts": [],
+            "evidence": [
+                {
+                    "type": item.get("type", "image"),
+                    "ref": item.get("ref", item.get("path")),
+                }
+                for item in self.evidence
+            ],
+        }
 
 
 @dataclass
@@ -70,6 +114,16 @@ class ContextFact(SerializableMixin):
             self.status = "unknown"
         self.confidence = normalize_confidence(self.confidence)
 
+    def to_compact_dict(self) -> dict[str, Any]:
+        return {
+            "predicate": self.predicate,
+            "value": self.value,
+            "status": self.status,
+            "source": self.source,
+            "raw_text": self.raw_text,
+            "confidence": self.confidence,
+        }
+
 
 @dataclass
 class SignRelation(SerializableMixin):
@@ -86,6 +140,14 @@ class SignRelation(SerializableMixin):
         self.source_observation_id = str(self.source_observation_id or "").strip()
         self.target_observation_id = str(self.target_observation_id or "").strip()
         self.confidence = normalize_confidence(self.confidence)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "type": self.relation_type,
+            "from": self.source_observation_id,
+            "to": self.target_observation_id,
+            "confidence": self.confidence,
+        }
 
 
 @dataclass
@@ -138,3 +200,57 @@ class TrafficFacts(SerializableMixin):
             if relation.source_observation_id not in known_ids or relation.target_observation_id not in known_ids:
                 self.unresolved_items.append(f"unresolved_relation:{relation.relation_id}")
         self.unresolved_items = list(dict.fromkeys(str(item) for item in self.unresolved_items))
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize the compact schema, grouping sign-specific facts by observation."""
+        observations = [item.to_dict() for item in self.sign_observations]
+        observation_by_id = {item.observation_id: index for index, item in enumerate(self.sign_observations)}
+        scene_facts: list[dict[str, Any]] = []
+
+        # Preserve explicitly supplied facts, grouping subject-specific facts under
+        # their observation so callers do not need a duplicated subject ID field.
+        for fact in self.context_facts:
+            subject_id = fact.metadata.get("subject_observation_id")
+            if subject_id in observation_by_id:
+                observations[observation_by_id[subject_id]]["facts"].append(fact.to_compact_dict())
+            else:
+                scene_facts.append(fact.to_compact_dict())
+
+        # Facts extracted from OCR and normalized sign attributes are computed by
+        # the reasoning layer. Include them in the public fact payload as well.
+        try:
+            from src.core.symbolic.traffic_rules import _observation_context_facts
+
+            for index, observation in enumerate(self.sign_observations):
+                existing = {
+                    (fact.get("predicate"), str(fact.get("value")))
+                    for fact in observations[index]["facts"]
+                }
+                for fact in _observation_context_facts(
+                    observation, subject_id=observation.observation_id
+                ):
+                    compact = fact.to_compact_dict()
+                    fingerprint = (compact["predicate"], str(compact["value"]))
+                    if fingerprint not in existing:
+                        observations[index]["facts"].append(compact)
+                        existing.add(fingerprint)
+        except ImportError:
+            # Schema serialization remains available if the optional rule layer
+            # cannot be imported (for example, while generating documentation).
+            pass
+
+        return {
+            "sign_inventory": {
+                "status": self.sign_inventory_status,
+                "evidence": [
+                    {
+                        "source": item.get("source"),
+                        "ref": item.get("ref", item.get("evidence")),
+                    }
+                    for item in self.sign_inventory_evidence
+                ],
+            },
+            "sign_observations": observations,
+            "sign_relations": [item.to_dict() for item in self.sign_relations],
+            "scene_facts": scene_facts,
+        }

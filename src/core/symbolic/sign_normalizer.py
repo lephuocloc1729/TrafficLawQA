@@ -143,6 +143,27 @@ def normalize_payload_to_observation(
     if image_path and not any(item.get("path") == image_path for item in evidence):
         evidence.append({"type": "crop", "path": image_path, "source": source or "retrieval"})
 
+    catalog_info: dict[str, Any] = {
+        "official_name": None,
+        "legal_meaning": None,
+        "status": "unresolved",
+    }
+    if sign_code:
+        try:
+            from src.core.symbolic.sign_catalog import load_default_sign_catalog
+
+            entry = load_default_sign_catalog().lookup(sign_code)
+            if entry is None:
+                catalog_info["status"] = "not_found"
+            else:
+                catalog_info = {
+                    "official_name": entry.official_name,
+                    "legal_meaning": entry.legal_meaning,
+                    "status": entry.status,
+                }
+        except (OSError, ValueError):
+            catalog_info["status"] = "unavailable"
+
     return SignObservation(
         observation_id=_observation_id(payload, sign_code),
         role=str(payload.get("role") or payload.get("sign_role") or "unknown"),
@@ -156,6 +177,7 @@ def normalize_payload_to_observation(
         evidence=evidence,
         confidence=normalize_confidence(confidence or payload.get("confidence")),
         source=str(source or payload.get("source") or "retrieval"),
+        catalog=catalog_info,
         metadata={
             "image_path": image_path or None,
             "retrieval_rank": payload.get("retrieval_rank"),

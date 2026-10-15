@@ -65,21 +65,30 @@ Schema:
   },
   "rules_fired": ["Mã rule đã kích hoạt, ví dụ P130_NO_STOPPING_NO_PARKING"],
   "traffic_facts": {
-    "schema_version": "2.0",
-    "scene_id": "...",
+    "sign_inventory": {"status": "complete|partial|unknown", "evidence": []},
     "sign_observations": [
       {
-        "observation_id": "...",
-        "role": "main|supplementary|unknown",
-        "sign_code": "...|null",
-        "identity_status": "identified|ambiguous|unidentified",
-        "candidates": [],
+        "id": "...",
+        "role": "main|supplementary|temporary|unknown",
+        "bbox": null,
+        "identity": {
+          "sign_code": "...|null",
+          "status": "identified|ambiguous|unidentified",
+          "confidence": "high|medium|low",
+          "candidates": []
+        },
+        "catalog": {
+          "official_name": null,
+          "legal_meaning": null,
+          "status": "verified|unverified|variant_required|not_found|unresolved"
+        },
         "ocr_texts": [],
+        "facts": [],
         "evidence": []
       }
     ],
-    "context_facts": [],
-    "sign_relations": []
+    "sign_relations": [],
+    "scene_facts": []
   },
   "query_intent": {
     "schema_version": "3.0",

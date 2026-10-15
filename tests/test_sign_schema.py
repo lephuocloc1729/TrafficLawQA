@@ -72,9 +72,11 @@ class SymbolicSchemaTest(unittest.TestCase):
             context_facts=[ContextFact("t1", "calendar_parity", "odd_days", "provided", "user_query")],
         )
         payload = facts.to_dict()
-        self.assertEqual(payload["sign_observations"][0]["sign_code"], "P.131b")
+        self.assertEqual(payload["sign_observations"][0]["identity"]["sign_code"], "P.131b")
         self.assertNotIn("restriction_type", payload["sign_observations"][0])
-        self.assertEqual(payload["context_facts"][0]["predicate"], "calendar_parity")
+        self.assertEqual(payload["scene_facts"][0]["predicate"], "calendar_parity")
+        self.assertNotIn("schema_version", payload)
+        self.assertNotIn("scene_id", payload)
 
     def test_rule_schema_is_declarative_and_serializable(self) -> None:
         rule = TrafficRule(
