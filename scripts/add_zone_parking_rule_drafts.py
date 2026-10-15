@@ -50,7 +50,7 @@ def start_rule(code: str, timed: bool) -> dict:
     return {
         "rule_id": "RE9B_NO_PARKING_DURING_DISPLAYED_TIME_IN_ZONE" if timed else "RE9A_NO_PARKING_IN_ZONE",
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["parking"],
         "actor_scope": ["motor_vehicle"],
         "excluded_actor_scope": ["priority_vehicle"],
@@ -90,7 +90,7 @@ def end_rule(code: str, timed: bool) -> dict:
     return {
         "rule_id": "RE10B_END_OF_TIMED_NO_PARKING_ZONE" if timed else "RE10A_END_OF_NO_PARKING_ZONE",
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["parking"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

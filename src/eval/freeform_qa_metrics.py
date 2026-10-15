@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import platform
 import re
 import subprocess
@@ -24,6 +25,10 @@ from src.deps.llm_client import LLMClient
 from src.core.freeform_qa import answer_image_question, create_freeform_qa_resources
 from src.core.sub_task_2 import extract_json_object
 from src.core.utils import load_json
+from src.core.symbolic.traffic_rules import (
+    ALLOW_UNVERIFIED_RULES_FOR_EVAL_ENV,
+    unverified_rules_allowed_for_eval,
+)
 
 
 REQUIRED_BASELINE_METRICS = (
@@ -305,6 +310,7 @@ def _output_payloads(
             "git_revision": _git_revision(),
             "python": platform.python_version(),
             "platform": platform.platform(),
+            "allow_unverified_rules_for_eval": unverified_rules_allowed_for_eval(),
         },
         "dataset": {
             "path": str(dataset_path),
@@ -341,7 +347,18 @@ def main() -> None:
         action="store_true",
         help="Keep completed rows from a prior run with the same config",
     )
+    parser.add_argument(
+        "--allow-unverified-rules-for-eval",
+        action="store_true",
+        help=(
+            "Allow rules marked unverified to execute for this diagnostic run; "
+            "rules without a legal-basis reference remain blocked"
+        ),
+    )
     args = parser.parse_args()
+
+    if args.allow_unverified_rules_for_eval:
+        os.environ[ALLOW_UNVERIFIED_RULES_FOR_EVAL_ENV] = "1"
 
     config = load_baseline_config(args.config)
     apply_baseline_config(config)

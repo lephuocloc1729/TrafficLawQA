@@ -1,0 +1,101 @@
+﻿id,topic,question,expected_intents,predicted_intents,exact_match
+intent-001,permission,Xe máy có được rẽ trái ở đây không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-002,permission,Ô tô được phép quay đầu tại vị trí này không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-003,permission,Xe tải có được đi vào đường này không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-004,permission,Xe đạp có được đi qua đoạn đường này không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-005,permission,Tôi có được đỗ xe ở đây không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-006,permission,Xe khách có được dừng tại khu vực này không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-007,permission,Xe bán tải có được vượt xe khác không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-008,permission,Xe máy có được đi thẳng qua nút giao không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-009,permission,Ô tô có được chuyển làn ở đoạn này không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-010,permission,Xe con có được đi vào đường một chiều không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-011,permission,Xe tải có được quay đầu ở ngã tư này không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-012,permission,Xe máy được phép đi vào làn này chứ?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-013,permission,Tại đây xe đạp có được sang đường không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-014,permission,Xe buýt có được dừng đón khách ở đây không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-015,permission,Xe máy có được chạy quá tốc độ ghi trên biển không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-016,permission,Ô tô có được đi vòng qua chướng ngại vật bên trái không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-017,permission,Xe kéo rơ moóc có được đi qua đoạn đường này không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-018,permission,Xe cứu thương có được lưu thông vào khu vực này không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-019,query_sign,Biển báo trong ảnh này có ý nghĩa gì?,QUERY_SIGN,QUERY_SIGN,True
+intent-020,query_sign,Biển này là biển gì vậy?,QUERY_SIGN,QUERY_SIGN,True
+intent-021,query_sign,Bạn nhận diện giúp biển báo này được không?,QUERY_SIGN,QUERY_SIGN,True
+intent-022,query_sign,Nội dung của biển báo này là gì?,QUERY_SIGN,QUERY_SIGN,True
+intent-023,query_sign,Biển số R.301 có nghĩa gì?,QUERY_SIGN,QUERY_SIGN,True
+intent-024,query_sign,Hãy xác định biển báo xuất hiện trong hình.,QUERY_SIGN,QUERY_SIGN,True
+intent-025,query_sign,Trong ảnh có biển nào?,QUERY_SIGN,QUERY_SIGN,True
+intent-026,query_sign,Mã biển báo này là gì?,QUERY_SIGN,QUERY_SIGN,True
+intent-027,query_sign,Tấm biển này muốn thông báo điều gì?,QUERY_SIGN,QUERY_SIGN,True
+intent-028,query_sign,Đây là loại biển báo nào?,QUERY_SIGN,QUERY_SIGN,True
+intent-029,query_sign,Cho tôi biết ý nghĩa của biển báo giao thông này.,QUERY_SIGN,QUERY_SIGN,True
+intent-030,query_sign,Biển R302a nói lên điều gì?,QUERY_SIGN,QUERY_SIGN,True
+intent-031,query_sign,Biển báo màu xanh trong ảnh là biển gì?,QUERY_SIGN,QUERY_SIGN,True
+intent-032,query_sign,Có thể đọc giúp nội dung biển này không?,QUERY_SIGN,QUERY_SIGN,True
+intent-033,query_sign,Hình này đang hiển thị biển báo nào?,QUERY_SIGN,QUERY_SIGN,True
+intent-034,query_sign,Tên gọi của biển báo trên là gì?,QUERY_SIGN,QUERY_SIGN,True
+intent-035,query_sign,Biển số P.123 thuộc loại biển nào?,QUERY_SIGN,QUERY_SIGN,True
+intent-036,query_sign,Biển này dùng để báo hiệu điều gì?,QUERY_SIGN,QUERY_SIGN,True
+intent-037,subjects,Biển này cấm những phương tiện nào?,INFORMATION,INFORMATION,True
+intent-038,subjects,Loại xe nào bị cấm theo biển báo?,INFORMATION,INFORMATION,True
+intent-039,subjects,Biển báo cấm xe nào lưu thông?,INFORMATION,INFORMATION,True
+intent-040,subjects,Những phương tiện nào không được đi vào?,INFORMATION,INFORMATION,True
+intent-041,time,Biển hạn chế này có hiệu lực vào thời gian nào?,INFORMATION,INFORMATION,True
+intent-042,time,Thời điểm nào quy định trên biển bắt đầu áp dụng?,INFORMATION,INFORMATION,True
+intent-043,time,Biển cấm có hiệu lực khi nào trong ngày?,INFORMATION,INFORMATION,True
+intent-044,time,Biển phụ này giới hạn thời gian nào?,INFORMATION,INFORMATION,True
+intent-045,direction,Lệnh cấm áp dụng theo hướng nào?,INFORMATION,INFORMATION,True
+intent-046,direction,Biển này có hiệu lực ở chiều nào của đường?,INFORMATION,INFORMATION,True
+intent-047,direction,Các xe phải đi theo hướng nào tại đây?,INFORMATION,INFORMATION,True
+intent-048,direction,Biển chỉ dẫn yêu cầu rẽ hướng nào?,INFORMATION,INFORMATION,True
+intent-049,speed,Tốc độ tối đa được phép trên đoạn đường này là bao nhiêu?,INFORMATION,INFORMATION,True
+intent-050,speed,Giới hạn tốc độ ghi trên biển là bao nhiêu km/h?,INFORMATION,INFORMATION,True
+intent-051,speed,Xe được chạy với vận tốc bao nhiêu?,INFORMATION,INFORMATION,True
+intent-052,distance,Biển báo có hiệu lực trong phạm vi bao xa?,INFORMATION,INFORMATION,True
+intent-053,distance,Khoảng cách áp dụng của biển này là bao nhiêu mét?,INFORMATION,INFORMATION,True
+intent-054,distance,Khu vực hạn chế kéo dài bao xa?,INFORMATION,INFORMATION,True
+intent-055,penalty,Vượt đèn đỏ thì mức phạt là bao nhiêu?,PENALTY,PENALTY,True
+intent-056,penalty,Đi sai làn sẽ bị phạt bao nhiêu tiền?,PENALTY,PENALTY,True
+intent-057,penalty,Tiền phạt cho lỗi đỗ xe sai quy định là bao nhiêu?,PENALTY,PENALTY,True
+intent-058,penalty,Không chấp hành biển báo thì bị xử phạt thế nào?,PENALTY,PENALTY,True
+intent-059,penalty,Xe máy vi phạm quy định này bị phạt bao nhiêu?,PENALTY,PENALTY,True
+intent-060,penalty,Mức phạt khi đi ngược chiều là bao nhiêu?,PENALTY,PENALTY,True
+intent-061,penalty,Ô tô chạy quá tốc độ bị phạt bao nhiêu tiền?,PENALTY,PENALTY,True
+intent-062,penalty,Nếu vi phạm biển cấm thì sẽ bị gì?,PENALTY,PENALTY,True
+intent-063,penalty,Lỗi không nhường đường có mức phạt bao nhiêu?,PENALTY,PENALTY,True
+intent-064,penalty,Đi vào đường cấm bị xử phạt ra sao?,PENALTY,PENALTY,True
+intent-065,penalty,Cho hỏi tiền phạt lỗi quay đầu sai nơi quy định.,PENALTY,PENALTY,True
+intent-066,penalty,Mức phạt cho hành vi dừng xe ở nơi cấm dừng là bao nhiêu?,PENALTY,PENALTY,True
+intent-067,penalty,Xe tải chở quá tải thì bị phạt bao nhiêu?,PENALTY,PENALTY,True
+intent-068,penalty,Không đội mũ bảo hiểm thì phạt thế nào?,PENALTY,PENALTY,True
+intent-069,penalty,Vượt quá tốc độ 10 km/h thì tiền phạt là bao nhiêu?,PENALTY,PENALTY,True
+intent-070,penalty,Vi phạm quy định trên biển này bị xử phạt bao nhiêu?,PENALTY,PENALTY,True
+intent-071,penalty,Lỗi đi vào làn khẩn cấp bị phạt bao nhiêu tiền?,PENALTY,PENALTY,True
+intent-072,penalty,Không tuân thủ biển chỉ dẫn thì mức phạt thế nào?,PENALTY,PENALTY,True
+intent-073,unknown,"Xin chào, bạn có thể giúp tôi không?",UNKNOWN,UNKNOWN,True
+intent-074,unknown,Cảm ơn bạn rất nhiều.,UNKNOWN,UNKNOWN,True
+intent-075,unknown,Hôm nay trời có mưa không?,UNKNOWN,UNKNOWN,True
+intent-076,unknown,Ảnh này được chụp ở thành phố nào?,UNKNOWN,UNKNOWN,True
+intent-077,unknown,Bạn có thể kể một câu chuyện vui không?,UNKNOWN,UNKNOWN,True
+intent-078,unknown,Tôi nên ăn món gì vào buổi tối?,UNKNOWN,UNKNOWN,True
+intent-079,unknown,Màu sắc chủ đạo của bức ảnh là gì?,UNKNOWN,UNKNOWN,True
+intent-080,unknown,Có bao nhiêu người đang đứng bên đường?,UNKNOWN,UNKNOWN,True
+intent-081,unknown,Chiếc xe trong ảnh thuộc hãng nào?,UNKNOWN,UNKNOWN,True
+intent-082,unknown,Bạn hãy dịch câu này sang tiếng Anh.,UNKNOWN,UNKNOWN,True
+intent-083,unknown,Tôi muốn tìm đường đến sân bay.,UNKNOWN,UNKNOWN,True
+intent-084,unknown,Ngày mai có phải ngày nghỉ không?,UNKNOWN,UNKNOWN,True
+intent-085,unknown,Hãy mô tả khung cảnh trong bức ảnh.,UNKNOWN,UNKNOWN,True
+intent-086,unknown,Bạn có thể đọc biển số xe giúp tôi không?,UNKNOWN,UNKNOWN,True
+intent-087,unknown,Âm thanh trong video phát ra từ đâu?,UNKNOWN,UNKNOWN,True
+intent-088,unknown,Làm sao để bảo dưỡng động cơ xe?,UNKNOWN,UNKNOWN,True
+intent-089,unknown,Ai là người phát minh ra ô tô?,UNKNOWN,UNKNOWN,True
+intent-090,unknown,Hãy tóm tắt nội dung đoạn văn này.,UNKNOWN,UNKNOWN,True
+intent-091,permission,Xe máy có được phép đi thẳng qua giao lộ này không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-092,permission,Ở đoạn đường này ô tô có được vượt xe khác không?,CHECK_PERMISSION,CHECK_PERMISSION,True
+intent-093,query_sign,Bạn cho biết biển báo này mang ý nghĩa gì?,QUERY_SIGN,QUERY_SIGN,True
+intent-094,query_sign,Biển báo xuất hiện ở phía trước là biển nào?,QUERY_SIGN,QUERY_SIGN,True
+intent-095,information,Biển báo này áp dụng cho loại phương tiện nào?,INFORMATION,INFORMATION,True
+intent-096,information,Biển giới hạn tốc độ cho xe chạy tối đa bao nhiêu km/h?,INFORMATION,INFORMATION,True
+intent-097,penalty,Chạy xe máy vào đường cấm thì mức phạt bao nhiêu?,PENALTY,PENALTY,True
+intent-098,penalty,Không chấp hành hiệu lệnh của biển báo sẽ bị phạt thế nào?,PENALTY,PENALTY,True
+intent-099,unknown,Bạn hãy cho biết chiếc xe này có màu gì?,UNKNOWN,UNKNOWN,True
+intent-100,unknown,Trong ảnh có những tòa nhà nào?,UNKNOWN,UNKNOWN,True

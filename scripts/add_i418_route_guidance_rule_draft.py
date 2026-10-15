@@ -28,7 +28,7 @@ def make_rule() -> dict:
     return {
         "rule_id": "I418_DIAGRAM_DEPENDENT_ROUTE_GUIDANCE",
         "code": "I.418",
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["turn_left", "turn_right", "going_straight", "crossing", "entering", "circulation"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

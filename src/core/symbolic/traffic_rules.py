@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
@@ -24,6 +25,29 @@ RULE_DRAFT_REGISTRY_PATH = Path(__file__).parent / "catalogs" / "qcvn_41_2024_ru
 SCOPE_SUPPLEMENTARY_FAMILIES = {
     "S.501", "S.502", "S.503", "S.504", "S.505", "S.506", "S.508", "S.509",
 }
+ALLOW_UNVERIFIED_RULES_FOR_EVAL_ENV = "LEXISIGN_ALLOW_UNVERIFIED_RULES_FOR_EVAL"
+
+
+def _is_legally_verified(rule: TrafficRule) -> bool:
+    return (
+        rule.verification_status == "verified"
+        and bool(rule.legal_basis)
+        and all(ref.get("verification_status") == "verified" for ref in rule.legal_basis)
+    )
+
+
+def unverified_rules_allowed_for_eval() -> bool:
+    return os.getenv(ALLOW_UNVERIFIED_RULES_FOR_EVAL_ENV, "").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
+
+
+def _rule_execution_allowed(rule: TrafficRule) -> bool:
+    # Evaluation may opt into draft logic, but never execute a rule without a
+    # legal-basis reference. The override is disabled unless explicitly set.
+    return _is_legally_verified(rule) or (
+        unverified_rules_allowed_for_eval() and bool(rule.legal_basis)
+    )
 
 
 def _actor_scope_match(actor: str, scopes: list[str]) -> str:
@@ -1033,11 +1057,7 @@ def _evaluate_candidate(
 
     if actor_unresolved:
         missing = list(actor_missing_facts or ["actor_class"])
-        if not (
-            rule.verification_status == "verified"
-            and rule.legal_basis
-            and all(ref.get("verification_status") == "verified" for ref in rule.legal_basis)
-        ):
+        if not _rule_execution_allowed(rule):
             missing.append("legal_review_required")
         return RuleEvaluation(
             rule_id=rule.rule_id,
@@ -1171,12 +1191,10 @@ def _evaluate_candidate(
             "unmodeled_panels": unmodeled_scope_panels,
         })
 
-    legal_verified = (
-        rule.verification_status == "verified"
-        and bool(rule.legal_basis)
-        and all(ref.get("verification_status") == "verified" for ref in rule.legal_basis)
-    )
-    if not legal_verified:
+    rule_is_verified = _is_legally_verified(rule)
+    eval_override = unverified_rules_allowed_for_eval()
+    rule_execution_allowed = _rule_execution_allowed(rule)
+    if not rule_execution_allowed:
         unresolved = list(dict.fromkeys([*missing, "legal_review_required"]))
         return RuleEvaluation(
             rule_id=rule.rule_id,
@@ -1192,6 +1210,12 @@ def _evaluate_candidate(
             trace=[*trace, {"step": "legal_review_gate", "state": "blocked"}],
             verification_status=rule.verification_status,
         )
+    if eval_override and not rule_is_verified:
+        trace.append({
+            "step": "legal_review_gate",
+            "state": "unverified_rule_execution_allowed_for_eval",
+            "verification_status": rule.verification_status,
+        })
 
     if sh6_match_fact is not None and sh6_applies is True and any(
         effect.effect_type in {"prohibit_action", "maximum", "minimum", "exact_value"}
@@ -1355,7 +1379,7 @@ def _evaluate_candidate(
         ),
         trace=trace,
         verification_status=rule.verification_status,
-        effects=effects if legal_verified and not conditions_incomplete else [],
+        effects=effects if rule_execution_allowed and not conditions_incomplete else [],
     )
 
 

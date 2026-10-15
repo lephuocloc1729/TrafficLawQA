@@ -27,7 +27,6 @@
       ],
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -106,7 +105,6 @@
       ],
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -173,7 +171,6 @@
       ],
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -250,7 +247,6 @@
       ],
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -313,7 +309,6 @@
       ],
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left"
@@ -366,7 +361,6 @@
       ],
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_right"
@@ -419,7 +413,6 @@
       ],
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -478,7 +471,6 @@
       ],
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"

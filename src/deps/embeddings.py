@@ -38,19 +38,19 @@ class CLIPEmbedding:
 
 
 class SigLIPEmbedding:
-    def __init__(self, model_name_or_path: str = "google/siglip2-so400m-patch14-384"):
-        self.model = AutoModel.from_pretrained(
-            model_name_or_path,
-            device_map="auto",
-        ).eval()
+    def __init__(
+        self,
+        model_name_or_path: str = "google/siglip2-so400m-patch14-384",
+        device: str = "cpu",
+    ):
+        self.device = _resolve_device(device)
+        self.model = AutoModel.from_pretrained(model_name_or_path).to(self.device).eval()
         self.processor = AutoProcessor.from_pretrained(
             model_name_or_path, use_fast=True
         )
 
     def embed_image(self, image: Image.Image) -> np.ndarray:
-        inputs = self.processor(images=[image], return_tensors="pt").to(
-            self.model.device
-        )
+        inputs = self.processor(images=[image], return_tensors="pt").to(self.device)
         with torch.no_grad():
             features = self.model.get_image_features(**inputs)
             # L2 Normalizaion
@@ -64,18 +64,17 @@ class DINOv2Embedding:
     def __init__(
         self,
         model_name_or_path: str = "facebook/dinov2-with-registers-large",
-        device: str = "auto",
+        device: str = "cpu",
     ):
+        self.device = _resolve_device(device)
         self.processor = AutoImageProcessor.from_pretrained(
             model_name_or_path, use_fast=True
         )
-        self.model = AutoModel.from_pretrained(
-            model_name_or_path, device_map=device
-        ).eval()
+        self.model = AutoModel.from_pretrained(model_name_or_path).to(self.device).eval()
 
     def embed_image(self, image: Image.Image) -> np.ndarray:
         image = image.convert("RGB")
-        inputs = self.processor(images=image, return_tensors="pt").to(self.model.device)
+        inputs = self.processor(images=image, return_tensors="pt").to(self.device)
         with torch.no_grad():
             features = self.model(**inputs).last_hidden_state[:, 0]
             return F.normalize(features, p=2, dim=1).detach().cpu().numpy().flatten()
@@ -176,7 +175,7 @@ def get_embedding_model(name: str, device: str = "cpu") -> tuple[Callable, int]:
     if "clip" in name.lower():
         embedder = CLIPEmbedding(model_name_or_path, device)
     elif "siglip" in name.lower():
-        embedder = SigLIPEmbedding(model_name_or_path)
+        embedder = SigLIPEmbedding(model_name_or_path, device)
     elif "dinov2" in name.lower():
         embedder = DINOv2Embedding(model_name_or_path, device)
     elif "dinov3" in name.lower():
@@ -185,6 +184,16 @@ def get_embedding_model(name: str, device: str = "cpu") -> tuple[Callable, int]:
         raise ValueError(f"Invalid embedding model: {name}")
 
     return embedder, embedding_dim
+
+
+def _resolve_device(device: str) -> str:
+    if device != "auto":
+        return device
+    if torch.cuda.is_available():
+        return "cuda"
+    if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
+        return "mps"
+    return "cpu"
 
 
 if __name__ == "__main__":

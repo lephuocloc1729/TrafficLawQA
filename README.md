@@ -343,6 +343,20 @@ The demo supports:
 - visual evidence;
 - raw JSON/debug information.
 
+## Compare YOLOv8m with Image Retrieval
+
+Start Qdrant and make sure the configured LawDB image collection has been
+ingested. Then run:
+
+```bash
+PYTHONPATH=. streamlit run src/ui/model_comparison.py
+```
+
+Upload an image to view YOLOv8m's boxes and class labels beside the original
+YoloE → CLIP/Qdrant retrieval results. Each branch processes the uploaded image
+independently; retrieval uses YoloE regions rather than YOLOv8m detections. The
+YoloE checkpoint is downloaded separately to `models/yoloe-v8l-seg.pt`.
+
 ## Run Demo on a GPU Machine
 
 Start Streamlit with public binding:

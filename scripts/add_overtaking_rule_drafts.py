@@ -38,7 +38,7 @@ def rule(rule_id: str, code: str, outcome: str, conditions: list[dict], reason: 
     return {
         "rule_id": rule_id,
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["overtaking"],
         "actor_scope": actors,
         "excluded_actor_scope": [],

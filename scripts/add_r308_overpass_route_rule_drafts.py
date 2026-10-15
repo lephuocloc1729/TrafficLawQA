@@ -58,7 +58,7 @@ def make_rule(code: str, *, other_turn: bool) -> dict:
     return {
         "rule_id": rule_id,
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": actions,
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

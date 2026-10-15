@@ -1,5 +1,5 @@
 {
-  "registry_version": "qcvn41-rule-drafts-54",
+  "registry_version": "qcvn41-rule-drafts-55",
   "source_document": "QCVN 41:2024/BGTVT",
   "review_status": "unreviewed_draft",
   "rules": [
@@ -8,7 +8,6 @@
       "code": "P.101",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -38,7 +37,6 @@
       "code": "P.102",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "walking",
@@ -80,7 +78,6 @@
       "code": "P.104",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -111,7 +108,6 @@
       "code": "P.105",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -138,7 +134,6 @@
       "code": "P.107a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -166,7 +161,6 @@
       "code": "P.107b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -189,7 +183,6 @@
       "code": "P.109",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -212,7 +205,6 @@
       "code": "P.110a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -266,7 +258,6 @@
       "code": "P.112",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -290,7 +281,6 @@
       "code": "P.113",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -318,7 +308,6 @@
       "code": "P.114",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -342,7 +331,6 @@
       "code": "P.115",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -383,7 +371,6 @@
       "code": "P.116",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -424,7 +411,6 @@
       "code": "P.117",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -465,7 +451,6 @@
       "code": "P.118",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -506,7 +491,6 @@
       "code": "P.119",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -546,7 +530,6 @@
       "code": "P.121",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "following_distance"
@@ -613,7 +596,6 @@
       "code": "P.124a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "u_turn"
@@ -661,7 +643,6 @@
       "code": "P.124b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "u_turn"
@@ -710,7 +691,6 @@
       "code": "P.124c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left",
@@ -764,7 +744,6 @@
       "code": "P.124d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_right",
@@ -818,7 +797,6 @@
       "code": "P.124e",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left",
@@ -872,7 +850,6 @@
       "code": "P.124f",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_right",
@@ -926,7 +903,6 @@
       "code": "P.125",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "overtaking"
@@ -948,7 +924,6 @@
       "code": "P.126",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "overtaking"
@@ -969,7 +944,6 @@
       "code": "P.128",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "using_horn"
@@ -1012,7 +986,6 @@
       "code": "P.129",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "stopping",
@@ -1073,7 +1046,6 @@
       "code": "P.136",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight"
@@ -1099,7 +1071,6 @@
       "code": "P.137",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left",
@@ -1130,7 +1101,6 @@
       "code": "P.138",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight",
@@ -1161,7 +1131,6 @@
       "code": "P.139",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight",
@@ -1192,7 +1161,6 @@
       "code": "P.103a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -1251,7 +1219,6 @@
       "code": "P.103b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_right"
@@ -1302,7 +1269,6 @@
       "code": "P.103c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left"
@@ -1353,7 +1319,6 @@
       "code": "P.106a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -1428,7 +1393,6 @@
       "code": "P.106a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -1500,7 +1464,6 @@
       "code": "P.106a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -1587,7 +1550,6 @@
       "code": "P.106b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -1647,7 +1609,6 @@
       "code": "P.106c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -1709,7 +1670,6 @@
       "code": "P.110b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -1763,7 +1723,6 @@
       "code": "P.108",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -1805,7 +1764,6 @@
       "code": "P.108a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -1853,7 +1811,6 @@
       "code": "P.111a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -1907,7 +1864,6 @@
       "code": "P.111b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -1961,7 +1917,6 @@
       "code": "P.111c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -2015,7 +1970,6 @@
       "code": "P.111d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -2069,7 +2023,6 @@
       "code": "P.120",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -2124,7 +2077,6 @@
       "code": "R.301a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight"
@@ -2162,7 +2114,6 @@
       "code": "R.301a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left",
@@ -2216,7 +2167,6 @@
       "code": "R.301b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_right"
@@ -2254,7 +2204,6 @@
       "code": "R.301b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight",
@@ -2308,7 +2257,6 @@
       "code": "R.301c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left"
@@ -2346,7 +2294,6 @@
       "code": "R.301c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight",
@@ -2400,7 +2347,6 @@
       "code": "R.301d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_right"
@@ -2438,7 +2384,6 @@
       "code": "R.301d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight",
@@ -2492,7 +2437,6 @@
       "code": "R.301e",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left"
@@ -2530,7 +2474,6 @@
       "code": "R.301e",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight",
@@ -2584,7 +2527,6 @@
       "code": "R.301f",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight",
@@ -2630,7 +2572,6 @@
       "code": "R.301f",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left",
@@ -2676,7 +2617,6 @@
       "code": "R.301g",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight",
@@ -2730,7 +2670,6 @@
       "code": "R.301g",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_right"
@@ -2768,7 +2707,6 @@
       "code": "R.301h",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left",
@@ -2822,7 +2760,6 @@
       "code": "R.301h",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight"
@@ -2860,7 +2797,6 @@
       "code": "R.304",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -2913,7 +2849,6 @@
       "code": "R.304",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -2966,7 +2901,6 @@
       "code": "R.304",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -3014,7 +2948,6 @@
       "code": "R.304",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "crossing"
@@ -3066,7 +2999,6 @@
       "code": "P.106b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -3124,7 +3056,6 @@
       "code": "P.107",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -3184,7 +3115,6 @@
       "code": "P.123a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left"
@@ -3232,7 +3162,6 @@
       "code": "P.123b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_right"
@@ -3280,7 +3209,6 @@
       "code": "R.412a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -3351,7 +3279,6 @@
       "code": "R.412a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -3445,7 +3372,6 @@
       "code": "R.412a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -3533,7 +3459,6 @@
       "code": "R.412a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -3593,7 +3518,6 @@
       "code": "R.412b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -3655,7 +3579,6 @@
       "code": "R.412b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -3714,7 +3637,6 @@
       "code": "R.412c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -3784,7 +3706,6 @@
       "code": "R.412c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -3877,7 +3798,6 @@
       "code": "R.412c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -3964,7 +3884,6 @@
       "code": "R.412c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -4023,7 +3942,6 @@
       "code": "R.412d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -4087,7 +4005,6 @@
       "code": "R.412d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -4148,7 +4065,6 @@
       "code": "R.412e",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -4210,7 +4126,6 @@
       "code": "R.412e",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -4277,7 +4192,6 @@
       "code": "R.412e",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -4348,7 +4262,6 @@
       "code": "R.412f",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -4413,7 +4326,6 @@
       "code": "R.412f",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -4475,7 +4387,6 @@
       "code": "R.412g",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -4540,7 +4451,6 @@
       "code": "R.412g",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -4602,7 +4512,6 @@
       "code": "R.412h",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -4664,7 +4573,6 @@
       "code": "R.412h",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -4723,7 +4631,6 @@
       "code": "P.127",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -4778,7 +4685,6 @@
       "code": "P.127a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -4849,7 +4755,6 @@
       "code": "P.127b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -4912,7 +4817,6 @@
       "code": "P.127c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -4975,7 +4879,6 @@
       "code": "P.130",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -5040,7 +4943,6 @@
       "code": "P.130",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -5113,7 +5015,6 @@
       "code": "P.131a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -5191,7 +5092,6 @@
       "code": "P.131a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -5277,7 +5177,6 @@
       "code": "P.131b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -5363,7 +5262,6 @@
       "code": "P.131b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -5457,7 +5355,6 @@
       "code": "P.131c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -5543,7 +5440,6 @@
       "code": "P.131c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -5637,7 +5533,6 @@
       "code": "P.130",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -5692,7 +5587,6 @@
       "code": "P.125",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "overtaking"
@@ -5766,7 +5660,6 @@
       "code": "P.125",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "overtaking"
@@ -5833,7 +5726,6 @@
       "code": "P.126",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "overtaking"
@@ -5915,7 +5807,6 @@
       "code": "P.126",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "overtaking"
@@ -5990,7 +5881,6 @@
       "code": "P.126",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "overtaking"
@@ -6052,7 +5942,6 @@
       "code": "DP.133",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "overtaking"
@@ -6098,7 +5987,6 @@
       "code": "DP.134",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -6153,7 +6041,6 @@
       "code": "DP.135",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "overtaking"
@@ -6207,7 +6094,6 @@
       "code": "DP.135",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "overtaking"
@@ -6261,7 +6147,6 @@
       "code": "DP.135",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -6324,7 +6209,6 @@
       "code": "DP.135",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "using_horn"
@@ -6378,7 +6262,6 @@
       "code": "DP.135",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "stopping",
@@ -6433,7 +6316,6 @@
       "code": "DP.135",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -6487,7 +6369,6 @@
       "code": "DP.135",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -6541,7 +6422,6 @@
       "code": "DP.135",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -6595,7 +6475,6 @@
       "code": "DP.135",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "following_distance"
@@ -6649,7 +6528,6 @@
       "code": "R.306",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -6712,7 +6590,6 @@
       "code": "R.306",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering"
@@ -6773,7 +6650,6 @@
       "code": "R.307",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -6827,7 +6703,6 @@
       "code": "R.307",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -6880,7 +6755,6 @@
       "code": "IE.468a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "passing_obstacle"
@@ -6934,7 +6808,6 @@
       "code": "IE.468b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "passing_obstacle"
@@ -6994,7 +6867,6 @@
       "code": "IE.468c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "passing_obstacle"
@@ -7047,9 +6919,7 @@
       "rule_id": "IE471_SAFE_FOLLOWING_DISTANCE",
       "code": "IE.471",
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "INFORMATION"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "following_distance"
@@ -7100,7 +6970,6 @@
       "code": "IE.473",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "reduce_speed",
@@ -7152,7 +7021,6 @@
       "code": "R.302a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "passing_obstacle"
@@ -7207,7 +7075,6 @@
       "code": "R.302b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "passing_obstacle"
@@ -7262,7 +7129,6 @@
       "code": "R.302c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "passing_obstacle"
@@ -7323,7 +7189,6 @@
       "code": "R.303",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "roundabout_circulation",
@@ -7381,7 +7246,6 @@
       "code": "R.305",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "excluded_actor_scope": [
         "bicycle",
@@ -7429,7 +7293,6 @@
       "code": "R.305",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "excluded_actor_scope": [
         "bicycle",
@@ -7485,7 +7348,6 @@
       "code": "R.305",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "excluded_actor_scope": [],
       "additional_legal_basis": [
@@ -7532,7 +7394,6 @@
       "code": "R.305",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "excluded_actor_scope": [],
       "additional_legal_basis": [
@@ -7589,7 +7450,6 @@
       "code": "R.309",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "using_horn"
@@ -7645,7 +7505,6 @@
       "code": "R.310a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left"
@@ -7701,7 +7560,6 @@
       "code": "R.310a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight"
@@ -7753,7 +7611,6 @@
       "code": "R.310a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_right"
@@ -7805,7 +7662,6 @@
       "code": "R.310b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight"
@@ -7861,7 +7717,6 @@
       "code": "R.310b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left"
@@ -7913,7 +7768,6 @@
       "code": "R.310b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_right"
@@ -7965,7 +7819,6 @@
       "code": "R.310c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_right"
@@ -8021,7 +7874,6 @@
       "code": "R.310c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left"
@@ -8073,7 +7925,6 @@
       "code": "R.310c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight"
@@ -8125,7 +7976,6 @@
       "code": "R.122",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "stopping"
@@ -8178,7 +8028,6 @@
       "code": "R.122",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -8246,7 +8095,6 @@
       "code": "R.122",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -8322,7 +8170,6 @@
       "code": "R.122",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -8413,7 +8260,6 @@
       "code": "R.403a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -8487,7 +8333,6 @@
       "code": "R.403a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -8552,7 +8397,6 @@
       "code": "R.403b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -8630,7 +8474,6 @@
       "code": "R.403b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -8697,7 +8540,6 @@
       "code": "R.403c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -8765,7 +8607,6 @@
       "code": "R.403c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -8827,7 +8668,6 @@
       "code": "R.403d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -8897,7 +8737,6 @@
       "code": "R.403d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -8960,7 +8799,6 @@
       "code": "R.403e",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9030,7 +8868,6 @@
       "code": "R.403e",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9093,7 +8930,6 @@
       "code": "R.403f",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9183,7 +9019,6 @@
       "code": "R.403f",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9256,7 +9091,6 @@
       "code": "R.403g",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9324,7 +9158,6 @@
       "code": "R.403g",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9386,7 +9219,6 @@
       "code": "R.403h",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9454,7 +9286,6 @@
       "code": "R.403h",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9516,7 +9347,6 @@
       "code": "R.403k",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9586,7 +9416,6 @@
       "code": "R.403k",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9650,7 +9479,6 @@
       "code": "R.404a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9725,7 +9553,6 @@
       "code": "R.404b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9804,7 +9631,6 @@
       "code": "R.404c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9873,7 +9699,6 @@
       "code": "R.404d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -9944,7 +9769,6 @@
       "code": "R.404e",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -10015,7 +9839,6 @@
       "code": "R.404f",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -10106,7 +9929,6 @@
       "code": "R.404g",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -10175,7 +9997,6 @@
       "code": "R.404h",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -10244,7 +10065,6 @@
       "code": "R.404k",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -10315,7 +10135,6 @@
       "code": "R.308a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight",
@@ -10365,7 +10184,6 @@
       "code": "R.308a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_right"
@@ -10414,7 +10232,6 @@
       "code": "R.308b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight",
@@ -10464,7 +10281,6 @@
       "code": "R.308b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left"
@@ -10513,7 +10329,6 @@
       "code": "P.132",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "stopping",
@@ -10587,7 +10402,6 @@
       "code": "W.208",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -10679,7 +10493,6 @@
       "code": "W.207a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -10785,7 +10598,6 @@
       "code": "W.207b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -10891,7 +10703,6 @@
       "code": "W.207c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -10997,7 +10808,6 @@
       "code": "W.207d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -11111,7 +10921,6 @@
       "code": "W.207e",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -11225,7 +11034,6 @@
       "code": "W.207f",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -11331,7 +11139,6 @@
       "code": "W.207g",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -11437,7 +11244,6 @@
       "code": "W.207h",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -11543,7 +11349,6 @@
       "code": "W.207i",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -11649,7 +11454,6 @@
       "code": "W.207k",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -11755,7 +11559,6 @@
       "code": "W.207l",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -11861,7 +11664,6 @@
       "code": "I.401",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -11967,7 +11769,6 @@
       "code": "I.402",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -12036,7 +11837,6 @@
       "code": "P.140",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -12086,7 +11886,6 @@
       "code": "R.411",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "going_straight",
@@ -12172,9 +11971,7 @@
       "rule_id": "W201A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.201a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -12275,9 +12072,7 @@
       "rule_id": "W201B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.201b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -12378,9 +12173,7 @@
       "rule_id": "W201C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.201c",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -12481,9 +12274,7 @@
       "rule_id": "W201D_COMMON_WARNING_SIGN_DUTY",
       "code": "W.201d",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -12584,9 +12375,7 @@
       "rule_id": "W202A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.202a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -12687,9 +12476,7 @@
       "rule_id": "W202B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.202b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -12790,9 +12577,7 @@
       "rule_id": "W203A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.203a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -12893,9 +12678,7 @@
       "rule_id": "W203B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.203b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -12996,9 +12779,7 @@
       "rule_id": "W203C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.203c",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -13099,9 +12880,7 @@
       "rule_id": "W204_COMMON_WARNING_SIGN_DUTY",
       "code": "W.204",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -13202,9 +12981,7 @@
       "rule_id": "W205_COMMON_WARNING_SIGN_DUTY",
       "code": "W.205",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -13305,9 +13082,7 @@
       "rule_id": "W205A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.205a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -13408,9 +13183,7 @@
       "rule_id": "W205B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.205b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -13511,9 +13284,7 @@
       "rule_id": "W205C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.205c",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -13614,9 +13385,7 @@
       "rule_id": "W205D_COMMON_WARNING_SIGN_DUTY",
       "code": "W.205d",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -13717,9 +13486,7 @@
       "rule_id": "W205E_COMMON_WARNING_SIGN_DUTY",
       "code": "W.205e",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -13820,9 +13587,7 @@
       "rule_id": "W206_COMMON_WARNING_SIGN_DUTY",
       "code": "W.206",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -13923,9 +13688,7 @@
       "rule_id": "W207_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -14026,9 +13789,7 @@
       "rule_id": "W207A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -14129,9 +13890,7 @@
       "rule_id": "W207B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -14232,9 +13991,7 @@
       "rule_id": "W207C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207c",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -14335,9 +14092,7 @@
       "rule_id": "W207D_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207d",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -14438,9 +14193,7 @@
       "rule_id": "W207E_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207e",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -14541,9 +14294,7 @@
       "rule_id": "W207F_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207f",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -14644,9 +14395,7 @@
       "rule_id": "W207G_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207g",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -14747,9 +14496,7 @@
       "rule_id": "W207H_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207h",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -14850,9 +14597,7 @@
       "rule_id": "W207I_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207i",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -14953,9 +14698,7 @@
       "rule_id": "W207K_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207k",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -15056,9 +14799,7 @@
       "rule_id": "W207L_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207l",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -15159,9 +14900,7 @@
       "rule_id": "W208_COMMON_WARNING_SIGN_DUTY",
       "code": "W.208",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -15262,9 +15001,7 @@
       "rule_id": "W209_COMMON_WARNING_SIGN_DUTY",
       "code": "W.209",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -15365,9 +15102,7 @@
       "rule_id": "W210_COMMON_WARNING_SIGN_DUTY",
       "code": "W.210",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -15468,9 +15203,7 @@
       "rule_id": "W211_COMMON_WARNING_SIGN_DUTY",
       "code": "W.211",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -15571,9 +15304,7 @@
       "rule_id": "W212_COMMON_WARNING_SIGN_DUTY",
       "code": "W.212",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -15674,9 +15405,7 @@
       "rule_id": "W213_COMMON_WARNING_SIGN_DUTY",
       "code": "W.213",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -15777,9 +15506,7 @@
       "rule_id": "W214_COMMON_WARNING_SIGN_DUTY",
       "code": "W.214",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -15880,9 +15607,7 @@
       "rule_id": "W215_COMMON_WARNING_SIGN_DUTY",
       "code": "W.215",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -15983,9 +15708,7 @@
       "rule_id": "W215A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.215a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -16086,9 +15809,7 @@
       "rule_id": "W215B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.215b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -16189,9 +15910,7 @@
       "rule_id": "W215C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.215c",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -16292,9 +16011,7 @@
       "rule_id": "W216_COMMON_WARNING_SIGN_DUTY",
       "code": "W.216",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -16395,9 +16112,7 @@
       "rule_id": "W216A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.216a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -16498,9 +16213,7 @@
       "rule_id": "W216B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.216b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -16601,9 +16314,7 @@
       "rule_id": "W217_COMMON_WARNING_SIGN_DUTY",
       "code": "W.217",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -16704,9 +16415,7 @@
       "rule_id": "W218_COMMON_WARNING_SIGN_DUTY",
       "code": "W.218",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -16807,9 +16516,7 @@
       "rule_id": "W219_COMMON_WARNING_SIGN_DUTY",
       "code": "W.219",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -16910,9 +16617,7 @@
       "rule_id": "W220_COMMON_WARNING_SIGN_DUTY",
       "code": "W.220",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -17013,9 +16718,7 @@
       "rule_id": "W221_COMMON_WARNING_SIGN_DUTY",
       "code": "W.221",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -17116,9 +16819,7 @@
       "rule_id": "W221A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.221a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -17219,9 +16920,7 @@
       "rule_id": "W221B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.221b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -17322,9 +17021,7 @@
       "rule_id": "W222_COMMON_WARNING_SIGN_DUTY",
       "code": "W.222",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -17425,9 +17122,7 @@
       "rule_id": "W222A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.222a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -17528,9 +17223,7 @@
       "rule_id": "W222B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.222b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -17631,9 +17324,7 @@
       "rule_id": "W223_COMMON_WARNING_SIGN_DUTY",
       "code": "W.223",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -17734,9 +17425,7 @@
       "rule_id": "W223A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.223a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -17837,9 +17526,7 @@
       "rule_id": "W223B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.223b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -17940,9 +17627,7 @@
       "rule_id": "W224_COMMON_WARNING_SIGN_DUTY",
       "code": "W.224",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -18043,9 +17728,7 @@
       "rule_id": "W225_COMMON_WARNING_SIGN_DUTY",
       "code": "W.225",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -18146,9 +17829,7 @@
       "rule_id": "W226_COMMON_WARNING_SIGN_DUTY",
       "code": "W.226",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -18249,9 +17930,7 @@
       "rule_id": "W227_COMMON_WARNING_SIGN_DUTY",
       "code": "W.227",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -18352,9 +18031,7 @@
       "rule_id": "W228_COMMON_WARNING_SIGN_DUTY",
       "code": "W.228",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -18455,9 +18132,7 @@
       "rule_id": "W228A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.228a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -18558,9 +18233,7 @@
       "rule_id": "W228B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.228b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -18661,9 +18334,7 @@
       "rule_id": "W228C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.228c",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -18764,9 +18435,7 @@
       "rule_id": "W228D_COMMON_WARNING_SIGN_DUTY",
       "code": "W.228d",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -18867,9 +18536,7 @@
       "rule_id": "W229_COMMON_WARNING_SIGN_DUTY",
       "code": "W.229",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -18970,9 +18637,7 @@
       "rule_id": "W230_COMMON_WARNING_SIGN_DUTY",
       "code": "W.230",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -19073,9 +18738,7 @@
       "rule_id": "W231_COMMON_WARNING_SIGN_DUTY",
       "code": "W.231",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -19176,9 +18839,7 @@
       "rule_id": "W232_COMMON_WARNING_SIGN_DUTY",
       "code": "W.232",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -19279,9 +18940,7 @@
       "rule_id": "W233_COMMON_WARNING_SIGN_DUTY",
       "code": "W.233",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -19382,9 +19041,7 @@
       "rule_id": "W234_COMMON_WARNING_SIGN_DUTY",
       "code": "W.234",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -19485,9 +19142,7 @@
       "rule_id": "W235_COMMON_WARNING_SIGN_DUTY",
       "code": "W.235",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -19588,9 +19243,7 @@
       "rule_id": "W236_COMMON_WARNING_SIGN_DUTY",
       "code": "W.236",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -19691,9 +19344,7 @@
       "rule_id": "W237_COMMON_WARNING_SIGN_DUTY",
       "code": "W.237",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -19794,9 +19445,7 @@
       "rule_id": "W238_COMMON_WARNING_SIGN_DUTY",
       "code": "W.238",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -19897,9 +19546,7 @@
       "rule_id": "W239_COMMON_WARNING_SIGN_DUTY",
       "code": "W.239",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -20000,9 +19647,7 @@
       "rule_id": "W239A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.239a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -20103,9 +19748,7 @@
       "rule_id": "W239B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.239b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -20206,9 +19849,7 @@
       "rule_id": "W240_COMMON_WARNING_SIGN_DUTY",
       "code": "W.240",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -20309,9 +19950,7 @@
       "rule_id": "W241_COMMON_WARNING_SIGN_DUTY",
       "code": "W.241",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -20412,9 +20051,7 @@
       "rule_id": "W242_COMMON_WARNING_SIGN_DUTY",
       "code": "W.242",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -20515,9 +20152,7 @@
       "rule_id": "W242A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.242a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -20618,9 +20253,7 @@
       "rule_id": "W242B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.242b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -20721,9 +20354,7 @@
       "rule_id": "W243_COMMON_WARNING_SIGN_DUTY",
       "code": "W.243",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -20824,9 +20455,7 @@
       "rule_id": "W243A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.243a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -20927,9 +20556,7 @@
       "rule_id": "W243B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.243b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -21030,9 +20657,7 @@
       "rule_id": "W243C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.243c",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -21133,9 +20758,7 @@
       "rule_id": "W244_COMMON_WARNING_SIGN_DUTY",
       "code": "W.244",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -21236,9 +20859,7 @@
       "rule_id": "W245_COMMON_WARNING_SIGN_DUTY",
       "code": "W.245",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -21339,9 +20960,7 @@
       "rule_id": "W245A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.245a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -21442,9 +21061,7 @@
       "rule_id": "W245B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.245b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -21545,9 +21162,7 @@
       "rule_id": "W246_COMMON_WARNING_SIGN_DUTY",
       "code": "W.246",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -21648,9 +21263,7 @@
       "rule_id": "W246A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.246a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -21751,9 +21364,7 @@
       "rule_id": "W246B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.246b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -21854,9 +21465,7 @@
       "rule_id": "W246C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.246c",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -21957,9 +21566,7 @@
       "rule_id": "W247_COMMON_WARNING_SIGN_DUTY",
       "code": "W.247",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking",
@@ -22061,7 +21668,6 @@
       "code": "I.406",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -22139,7 +21745,6 @@
       "code": "I.406",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "yielding",
@@ -22204,7 +21809,6 @@
       "code": "I.407a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -22270,7 +21874,6 @@
       "code": "I.407b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -22336,7 +21939,6 @@
       "code": "I.407c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -22402,7 +22004,6 @@
       "code": "R.E.9d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -22488,7 +22089,6 @@
       "code": "R.E.10d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed",
@@ -22564,7 +22164,6 @@
       "code": "R.E.9a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -22633,7 +22232,6 @@
       "code": "R.E.9b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -22719,7 +22317,6 @@
       "code": "R.E.10a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -22784,7 +22381,6 @@
       "code": "R.E.10b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -22849,7 +22445,6 @@
       "code": "R.E.9c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -22923,7 +22518,6 @@
       "code": "R.E.10c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -22989,7 +22583,6 @@
       "code": "R.E.11a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -23056,7 +22649,6 @@
       "code": "R.E.11b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -23123,7 +22715,6 @@
       "code": "W.239a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -23210,7 +22801,6 @@
       "code": "DP.127a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -23298,7 +22888,6 @@
       "code": "DP.127b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -23386,7 +22975,6 @@
       "code": "DP.127c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -23474,7 +23062,6 @@
       "code": "I.418",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "turn_left",
@@ -23553,7 +23140,6 @@
       "code": "I.408",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -23627,7 +23213,6 @@
       "code": "I.408a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -23709,7 +23294,6 @@
       "code": "I.409",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "u_turn"
@@ -23783,7 +23367,6 @@
       "code": "I.410",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "u_turn"
@@ -23866,7 +23449,6 @@
       "code": "I.413a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation"
@@ -23952,7 +23534,6 @@
       "code": "I.413b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation"
@@ -24038,7 +23619,6 @@
       "code": "I.413c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation"
@@ -24124,7 +23704,6 @@
       "code": "I.417a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation"
@@ -24210,7 +23789,6 @@
       "code": "I.417b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation"
@@ -24296,7 +23874,6 @@
       "code": "I.417c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation"
@@ -24382,7 +23959,6 @@
       "code": "I.414a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -24469,7 +24045,6 @@
       "code": "I.414b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -24556,7 +24131,6 @@
       "code": "I.414c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -24643,7 +24217,6 @@
       "code": "I.414d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -24730,7 +24303,6 @@
       "code": "I.415",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -24808,7 +24380,6 @@
       "code": "I.416",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -24904,7 +24475,6 @@
       "code": "I.437",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -24979,7 +24549,6 @@
       "code": "I.448",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "entering",
@@ -25062,7 +24631,6 @@
       "code": "I.446",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "parking"
@@ -25148,7 +24716,6 @@
       "code": "I.440",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -25245,7 +24812,6 @@
       "code": "I.441a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -25351,7 +24917,6 @@
       "code": "I.441b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -25457,7 +25022,6 @@
       "code": "I.441c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -25563,7 +25127,6 @@
       "code": "I.423a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -25661,7 +25224,6 @@
       "code": "I.423b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -25759,7 +25321,6 @@
       "code": "I.423c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "circulation",
@@ -25835,7 +25396,6 @@
       "code": "I.424a",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "crossing",
@@ -25901,7 +25461,6 @@
       "code": "I.424b",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "crossing",
@@ -25967,7 +25526,6 @@
       "code": "I.424c",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "crossing",
@@ -26033,7 +25591,6 @@
       "code": "I.424d",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "crossing",
@@ -26101,9 +25658,7 @@
         "I.425"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26196,9 +25751,7 @@
         "I.445a"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26282,9 +25835,7 @@
         "I.445b"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26368,9 +25919,7 @@
         "I.445c"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26454,9 +26003,7 @@
         "I.445d"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26540,9 +26087,7 @@
         "I.445e"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26626,9 +26171,7 @@
         "I.445f"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26712,9 +26255,7 @@
         "I.445g"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26798,9 +26339,7 @@
         "I.445h"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26884,9 +26423,7 @@
         "I.445a"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26955,9 +26492,7 @@
         "I.445b"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -27026,9 +26561,7 @@
         "I.445c"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -27097,9 +26630,7 @@
         "I.445d"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -27168,9 +26699,7 @@
         "I.445e"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -27255,9 +26784,7 @@
         "I.445f"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -27326,9 +26853,7 @@
         "I.445g"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -27397,9 +26922,7 @@
         "I.445h"
       ],
       "intent_kinds": [
-        "CHECK_PERMISSION",
-        "QUERY_SIGN"
-
+        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -27462,923 +26985,10 @@
       ]
     },
     {
-      "rule_id": "I426_OFFICIAL_SIGN_MEANING",
-      "code": "I.426",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.27, Figure E.27: Indicates a nearby emergency medical station.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates a nearby emergency medical station."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.27, Figure E.27",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I427A_OFFICIAL_SIGN_MEANING",
-      "code": "I.427a",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.28, Figure E.28: Indicates a workshop or station that repairs cars or motorcycles that have broken down on the road.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates a workshop or station that repairs cars or motorcycles that have broken down on the road."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.28, Figure E.28",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I427B_OFFICIAL_SIGN_MEANING",
-      "code": "I.427b",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.29, Figure E.29: Indicates the location of a vehicle weight-control facility.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates the location of a vehicle weight-control facility."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.29, Figure E.29",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I428A_OFFICIAL_SIGN_MEANING",
-      "code": "I.428a",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.30, Figure E.30: Indicates a fuel station serving road users.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates a fuel station serving road users."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.30, Figure E.30",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I428B_OFFICIAL_SIGN_MEANING",
-      "code": "I.428b",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.30, Figure E.30: Indicates an electric-vehicle charging station serving road users.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates an electric-vehicle charging station serving road users."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.30, Figure E.30",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I428C_OFFICIAL_SIGN_MEANING",
-      "code": "I.428c",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.30, Figure E.30: Indicates a place providing both a fuel station and an electric-vehicle charging station.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates a place providing both a fuel station and an electric-vehicle charging station."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.30, Figure E.30",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I429_OFFICIAL_SIGN_MEANING",
-      "code": "I.429",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.31, Figure E.31: Indicates a place where vehicles can be washed.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates a place where vehicles can be washed."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.31, Figure E.31",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I430_OFFICIAL_SIGN_MEANING",
-      "code": "I.430",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.32, Figure E.32: Indicates a public telephone station provided for road users.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates a public telephone station provided for road users."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.32, Figure E.32",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I431_OFFICIAL_SIGN_MEANING",
-      "code": "I.431",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.33, Figure E.33: Indicates a roadside rest stop with services for travelers, such as food, rest, or fuel; the depicted symbols are selected to match the services available.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates a roadside rest stop with services for travelers, such as food, rest, or fuel; the depicted symbols are selected to match the services available."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.33, Figure E.33",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I432_OFFICIAL_SIGN_MEANING",
-      "code": "I.432",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.34, Figure E.34: Indicates a hotel serving road travelers.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates a hotel serving road travelers."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.34, Figure E.34",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I433A_OFFICIAL_SIGN_MEANING",
-      "code": "I.433a",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.35a, Figure E.35a: Indicates a holiday/recreation destination.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates a holiday/recreation destination."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.35a, Figure E.35a",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I433B_OFFICIAL_SIGN_MEANING",
-      "code": "I.433b",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.35b, Figure E.35b(a): On foreign-affairs routes and routes with substantial foreign traffic, indicates an upcoming camping place.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "On foreign-affairs routes and routes with substantial foreign traffic, indicates an upcoming camping place."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.35b, Figure E.35b(a)",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I433C_OFFICIAL_SIGN_MEANING",
-      "code": "I.433c",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.35b, Figure E.35b(b): On foreign-affairs routes and routes with substantial foreign traffic, indicates an upcoming place for mobile homes/caravans.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "On foreign-affairs routes and routes with substantial foreign traffic, indicates an upcoming place for mobile homes/caravans."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.35b, Figure E.35b(b)",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I433D_OFFICIAL_SIGN_MEANING",
-      "code": "I.433d",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.35b, Figure E.35b(c): On foreign-affairs routes and routes with substantial foreign traffic, indicates an upcoming place for camping and mobile homes/caravans.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "On foreign-affairs routes and routes with substantial foreign traffic, indicates an upcoming place for camping and mobile homes/caravans."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.35b, Figure E.35b(c)",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I433E_OFFICIAL_SIGN_MEANING",
-      "code": "I.433e",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.35c, Figure E.35c: On foreign-affairs routes and routes with substantial foreign traffic, indicates an upcoming guesthouse/youth hostel.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "On foreign-affairs routes and routes with substantial foreign traffic, indicates an upcoming guesthouse/youth hostel."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.35c, Figure E.35c",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I434A_OFFICIAL_SIGN_MEANING",
-      "code": "I.434a",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.36, Figure E.36: Indicates a bus boarding/alighting stop. Supplementary panels may show route number, route name, origin, destination, or route; those panels may be beside the sign or in the passenger area. The official text also describes alternate wording for non-terminal bus stops and fixed-route passenger stops.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates a bus boarding/alighting stop. Supplementary panels may show route number, route name, origin, destination, or route; those panels may be beside the sign or in the passenger area. The official text also describes alternate wording for non-terminal bus stops and fixed-route passenger stops."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.36, Figure E.36",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I434B_OFFICIAL_SIGN_MEANING",
-      "code": "I.434b",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.37, Figure E.37: Indicates a truck parking area for loading and unloading goods; where it is not legally a bus-terminal-type facility, the sign text is changed to 'Truck Stop'.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates a truck parking area for loading and unloading goods; where it is not legally a bus-terminal-type facility, the sign text is changed to 'Truck Stop'."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.37, Figure E.37",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I435_OFFICIAL_SIGN_MEANING",
-      "code": "I.435",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.38, Figure E.38: Indicates a tram stop for passenger boarding and alighting.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates a tram stop for passenger boarding and alighting."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.38, Figure E.38",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
-      "rule_id": "I436_OFFICIAL_SIGN_MEANING",
-      "code": "I.436",
-      "intent_kinds": [
-        "QUERY_SIGN"
-
-      ],
-      "actions": [
-        "unknown"
-      ],
-      "actor_scope": [
-        "vehicle"
-      ],
-      "excluded_actor_scope": [],
-      "outcome": "CONDITIONAL",
-      "conditions": [
-        {
-          "predicate": "sign_effective_scope_confirmed",
-          "operator": "equals",
-          "expected_value": true,
-          "required": true,
-          "on_missing": "CONDITIONAL",
-          "on_mismatch": "NOT_APPLICABLE"
-        }
-      ],
-      "reason": "QCVN 41:2024/BGTVT Appendix E.39, Figure E.39: Indicates the location of a traffic-police station.",
-      "effects": [
-        {
-          "effect_type": "sign_meaning",
-          "action": "unknown",
-          "scope": {
-            "blanket_permission": false
-          },
-          "description": "Indicates the location of a traffic-police station."
-        }
-      ],
-      "additional_legal_basis": [
-        {
-          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
-          "edition": "2024; effective 2025-01-01",
-          "section_or_figure": "Appendix E.39, Figure E.39",
-          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
-          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
-          "accessed_at": "2026-10-05",
-          "verification_status": "verified"
-        }
-      ]
-    },
-    {
       "rule_id": "I436_REQUIRE_SAFE_SPEED_WHILE_PASSING_POLICE_STATION_AREA",
       "code": "I.436",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "speed"
@@ -28434,7 +27044,6 @@
       "code": "I.436",
       "intent_kinds": [
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "overtaking"
@@ -28489,9 +27098,7 @@
       "rule_id": "R415A_LANE_AND_VEHICLE_DIAGRAM_MEANING",
       "code": "R.415a",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "unknown",
@@ -28587,9 +27194,7 @@
       "rule_id": "R415B_END_OF_VEHICLE_LANE_SCOPE_MEANING",
       "code": "R.415b",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "unknown",
@@ -28655,9 +27260,7 @@
       "rule_id": "R420_START_POPULATED_AREA_SCOPE_NOT_SPEED_VALUE",
       "code": "R.420",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "unknown",
@@ -28725,9 +27328,7 @@
       "rule_id": "R421_END_POPULATED_AREA_SCOPE_NO_PERMISSION_INFERENCE",
       "code": "R.421",
       "intent_kinds": [
-        "QUERY_SIGN",
         "CHECK_PERMISSION"
-
       ],
       "actions": [
         "unknown",

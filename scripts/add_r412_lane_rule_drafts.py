@@ -82,7 +82,7 @@ def make_rule(rule_id: str, code: str, actors: list[str], outcome: str, reason: 
     return {
         "rule_id": rule_id,
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": actions or ["entering", "circulation"],
         "actor_scope": actors,
         "excluded_actor_scope": excluded or [],

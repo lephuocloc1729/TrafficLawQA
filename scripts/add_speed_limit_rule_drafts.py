@@ -36,7 +36,7 @@ def make_rule(rule_id: str, code: str, reason: str, conditions: list[dict],
     return {
         "rule_id": rule_id,
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["speed"],
         "actor_scope": actors or ["motor_vehicle"],
         "excluded_actor_scope": ["priority_vehicle"],

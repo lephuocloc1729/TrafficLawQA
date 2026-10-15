@@ -77,7 +77,7 @@ def make_drafts() -> list[dict]:
               excluded=PRIORITY_EXCEPTIONS),
         {
             "rule_id": "P106B_PAYLOAD_LIMIT", "code": "P.106b",
-            "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+            "intent_kinds": ["CHECK_PERMISSION"],
             "actions": ["entering", "circulation"], "actor_scope": ["truck"],
             "outcome": "CONDITIONAL",
             "conditions": [

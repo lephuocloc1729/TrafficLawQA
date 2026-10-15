@@ -46,7 +46,7 @@ def make_rule(code: str) -> dict:
     return {
         "rule_id": f"{code.replace('.', '').upper()}_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION",
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": [
             "yielding", "entering", "circulation", "going_straight", "turn_left",
             "turn_right", "u_turn", "crossing",

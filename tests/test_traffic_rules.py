@@ -3,6 +3,7 @@ from dataclasses import replace
 from datetime import datetime
 import json
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 from src.core.symbolic.fact_schema import ContextFact, SignObservation, SignRelation, TrafficFacts

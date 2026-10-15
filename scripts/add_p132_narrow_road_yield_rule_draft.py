@@ -22,7 +22,7 @@ def main() -> None:
     rule = {
         "rule_id": "P132_STOP_AND_YIELD_TO_ONCOMING_MOTOR_VEHICLES",
         "code": "P.132",
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": [
             "stopping", "yielding", "entering", "circulation", "going_straight", "turn_left",
             "turn_right", "u_turn", "crossing",

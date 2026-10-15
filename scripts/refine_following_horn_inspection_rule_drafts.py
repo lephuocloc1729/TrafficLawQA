@@ -30,7 +30,7 @@ def main() -> None:
     rule_specs = {
         "P121_MINIMUM_FOLLOWING_DISTANCE": {
             "code": "P.121",
-            "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+            "intent_kinds": ["CHECK_PERMISSION"],
             "actions": ["following_distance"],
             "actor_scope": ["car", "taxi", "bus", "truck", "priority_vehicle", "emergency_vehicle"],
             "excluded_actor_scope": [],
@@ -55,7 +55,7 @@ def main() -> None:
         },
         "P128_NO_HORN": {
             "code": "P.128",
-            "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+            "intent_kinds": ["CHECK_PERMISSION"],
             "actions": ["using_horn"],
             "actor_scope": ["vehicle"],
             "excluded_actor_scope": [],
@@ -71,7 +71,7 @@ def main() -> None:
         },
         "P129_INSPECTION_STOP_REQUIRED": {
             "code": "P.129",
-            "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+            "intent_kinds": ["CHECK_PERMISSION"],
             "actions": ["stopping", "circulation"],
             "actor_scope": ["vehicle"],
             "excluded_actor_scope": [],

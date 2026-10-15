@@ -40,7 +40,7 @@ def make_priority_rule() -> dict:
     return {
         "rule_id": "I406_MOTOR_VEHICLE_PRIORITY_NARROW_ROAD",
         "code": "I.406",
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["entering", "circulation", "going_straight", "crossing"],
         "actor_scope": ["motor_vehicle"],
         "excluded_actor_scope": [],
@@ -81,7 +81,7 @@ def make_yield_rule() -> dict:
     return {
         "rule_id": "I406_YIELD_WHEN_ONCOMING_VEHICLE_ALREADY_IN_NARROW_SECTION",
         "code": "I.406",
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["yielding", "entering", "circulation", "going_straight", "crossing"],
         "actor_scope": ["motor_vehicle"],
         "excluded_actor_scope": [],

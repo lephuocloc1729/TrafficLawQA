@@ -12,6 +12,7 @@ dependencies = [
     "torchvision==0.23.0",
     "transformers==4.56.0",
     "ultralytics==8.3.191",
+    "dill>=0.3.8",
     "supervision==0.26.1",
     "openai==1.102.0",
     "qdrant-client==1.15.1",

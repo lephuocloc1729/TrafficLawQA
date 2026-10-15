@@ -29,7 +29,7 @@ def make_rule(code: str, rule_id: str, actors: list[str], actions: list[str], se
     return {
         "rule_id": rule_id,
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": actions,
         "actor_scope": actors,
         "excluded_actor_scope": [],

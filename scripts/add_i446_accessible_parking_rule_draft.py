@@ -41,7 +41,7 @@ def make_rule() -> dict:
     return {
         "rule_id": "I446_ACCESSIBLE_PARKING_SCOPE_REQUIRES_ELIGIBILITY_AND_OVERLAY_REVIEW",
         "code": "I.446",
-        "intent_kinds": ["CHECK_PERMISSION", "CHECK_PERMISSION"],
+        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["parking"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],
