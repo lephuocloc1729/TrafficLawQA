@@ -30,19 +30,30 @@ VALID_ACTIONS = {
 VALID_VEHICLES = ROAD_USER_ACTORS
 
 INTENT_PATTERNS = (
-    ("PENALTY", ("muc phat", "phat bao nhieu", "bi phat bao nhieu", "bao nhieu tien", "tien phat", "xu phat", "vi pham se bi gi")),
+    ("PENALTY", (
+        "muc phat", "phat bao nhieu", "bi phat bao nhieu", "bao nhieu tien", "tien phat",
+        "xu phat", "vi pham se bi gi", "phat the nao", "bi phat the nao",
+    )),
     ("INFORMATION", (
         "cam nhung phuong tien nao", "cam phuong tien nao", "loai xe nao bi cam", "xe nao bi cam", "cam xe nao",
+        "phuong tien nao", "loai phuong tien nao", "ap dung cho loai phuong tien nao",
         "huong nao", "chieu nao", "re huong", "ben nao", "phia nao",
         "bao xa", "khoang cach", "pham vi", "bao nhieu met",
         "thoi gian nao", "thoi diem nao", "hieu luc vao luc nao", "co hieu luc khi nao",
         "toc do toi da", "gioi han toc do", "bao nhieu km h", "toc do bao nhieu", "van toc bao nhieu",
         "dieu kien gi", "truong hop nao", "ap dung khi nao",
     )),
-    ("QUERY_SIGN", ("y nghia gi", "co nghia gi", "bien nay la gi", "noi dung bien", "nhan dien bien", "xac dinh bien", "bien nao trong hinh", "ma bien gi")),
+    ("QUERY_SIGN", (
+        "y nghia gi", "y nghia cua bien", "co nghia gi", "bien nay la gi", "bien nay la bien gi",
+        "bien gi vay", "bien gi", "noi dung bien", "noi dung cua bien", "nhan dien bien", "nhan dien giup bien",
+        "xac dinh bien", "bien nao trong hinh", "bien nao", "ma bien gi", "ma bien bao nay",
+        "thong bao dieu gi", "noi len dieu gi", "loai bien bao nao", "ten goi cua bien",
+        "thuoc loai bien nao", "bao hieu dieu gi", "hien thi bien bao nao",
+    )),
 )
 INFORMATION_SCOPE_PHRASES = (
     "cam nhung phuong tien nao", "cam phuong tien nao", "loai xe nao bi cam", "xe nao bi cam", "cam xe nao",
+    "phuong tien nao", "loai phuong tien nao", "ap dung cho loai phuong tien nao",
     "huong nao", "chieu nao", "re huong", "ben nao", "phia nao",
     "bao xa", "khoang cach", "pham vi", "bao nhieu met",
     "thoi gian nao", "thoi diem nao", "hieu luc vao luc nao", "co hieu luc khi nao",
@@ -50,7 +61,7 @@ INFORMATION_SCOPE_PHRASES = (
 )
 ACTION_PATTERNS = (
     ("parking", ("do xe", "dau xe", "dung do", "duoc do", "phep do", "cam do", "do tai", "do khong")),
-    ("stopping", ("dung xe", "tam dung", "dung tai", "phai dung", "bat buoc dung", "co can dung", "co phai dung")),
+    ("stopping", ("dung xe", "tam dung", "dung tai", "dung don", "phai dung", "bat buoc dung", "co can dung", "co phai dung")),
     ("yielding", ("nhuong duong", "nhuong quyen di truoc", "phai nhuong", "co phai nhuong")),
     ("turn_left", ("re trai", "queo trai", "quay dau sang trai")),
     ("turn_right", ("re phai", "queo phai")),
@@ -150,7 +161,7 @@ TIME_MENTION_RE = re.compile(
 )
 MANDATORY_ACTION_TERMS = (
     "co phai dung", "phai dung", "bat buoc dung", "co can dung",
-    "co phai nhuong", "phai nhuong", "nhuong duong",
+    "co phai nhuong", "phai nhuong", "co can nhuong",
     "phai bam coi", "bat buoc bam coi", "co can bam coi", "phai an coi",
     "bat buoc an coi", "co can an coi", "phai giam toc do", "co can giam toc do",
     "co phai giam toc do",
@@ -498,6 +509,8 @@ def _context_facts(question: str, intent_kinds: list[str], now: datetime | None,
 def _intent_kinds(question: str, action: str) -> list[str]:
     text = normalize_question_text(question)
     found = [kind for kind, phrases in INTENT_PATTERNS if any(_contains(text, p) for p in phrases)]
+    if "PENALTY" not in found and re.search(r"\bvi pham\b.*\bbi gi\b", text):
+        found.append("PENALTY")
     asks_for_scope_information = any(_contains(text, p) for p in INFORMATION_SCOPE_PHRASES)
     asks_yes_no_permission = (
         "duoc khong" in text
@@ -506,10 +519,12 @@ def _intent_kinds(question: str, action: str) -> list[str]:
         or "bi cam khong" in text
     )
     asks_for_mandatory_action = any(_contains(text, p) for p in MANDATORY_ACTION_TERMS)
+    asks_for_penalty = "PENALTY" in found
     if (
         action != "unknown"
         and any(_contains(text, p) for p in PERMISSION_TERMS)
         and (not asks_for_scope_information or asks_for_mandatory_action or asks_yes_no_permission)
+        and (not asks_for_penalty or asks_yes_no_permission)
     ):
         found.append("CHECK_PERMISSION")
     if not found:
@@ -690,9 +705,22 @@ def parse_query_intent_with_llm(
 ) -> IntentParseResult:
     vehicle_enum = "|".join(sorted(VALID_VEHICLES))
     prompt = (
-        "Phân tích câu hỏi giao thông Việt Nam thành strict JSON, không thêm văn xuôi. "
-        "Một câu hỏi có thể có nhiều intents. Intent chỉ mô tả yêu cầu; dữ kiện thời gian/vị trí "
-        "đưa vào context_facts kèm source=user_query. Không suy đoán dữ kiện ảnh.\n"
+        "Bạn là bộ phân loại ý định cho hệ thống hỏi đáp biển báo và luật giao thông Việt Nam. "
+        "Hãy phân loại theo ý nghĩa câu hỏi, không yêu cầu câu hỏi phải chứa một cụm từ cố định. "
+        "Một câu hỏi có thể có nhiều intents nếu thực sự hỏi nhiều việc.\n"
+        "Định nghĩa nhãn:\n"
+        "- CHECK_PERMISSION: hỏi một hành động có được phép/bị cấm hay có bắt buộc phải làm không; "
+        "bao gồm cách hỏi khẩu ngữ hoặc diễn đạt gián tiếp.\n"
+        "- QUERY_SIGN: hỏi biển là biển gì, ký hiệu/mã nào, hoặc biển/biểu tượng mang ý nghĩa hay thông điệp gì.\n"
+        "- INFORMATION: hỏi một thông tin cụ thể thể hiện bởi biển/dữ liệu nhận diện, như đối tượng xe, "
+        "thời gian hiệu lực, hướng, tốc độ hoặc phạm vi áp dụng. Nếu câu hỏi nhắm vào một thuộc tính cụ thể, "
+        "chọn INFORMATION thay vì QUERY_SIGN.\n"
+        "- PENALTY: hỏi tiền phạt, mức xử phạt hoặc chế tài cho vi phạm. Nhãn này không có nghĩa là hệ thống "
+        "được phép tự đưa ra mức phạt.\n"
+        "- UNKNOWN: câu hỏi ngoài phạm vi giao thông/biển báo hoặc không thể xác định ý định. Câu hỏi lạ cách "
+        "diễn đạt nhưng vẫn rõ nghĩa không được gán UNKNOWN chỉ vì không khớp từ khóa.\n"
+        "Intent mô tả điều người dùng muốn biết; không suy đoán dữ kiện từ ảnh. Dữ kiện thời gian/vị trí "
+        "được nêu rõ đưa vào context_facts với source=user_query. Trả về JSON hợp lệ, không thêm văn xuôi.\n"
         'Schema: {"schema_version":"2.0","intents":[{"intent_id":"intent-1",'
         '"kind":"CHECK_PERMISSION|QUERY_SIGN|INFORMATION|PENALTY|UNKNOWN","target":{"kind":"scene|'
         'sign_observation|sign_code|unresolved","observation_ids":[],"sign_codes":[]},'
@@ -721,14 +749,42 @@ def parse_query_intent(
     *,
     now: datetime | None = None,
     timezone_name: str = "Asia/Ho_Chi_Minh",
+    use_llm: bool | None = None,
 ) -> IntentParseResult:
     parsed = parse_query_intent_deterministic(question, now=now, timezone_name=timezone_name)
-    if all(intent.kind == "UNKNOWN" for intent in parsed.query_intent.intents) and llm_client and use_llm_fallback:
+    # Keep the old option as a compatibility alias; the LLM is now the primary
+    # classifier whenever it is enabled and a client is available.
+    llm_enabled = use_llm_fallback if use_llm is None else use_llm
+    if llm_client and llm_enabled:
         try:
-            return parse_query_intent_with_llm(
+            llm_parsed = parse_query_intent_with_llm(
                 question, llm_client, temperature, max_tokens,
                 now=now, timezone_name=timezone_name,
             )
+            # Intent classification belongs to the LLM. Keep deterministic
+            # extraction only as a source of structured slots the rule engine needs.
+            _fill_missing_permission_slots(llm_parsed, parsed)
+            return llm_parsed
         except Exception as exc:
-            parsed.parser["llm_fallback_error"] = str(exc)
+            parsed.query_intent.parser["llm_classification_error"] = str(exc)
     return parsed
+
+
+def _fill_missing_permission_slots(
+    llm_result: IntentParseResult,
+    deterministic_result: IntentParseResult,
+) -> None:
+    """Use deterministic extraction to fill slots, without overriding LLM intent labels."""
+    fallback = next(iter(deterministic_result.query_intent.intents), None)
+    if fallback is None:
+        return
+    for intent in llm_result.query_intent.intents:
+        if intent.kind != "CHECK_PERMISSION":
+            continue
+        if intent.action.value == "unknown" and fallback.action.value != "unknown":
+            intent.action = fallback.action
+        if intent.actor.value == "unknown" and fallback.actor.value != "unknown":
+            intent.actor = fallback.actor
+        requested = _requested_answer("CHECK_PERMISSION", fallback.action.value, deterministic_result.query_intent.raw_query)
+        for key, value in requested.items():
+            intent.requested_answer.setdefault(key, value)

@@ -785,7 +785,7 @@ def get_freeform_answer(
             traffic_facts=traffic_sign_observations,
             question=str(sample.get("question") or ""),
             llm_client=llm_client,
-            use_llm_fallback=True,
+            use_llm=True,
             temperature=temperature,
             max_tokens=min(max_tokens, 300),
         )

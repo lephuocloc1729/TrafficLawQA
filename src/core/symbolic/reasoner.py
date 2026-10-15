@@ -316,11 +316,13 @@ def build_symbolic_reasoning_context(
     use_llm_fallback: bool = True,
     temperature: float = 0.0,
     max_tokens: int = 500,
+    use_llm: bool | None = None,
 ) -> dict[str, Any]:
     query = parse_query_intent(
         question=question,
         llm_client=llm_client,
         use_llm_fallback=use_llm_fallback,
+        use_llm=use_llm,
         temperature=temperature,
         max_tokens=max_tokens,
     )

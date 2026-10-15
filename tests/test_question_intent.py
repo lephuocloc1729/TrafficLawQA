@@ -273,11 +273,15 @@ class QueryIntentTest(unittest.TestCase):
         self.assertEqual(query.query_intent.intents[1].actor.value, "truck")
         self.assertEqual(query.context_facts[0].metadata["resolution"], "default_current")
 
-    def test_clear_deterministic_parse_does_not_call_llm(self) -> None:
-        client = FakeLLMClient("{}")
+    def test_llm_classification_is_used_even_for_rule_recognized_queries(self) -> None:
+        client = FakeLLMClient(json.dumps({
+            "intents": [{"intent_id": "i1", "kind": "QUERY_SIGN", "confidence": "high"}],
+            "confidence": "high",
+        }))
         query = parse_query_intent("Xe ô tô có được đỗ không?", llm_client=client)
-        self.assertEqual(client.calls, 0)
-        self.assertEqual(query.query_intent.intents[0].kind, "CHECK_PERMISSION")
+        self.assertEqual(client.calls, 1)
+        self.assertEqual(query.query_intent.intents[0].kind, "QUERY_SIGN")
+        self.assertEqual(query.query_intent.parser["method"], "llm")
 
     def test_invalid_llm_labels_are_reduced_to_unknown(self) -> None:
         client = FakeLLMClient(json.dumps({
