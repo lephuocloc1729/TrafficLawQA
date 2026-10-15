@@ -41,7 +41,6 @@ def _rule(
     return {
         "rule_id": rule_id,
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": actions,
         "actor_scope": actors,
         "excluded_actor_scope": excluded or [],
@@ -77,7 +76,6 @@ def make_drafts() -> list[dict]:
               excluded=PRIORITY_EXCEPTIONS),
         {
             "rule_id": "P106B_PAYLOAD_LIMIT", "code": "P.106b",
-            "intent_kinds": ["CHECK_PERMISSION"],
             "actions": ["entering", "circulation"], "actor_scope": ["truck"],
             "outcome": "CONDITIONAL",
             "conditions": [

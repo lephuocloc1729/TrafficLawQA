@@ -39,7 +39,6 @@ def draft(
     return {
         "rule_id": rule_id,
         "code": "R.304",
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": actions or ["entering", "circulation"],
         "actor_scope": actor_scope,
         "outcome": outcome,

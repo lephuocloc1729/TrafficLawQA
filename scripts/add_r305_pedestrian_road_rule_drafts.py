@@ -39,7 +39,6 @@ def main() -> None:
     }
     common = {
         "code": "R.305",
-        "intent_kinds": ["CHECK_PERMISSION"],
         "excluded_actor_scope": [],
         "additional_legal_basis": [dict(basis)],
     }

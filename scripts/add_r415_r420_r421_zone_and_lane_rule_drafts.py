@@ -39,7 +39,6 @@ def legal_basis(section: str) -> list[dict]:
 def make_rule(
     rule_id: str,
     code: str,
-    intent_kinds: list[str],
     actions: list[str],
     predicates: list[str],
     description: str,
@@ -50,7 +49,6 @@ def make_rule(
     return {
         "rule_id": rule_id,
         "code": code,
-        "intent_kinds": intent_kinds,
         "actions": actions,
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],
@@ -72,7 +70,6 @@ def make_rules() -> list[dict]:
         make_rule(
             "R415A_LANE_AND_VEHICLE_DIAGRAM_MEANING",
             "R.415a",
-            ["CHECK_PERMISSION"],
             ["unknown", "circulation", "entering", "lane_change"],
             [
                 "sign_effective_scope_confirmed",
@@ -98,7 +95,6 @@ def make_rules() -> list[dict]:
         make_rule(
             "R415B_END_OF_VEHICLE_LANE_SCOPE_MEANING",
             "R.415b",
-            ["CHECK_PERMISSION"],
             ["unknown", "circulation", "entering", "lane_change"],
             [
                 "sign_effective_scope_confirmed",
@@ -116,7 +112,6 @@ def make_rules() -> list[dict]:
         make_rule(
             "R420_START_POPULATED_AREA_SCOPE_NOT_SPEED_VALUE",
             "R.420",
-            ["CHECK_PERMISSION"],
             ["unknown", "speed", "circulation"],
             [
                 "sign_effective_scope_confirmed",
@@ -136,7 +131,6 @@ def make_rules() -> list[dict]:
         make_rule(
             "R421_END_POPULATED_AREA_SCOPE_NO_PERMISSION_INFERENCE",
             "R.421",
-            ["CHECK_PERMISSION"],
             ["unknown", "speed", "circulation"],
             [
                 "sign_effective_scope_confirmed",

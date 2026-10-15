@@ -28,7 +28,6 @@ def draft(code: str, directions: list[str], allowed: bool) -> dict:
     return {
         "rule_id": f"R301_{code[-1].upper()}_{label}_{'_'.join(directions).upper()}",
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": directions,
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": ["priority_vehicle"],

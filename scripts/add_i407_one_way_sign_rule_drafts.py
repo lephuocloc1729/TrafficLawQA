@@ -18,7 +18,6 @@ def make_rule(code: str) -> dict:
     return {
         "rule_id": f"{code.replace('.', '').upper()}_ONE_WAY_DIRECTION_ONLY",
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": [
             "entering", "circulation", "going_straight", "turn_left", "turn_right", "u_turn", "crossing",
         ],

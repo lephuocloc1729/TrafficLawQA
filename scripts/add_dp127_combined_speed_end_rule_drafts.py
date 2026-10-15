@@ -18,7 +18,6 @@ def make_rule(code: str) -> dict:
     return {
         "rule_id": f"{code.replace('.', '').upper()}_END_COMBINED_SPEED_LIMIT",
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["speed"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

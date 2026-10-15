@@ -20,7 +20,6 @@ def main() -> None:
     rule = {
         "rule_id": "R303_MANDATORY_ROUNDABOUT_DIRECTION",
         "code": "R.303",
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["roundabout_circulation", "circulation", "turn_left", "turn_right", "u_turn"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

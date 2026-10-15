@@ -62,18 +62,15 @@ def reviewed_rules(rules):
 
 class TrafficRulesTest(unittest.TestCase):
     def test_rules_are_declarative_and_registered(self) -> None:
-        self.assertEqual(len(TRAFFIC_RULES), 389)
+        self.assertEqual(len(TRAFFIC_RULES), 370)
         self.assertEqual(TRAFFIC_RULEBOOK_METADATA["status"], "draft_unreviewed")
-        self.assertTrue(all(rule.trigger_sign_codes and rule.intent_kinds for rule in TRAFFIC_RULES))
+        self.assertTrue(all(rule.trigger_sign_codes and rule.actions for rule in TRAFFIC_RULES))
         self.assertTrue(all(rule.verification_status == "unverified" for rule in TRAFFIC_RULES))
         self.assertTrue(all(rule.legal_basis[0].get("section_or_figure") for rule in TRAFFIC_RULES))
         self.assertTrue(all(rule.legal_basis[0].get("source_url", "").startswith("https://datafiles.chinhphu.vn/") for rule in TRAFFIC_RULES))
         self.assertTrue(all(rule.effects or rule.outcome == "CONDITIONAL" for rule in TRAFFIC_RULES))
-        self.assertEqual(TRAFFIC_RULEBOOK_METADATA["rule_draft_count"], 388)
-        self.assertTrue(all(
-            rule.metadata.get("official_source_meaning")
-            for rule in TRAFFIC_RULES if rule.metadata.get("draft_registry")
-        ))
+        self.assertEqual(TRAFFIC_RULEBOOK_METADATA["rule_draft_count"], 369)
+        self.assertTrue(all("intent_kinds" not in rule.to_dict() for rule in TRAFFIC_RULES))
 
     def test_r122_stop_and_proceed_drafts_fail_closed(self) -> None:
         facts = _scoped_sign_facts("R.122")
@@ -151,35 +148,19 @@ class TrafficRulesTest(unittest.TestCase):
         self.assertEqual(len(i445e), 2)
         self.assertTrue(any(any(effect.action == "occupy_lane_of_other_vehicle_classes" for effect in rule.effects) for rule in i445e))
 
-    def test_i426_i436_official_service_sign_meanings_are_review_gated(self) -> None:
+    def test_i426_i435_meanings_are_not_permission_rules(self) -> None:
         codes = [
             "I.426", "I.427a", "I.427b", "I.428a", "I.428b", "I.428c", "I.429",
             "I.430", "I.431", "I.432", "I.433a", "I.433b", "I.433c", "I.433d",
-            "I.433e", "I.434a", "I.434b", "I.435", "I.436",
+            "I.433e", "I.434a", "I.434b", "I.435",
         ]
         for code in codes:
             with self.subTest(code=code):
-                rules = [rule for rule in TRAFFIC_RULES if code in rule.trigger_sign_codes]
-                meaning_rules = [rule for rule in rules if rule.rule_id.endswith("_OFFICIAL_SIGN_MEANING")]
-                self.assertEqual(len(meaning_rules), 1)
-                rule = meaning_rules[0]
-                self.assertTrue(any(ref.get("source_url", "").startswith("https://datafiles.chinhphu.vn/") for ref in rule.legal_basis))
-                self.assertTrue(any(ref.get("section_or_figure", "").startswith("Appendix E.") for ref in rule.legal_basis))
-                self.assertTrue(rule.effects and all(effect.effect_type == "sign_meaning" for effect in rule.effects))
-                self.assertFalse(any(effect.scope.get("blanket_permission") is not False for effect in rule.effects))
-
-                parsed = query(f"Biển {code} có ý nghĩa gì?")
-                result = evaluate(_scoped_sign_facts(code), parsed, rules)
-                self.assertEqual(parsed.query_intent.intents[0].kind, "QUERY_SIGN")
-                self.assertEqual(result, [])
-
-        camping = next(rule for rule in TRAFFIC_RULES if rule.rule_id == "I433B_OFFICIAL_SIGN_MEANING")
-        self.assertIn("foreign-affairs routes", camping.effects[0].description)
-        bus_stop = next(rule for rule in TRAFFIC_RULES if rule.rule_id == "I434A_OFFICIAL_SIGN_MEANING")
-        self.assertIn("Supplementary panels", bus_stop.effects[0].description)
+                self.assertFalse(any(code in rule.trigger_sign_codes for rule in TRAFFIC_RULES))
 
         i436_rules = [rule for rule in TRAFFIC_RULES if "I.436" in rule.trigger_sign_codes]
-        self.assertEqual(len(i436_rules), 3)
+        self.assertEqual(len(i436_rules), 2)
+        self.assertTrue(all(rule.verification_status == "unverified" for rule in i436_rules))
         self.assertTrue(any(
             effect.effect_type == "require_action" and effect.action == "speed"
             for rule in i436_rules for effect in rule.effects
@@ -1010,9 +991,9 @@ class TrafficRulesTest(unittest.TestCase):
         cases = [
             ("R.403c", "Xe buýt có được đi vào đoạn đường này không?", "bus", "CONDITIONAL"),
             ("R.403c", "Xe tải có được đi vào đoạn đường này không?", "truck", "PROHIBITED"),
-            ("R.403f", "Xe đạp điện có được đi vào đoạn đường này không?", "electric_bicycle", "CONDITIONAL"),
-            ("R.403g", "Xe chở hàng bốn bánh gắn động cơ có được đi vào không?", "four_wheel_goods_vehicle", "CONDITIONAL"),
-            ("R.403h", "Xe chở hàng bốn bánh gắn động cơ có được đi vào không?", "four_wheel_goods_vehicle", "PROHIBITED"),
+            ("R.403f", "Xe đạp điện có được đi vào đoạn đường này không?", "non_motor_vehicle", "CONDITIONAL"),
+            ("R.403g", "Xe chở hàng bốn bánh gắn động cơ có được đi vào không?", "truck", "CONDITIONAL"),
+            ("R.403h", "Xe chở hàng bốn bánh gắn động cơ có được đi vào không?", "truck", "PROHIBITED"),
         ]
         for code, text, expected_actor, expected_decision in cases:
             with self.subTest(code=code, text=text):
@@ -1050,12 +1031,12 @@ class TrafficRulesTest(unittest.TestCase):
             ("R.404a", "Xe tải có được tiếp tục đi qua không?", "truck"),
             ("R.404b", "Xe máy có được tiếp tục đi qua không?", "motorcycle_or_moped"),
             ("R.404c", "Xe buýt có được tiếp tục đi qua không?", "bus"),
-            ("R.404d", "Ô tô con có được tiếp tục đi qua không?", "car"),
+            ("R.404d", "Ô tô con có được tiếp tục đi qua không?", "passenger_car"),
             ("R.404e", "Xe máy có được tiếp tục đi qua không?", "motorcycle_or_moped"),
-            ("R.404f", "Xe đạp có được tiếp tục đi qua không?", "bicycle"),
-            ("R.404g", "Xe chở hàng bốn bánh gắn động cơ có được tiếp tục đi qua không?", "four_wheel_goods_vehicle"),
-            ("R.404h", "Xe chở người bốn bánh gắn động cơ có được tiếp tục đi qua không?", "four_wheel_passenger_vehicle"),
-            ("R.404k", "Xe chở hàng bốn bánh gắn động cơ có được tiếp tục đi qua không?", "four_wheel_goods_vehicle"),
+            ("R.404f", "Xe đạp có được tiếp tục đi qua không?", "non_motor_vehicle"),
+            ("R.404g", "Xe chở hàng bốn bánh gắn động cơ có được tiếp tục đi qua không?", "truck"),
+            ("R.404h", "Xe chở người bốn bánh gắn động cơ có được tiếp tục đi qua không?", "passenger_car"),
+            ("R.404k", "Xe chở hàng bốn bánh gắn động cơ có được tiếp tục đi qua không?", "truck"),
         ]
         for code, text, expected_actor in cases:
             with self.subTest(code=code):
@@ -1080,7 +1061,7 @@ class TrafficRulesTest(unittest.TestCase):
                 located = evaluate(facts, parsed, reviewed)
                 self.assertEqual(located[0].decision, "CONDITIONAL")
                 self.assertFalse(any(effect.effect_type == "permit_action" for effect in located[0].effects))
-                if expected_actor == "motorcycle_or_moped":
+                if code in {"R.404b", "R.404e"}:
                     self.assertIn("motorcycle_or_moped_subtype", located[0].missing_facts)
                 else:
                     self.assertIn("other_applicable_sign_constraints", located[0].missing_facts)
@@ -1117,9 +1098,9 @@ class TrafficRulesTest(unittest.TestCase):
 
     def test_p132_applies_stop_and_yield_to_motorized_and_non_motorized_vehicles(self) -> None:
         cases = [
-            ("Xe ô tô có được đi qua đoạn đường hẹp này không khi có xe ngược chiều?", "car"),
-            ("Xe đạp có phải dừng khi có xe ngược chiều không?", "bicycle"),
-            ("Xe ưu tiên có phải dừng khi có xe ngược chiều không?", "priority_vehicle"),
+            ("Xe ô tô có được đi qua đoạn đường hẹp này không khi có xe ngược chiều?", "automobile"),
+            ("Xe đạp có phải dừng khi có xe ngược chiều không?", "non_motor_vehicle"),
+            ("Xe ưu tiên có phải dừng khi có xe ngược chiều không?", "other_motor_vehicle"),
         ]
         for text, expected_actor in cases:
             with self.subTest(actor=expected_actor):

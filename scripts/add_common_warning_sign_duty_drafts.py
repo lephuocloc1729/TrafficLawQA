@@ -24,7 +24,6 @@ def make_rule(code: str) -> dict:
     return {
         "rule_id": f"{code.replace('.', '').upper()}_COMMON_WARNING_SIGN_DUTY",
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ACTIONS,
         "actor_scope": ["vehicle", "pedestrian"],
         "excluded_actor_scope": [],

@@ -6,9 +6,6 @@
     {
       "rule_id": "P101_NO_ENTRY_ALL_DIRECTIONS",
       "code": "P.101",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -35,9 +32,6 @@
     {
       "rule_id": "P102_PEDESTRIAN_SIDEWALK_OR_ROADSIDE",
       "code": "P.102",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "walking",
         "circulation"
@@ -76,9 +70,6 @@
     {
       "rule_id": "P104_NO_MOTORCYCLE",
       "code": "P.104",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -106,9 +97,6 @@
     {
       "rule_id": "P105_NO_CAR_AND_MOTORCYCLE",
       "code": "P.105",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -132,9 +120,6 @@
     {
       "rule_id": "P107A_NO_PASSENGER_CAR",
       "code": "P.107a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -159,9 +144,6 @@
     {
       "rule_id": "P107B_NO_TAXI",
       "code": "P.107b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -181,9 +163,6 @@
     {
       "rule_id": "P109_NO_TRACTOR",
       "code": "P.109",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -203,9 +182,6 @@
     {
       "rule_id": "P110A_NO_BICYCLE",
       "code": "P.110a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -256,9 +232,6 @@
     {
       "rule_id": "P112_NO_PEDESTRIAN",
       "code": "P.112",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation",
@@ -279,9 +252,6 @@
     {
       "rule_id": "P113_NO_HUMAN_PULLED_OR_PUSHED_VEHICLE",
       "code": "P.113",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -306,9 +276,6 @@
     {
       "rule_id": "P114_NO_ANIMAL_DRAWN_OR_PACK_TRANSPORT",
       "code": "P.114",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -329,9 +296,6 @@
     {
       "rule_id": "P115_TOTAL_WEIGHT_LIMIT",
       "code": "P.115",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -369,9 +333,6 @@
     {
       "rule_id": "P116_AXLE_LOAD_LIMIT",
       "code": "P.116",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -409,9 +370,6 @@
     {
       "rule_id": "P117_HEIGHT_LIMIT",
       "code": "P.117",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -449,9 +407,6 @@
     {
       "rule_id": "P118_WIDTH_LIMIT",
       "code": "P.118",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -489,9 +444,6 @@
     {
       "rule_id": "P119_LENGTH_LIMIT",
       "code": "P.119",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -528,9 +480,6 @@
     },
     {
       "code": "P.121",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "following_distance"
       ],
@@ -594,9 +543,6 @@
     {
       "rule_id": "P124A_NO_U_TURN",
       "code": "P.124a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "u_turn"
       ],
@@ -641,9 +587,6 @@
     {
       "rule_id": "P124B_NO_U_TURN_VARIANT_B",
       "code": "P.124b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "u_turn"
       ],
@@ -689,9 +632,6 @@
     {
       "rule_id": "P124C_NO_LEFT_OR_U_TURN",
       "code": "P.124c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left",
         "u_turn"
@@ -742,9 +682,6 @@
     {
       "rule_id": "P124D_NO_RIGHT_OR_U_TURN",
       "code": "P.124d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_right",
         "u_turn"
@@ -795,9 +732,6 @@
     {
       "rule_id": "P124E_NO_CAR_LEFT_OR_U_TURN",
       "code": "P.124e",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left",
         "u_turn"
@@ -848,9 +782,6 @@
     {
       "rule_id": "P124F_NO_CAR_RIGHT_OR_U_TURN",
       "code": "P.124f",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_right",
         "u_turn"
@@ -901,9 +832,6 @@
     {
       "rule_id": "P125_NO_OVERTAKING_MOTOR_VEHICLES",
       "code": "P.125",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "overtaking"
       ],
@@ -922,9 +850,6 @@
     {
       "rule_id": "P126_NO_TRUCK_OVERTAKING",
       "code": "P.126",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "overtaking"
       ],
@@ -942,9 +867,6 @@
     },
     {
       "code": "P.128",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "using_horn"
       ],
@@ -984,9 +906,6 @@
     },
     {
       "code": "P.129",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "stopping",
         "circulation"
@@ -1044,9 +963,6 @@
     {
       "rule_id": "P136_NO_STRAIGHT_AHEAD",
       "code": "P.136",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight"
       ],
@@ -1069,9 +985,6 @@
     {
       "rule_id": "P137_NO_LEFT_OR_RIGHT_TURN",
       "code": "P.137",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left",
         "turn_right"
@@ -1099,9 +1012,6 @@
     {
       "rule_id": "P138_NO_STRAIGHT_OR_LEFT",
       "code": "P.138",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight",
         "turn_left"
@@ -1129,9 +1039,6 @@
     {
       "rule_id": "P139_NO_STRAIGHT_OR_RIGHT",
       "code": "P.139",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight",
         "turn_right"
@@ -1159,9 +1066,6 @@
     {
       "rule_id": "P103A_NO_ENTRY_MOTOR_VEHICLES",
       "code": "P.103a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -1217,9 +1121,6 @@
     {
       "rule_id": "P103B_NO_MOTOR_VEHICLE_RIGHT_TURN",
       "code": "P.103b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_right"
       ],
@@ -1267,9 +1168,6 @@
     {
       "rule_id": "P103C_NO_MOTOR_VEHICLE_LEFT_TURN",
       "code": "P.103c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left"
       ],
@@ -1317,9 +1215,6 @@
     {
       "rule_id": "P106A_NO_TRUCK_TRACTOR_SPECIAL_VEHICLE",
       "code": "P.106a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -1391,9 +1286,6 @@
     {
       "rule_id": "P106A_S505C_AXLE_GROUP_LOAD_LIMIT",
       "code": "P.106a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -1462,9 +1354,6 @@
     {
       "rule_id": "P106A_S505B_ROW_GROSS_WEIGHT_LIMIT",
       "code": "P.106a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -1548,9 +1437,6 @@
     {
       "rule_id": "P106B_PAYLOAD_LIMIT",
       "code": "P.106b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -1607,9 +1493,6 @@
     {
       "rule_id": "P106C_NO_HAZARDOUS_GOODS_VEHICLES",
       "code": "P.106c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -1668,9 +1551,6 @@
     {
       "rule_id": "P110B_NO_CARGO_BICYCLE",
       "code": "P.110b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -1721,9 +1601,6 @@
     {
       "rule_id": "P108_NO_TOWED_TRAILERS",
       "code": "P.108",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -1762,9 +1639,6 @@
     {
       "rule_id": "P108A_NO_SEMI_TRAILER_OR_TOWING_TRAILER",
       "code": "P.108a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -1809,9 +1683,6 @@
     {
       "rule_id": "P111A_NO_MOPED",
       "code": "P.111a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -1862,9 +1733,6 @@
     {
       "rule_id": "P111B_NO_MOTORIZED_TRICYCLE",
       "code": "P.111b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -1915,9 +1783,6 @@
     {
       "rule_id": "P111C_NO_MOTORIZED_TRICYCLE",
       "code": "P.111c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -1968,9 +1833,6 @@
     {
       "rule_id": "P111D_NO_NON_MOTORIZED_TRICYCLE",
       "code": "P.111d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -2021,9 +1883,6 @@
     {
       "rule_id": "P120_COMBINATION_LENGTH_LIMIT",
       "code": "P.120",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -2075,9 +1934,6 @@
     {
       "rule_id": "R301_A_ALLOW_GOING_STRAIGHT",
       "code": "R.301a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight"
       ],
@@ -2112,9 +1968,6 @@
     {
       "rule_id": "R301_A_PROHIBIT_TURN_LEFT_TURN_RIGHT_U_TURN",
       "code": "R.301a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left",
         "turn_right",
@@ -2165,9 +2018,6 @@
     {
       "rule_id": "R301_B_ALLOW_TURN_RIGHT",
       "code": "R.301b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_right"
       ],
@@ -2202,9 +2052,6 @@
     {
       "rule_id": "R301_B_PROHIBIT_GOING_STRAIGHT_TURN_LEFT_U_TURN",
       "code": "R.301b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight",
         "turn_left",
@@ -2255,9 +2102,6 @@
     {
       "rule_id": "R301_C_ALLOW_TURN_LEFT",
       "code": "R.301c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left"
       ],
@@ -2292,9 +2136,6 @@
     {
       "rule_id": "R301_C_PROHIBIT_GOING_STRAIGHT_TURN_RIGHT_U_TURN",
       "code": "R.301c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight",
         "turn_right",
@@ -2345,9 +2186,6 @@
     {
       "rule_id": "R301_D_ALLOW_TURN_RIGHT",
       "code": "R.301d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_right"
       ],
@@ -2382,9 +2220,6 @@
     {
       "rule_id": "R301_D_PROHIBIT_GOING_STRAIGHT_TURN_LEFT_U_TURN",
       "code": "R.301d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight",
         "turn_left",
@@ -2435,9 +2270,6 @@
     {
       "rule_id": "R301_E_ALLOW_TURN_LEFT",
       "code": "R.301e",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left"
       ],
@@ -2472,9 +2304,6 @@
     {
       "rule_id": "R301_E_PROHIBIT_GOING_STRAIGHT_TURN_RIGHT_U_TURN",
       "code": "R.301e",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight",
         "turn_right",
@@ -2525,9 +2354,6 @@
     {
       "rule_id": "R301_F_ALLOW_GOING_STRAIGHT_TURN_RIGHT",
       "code": "R.301f",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight",
         "turn_right"
@@ -2570,9 +2396,6 @@
     {
       "rule_id": "R301_F_PROHIBIT_TURN_LEFT_U_TURN",
       "code": "R.301f",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left",
         "u_turn"
@@ -2615,9 +2438,6 @@
     {
       "rule_id": "R301_G_ALLOW_GOING_STRAIGHT_TURN_LEFT_U_TURN",
       "code": "R.301g",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight",
         "turn_left",
@@ -2668,9 +2488,6 @@
     {
       "rule_id": "R301_G_PROHIBIT_TURN_RIGHT",
       "code": "R.301g",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_right"
       ],
@@ -2705,9 +2522,6 @@
     {
       "rule_id": "R301_H_ALLOW_TURN_LEFT_TURN_RIGHT_U_TURN",
       "code": "R.301h",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left",
         "turn_right",
@@ -2758,9 +2572,6 @@
     {
       "rule_id": "R301_H_PROHIBIT_GOING_STRAIGHT",
       "code": "R.301h",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight"
       ],
@@ -2795,9 +2606,6 @@
     {
       "rule_id": "R304_PERMIT_PEDESTRIAN_USE",
       "code": "R.304",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -2847,9 +2655,6 @@
     {
       "rule_id": "R304_PERMIT_NON_MOTOR_VEHICLE_USE",
       "code": "R.304",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -2899,9 +2704,6 @@
     {
       "rule_id": "R304_PROHIBIT_MOTORIZED_AND_PRIORITY_VEHICLE_ENTRY",
       "code": "R.304",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -2946,9 +2748,6 @@
     {
       "rule_id": "R304_CROSSING_REQUIRES_ABSOLUTE_SAFETY_REVIEW",
       "code": "R.304",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "crossing"
       ],
@@ -2997,9 +2796,6 @@
     {
       "rule_id": "P106B_PROHIBIT_TRACTOR_SPECIAL_USE",
       "code": "P.106b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -3054,9 +2850,6 @@
     {
       "rule_id": "P107_PROHIBIT_PASSENGER_AND_TRUCK_VEHICLES",
       "code": "P.107",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -3113,9 +2906,6 @@
     {
       "rule_id": "P123A_NO_LEFT_TURN",
       "code": "P.123a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left"
       ],
@@ -3160,9 +2950,6 @@
     {
       "rule_id": "P123B_NO_RIGHT_TURN",
       "code": "P.123b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_right"
       ],
@@ -3207,9 +2994,6 @@
     {
       "rule_id": "R412A_ALLOW_DESIGNATED_VEHICLE",
       "code": "R.412a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -3277,9 +3061,6 @@
     {
       "rule_id": "R412A_ALLOW_BELOW_DISPLAYED_SEAT_LIMIT",
       "code": "R.412a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -3370,9 +3151,6 @@
     {
       "rule_id": "R412A_PROHIBIT_AT_OR_ABOVE_DISPLAYED_SEAT_LIMIT",
       "code": "R.412a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -3457,9 +3235,6 @@
     {
       "rule_id": "R412A_PROHIBIT_OTHER_VEHICLES",
       "code": "R.412a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -3516,9 +3291,6 @@
     {
       "rule_id": "R412B_ALLOW_DESIGNATED_VEHICLE",
       "code": "R.412b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -3577,9 +3349,6 @@
     {
       "rule_id": "R412B_PROHIBIT_OTHER_VEHICLES",
       "code": "R.412b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -3635,9 +3404,6 @@
     {
       "rule_id": "R412C_ALLOW_DESIGNATED_VEHICLE",
       "code": "R.412c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -3704,9 +3470,6 @@
     {
       "rule_id": "R412C_ALLOW_BELOW_DISPLAYED_PAYLOAD_LIMIT",
       "code": "R.412c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -3796,9 +3559,6 @@
     {
       "rule_id": "R412C_PROHIBIT_AT_OR_ABOVE_DISPLAYED_PAYLOAD_LIMIT",
       "code": "R.412c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -3882,9 +3642,6 @@
     {
       "rule_id": "R412C_PROHIBIT_OTHER_VEHICLES",
       "code": "R.412c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -3940,9 +3697,6 @@
     {
       "rule_id": "R412D_ALLOW_DESIGNATED_VEHICLE",
       "code": "R.412d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -4003,9 +3757,6 @@
     {
       "rule_id": "R412D_PROHIBIT_OTHER_VEHICLES",
       "code": "R.412d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -4063,9 +3814,6 @@
     {
       "rule_id": "R412E_ALLOW_DESIGNATED_VEHICLE",
       "code": "R.412e",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -4124,9 +3872,6 @@
     {
       "rule_id": "R412E_PROHIBIT_OTHER_VEHICLE_ON_SOLID_BUS_LANE",
       "code": "R.412e",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -4190,9 +3935,6 @@
     {
       "rule_id": "R412E_ALLOW_OTHER_VEHICLE_ON_BROKEN_BUS_LANE_WITH_YIELD",
       "code": "R.412e",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -4260,9 +4002,6 @@
     {
       "rule_id": "R412F_ALLOW_DESIGNATED_VEHICLE",
       "code": "R.412f",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -4324,9 +4063,6 @@
     {
       "rule_id": "R412F_PROHIBIT_OTHER_VEHICLES",
       "code": "R.412f",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -4385,9 +4121,6 @@
     {
       "rule_id": "R412G_ALLOW_DESIGNATED_VEHICLE",
       "code": "R.412g",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -4449,9 +4182,6 @@
     {
       "rule_id": "R412G_PROHIBIT_OTHER_VEHICLES",
       "code": "R.412g",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -4510,9 +4240,6 @@
     {
       "rule_id": "R412H_ALLOW_DESIGNATED_VEHICLE",
       "code": "R.412h",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -4571,9 +4298,6 @@
     {
       "rule_id": "R412H_PROHIBIT_OTHER_VEHICLES",
       "code": "R.412h",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -4629,9 +4353,6 @@
     {
       "rule_id": "P127_SPEED_LIMIT",
       "code": "P.127",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -4683,9 +4404,6 @@
     {
       "rule_id": "P127A_NIGHT_SPEED_LIMIT",
       "code": "P.127a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -4753,9 +4471,6 @@
     {
       "rule_id": "P127B_CURRENT_LANE_SPEED_LIMIT",
       "code": "P.127b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -4815,9 +4530,6 @@
     {
       "rule_id": "P127C_CURRENT_VEHICLE_LANE_SPEED_LIMIT",
       "code": "P.127c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -4877,9 +4589,6 @@
     {
       "rule_id": "P130_NO_STOPPING_NO_PARKING",
       "code": "P.130",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping"
@@ -4941,9 +4650,6 @@
     {
       "rule_id": "P130_NO_STOPPING_NO_PARKING_DURING_S508",
       "code": "P.130",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping"
@@ -5013,9 +4719,6 @@
     {
       "rule_id": "P131A_NO_PARKING",
       "code": "P.131a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -5090,9 +4793,6 @@
     {
       "rule_id": "P131A_NO_PARKING_DURING_S508",
       "code": "P.131a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -5175,9 +4875,6 @@
     {
       "rule_id": "P131B_ODD_DAY_NO_PARKING",
       "code": "P.131b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -5260,9 +4957,6 @@
     {
       "rule_id": "P131B_ODD_DAY_NO_PARKING_DURING_S508",
       "code": "P.131b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -5353,9 +5047,6 @@
     {
       "rule_id": "P131C_EVEN_DAY_NO_PARKING",
       "code": "P.131c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -5438,9 +5129,6 @@
     {
       "rule_id": "P131C_EVEN_DAY_NO_PARKING_DURING_S508",
       "code": "P.131c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -5531,9 +5219,6 @@
     {
       "rule_id": "P130_BUS_STOPPING_OR_PARKING_REQUIRES_CONTEXT",
       "code": "P.130",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping"
@@ -5585,9 +5270,6 @@
     {
       "rule_id": "P125_NO_OVERTAKING_OTHER_MOTOR_VEHICLES",
       "code": "P.125",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "overtaking"
       ],
@@ -5658,9 +5340,6 @@
     {
       "rule_id": "P125_TWO_WHEEL_MOTORCYCLE_MOPED_EXCEPTION",
       "code": "P.125",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "overtaking"
       ],
@@ -5724,9 +5403,6 @@
     {
       "rule_id": "P126_HEAVY_TRUCK_NO_OVERTAKING_OTHER_MOTOR_VEHICLES",
       "code": "P.126",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "overtaking"
       ],
@@ -5805,9 +5481,6 @@
     {
       "rule_id": "P126_TWO_WHEEL_MOTORCYCLE_MOPED_EXCEPTION",
       "code": "P.126",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "overtaking"
       ],
@@ -5879,9 +5552,6 @@
     {
       "rule_id": "P126_CAPACITY_THRESHOLD_NOT_MET",
       "code": "P.126",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "overtaking"
       ],
@@ -5940,9 +5610,6 @@
     {
       "rule_id": "DP133_ENDS_OVERTAKING_PROHIBITIONS",
       "code": "DP.133",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "overtaking"
       ],
@@ -5985,9 +5652,6 @@
     {
       "rule_id": "DP134_ENDS_POSTED_MAXIMUM_SPEED",
       "code": "DP.134",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -6039,9 +5703,6 @@
     {
       "rule_id": "DP135_ENDS_OVERTAKING_P125",
       "code": "DP.135",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "overtaking"
       ],
@@ -6092,9 +5753,6 @@
     {
       "rule_id": "DP135_ENDS_OVERTAKING_P126",
       "code": "DP.135",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "overtaking"
       ],
@@ -6145,9 +5803,6 @@
     {
       "rule_id": "DP135_ENDS_SPEED_P127",
       "code": "DP.135",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -6207,9 +5862,6 @@
     {
       "rule_id": "DP135_ENDS_HORN_P128",
       "code": "DP.135",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "using_horn"
       ],
@@ -6260,9 +5912,6 @@
     {
       "rule_id": "DP135_ENDS_STOPPING_P130",
       "code": "DP.135",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "stopping",
         "parking"
@@ -6314,9 +5963,6 @@
     {
       "rule_id": "DP135_ENDS_PARKING_P131A",
       "code": "DP.135",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -6367,9 +6013,6 @@
     {
       "rule_id": "DP135_ENDS_PARKING_P131B",
       "code": "DP.135",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -6420,9 +6063,6 @@
     {
       "rule_id": "DP135_ENDS_PARKING_P131C",
       "code": "DP.135",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -6473,9 +6113,6 @@
     {
       "rule_id": "DP135_ENDS_FOLLOWING_DISTANCE_P121",
       "code": "DP.135",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "following_distance"
       ],
@@ -6526,9 +6163,6 @@
     {
       "rule_id": "R306_MINIMUM_SPEED_IN_SAFE_CONDITIONS",
       "code": "R.306",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -6588,9 +6222,6 @@
     {
       "rule_id": "R306_NO_ENTRY_BELOW_MANUFACTURER_CAPABILITY",
       "code": "R.306",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering"
       ],
@@ -6648,9 +6279,6 @@
     {
       "rule_id": "R307_MINIMUM_SPEED_ENDS_WHEN_NOT_IMPEDING",
       "code": "R.307",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -6701,9 +6329,6 @@
     {
       "rule_id": "R307_PROHIBIT_SLOW_SPEED_THAT_IMPEDES",
       "code": "R.307",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -6753,9 +6378,6 @@
     {
       "rule_id": "IE468A_OBSTACLE_PASSING_DIRECTION",
       "code": "IE.468a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "passing_obstacle"
       ],
@@ -6806,9 +6428,6 @@
     {
       "rule_id": "IE468B_OBSTACLE_PASSING_DIRECTION",
       "code": "IE.468b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "passing_obstacle"
       ],
@@ -6865,9 +6484,6 @@
     {
       "rule_id": "IE468C_OBSTACLE_PASSING_DIRECTION",
       "code": "IE.468c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "passing_obstacle"
       ],
@@ -6918,9 +6534,6 @@
     {
       "rule_id": "IE471_SAFE_FOLLOWING_DISTANCE",
       "code": "IE.471",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "following_distance"
       ],
@@ -6968,9 +6581,6 @@
     {
       "rule_id": "IE473_REDUCE_SPEED_IN_HAZARD_AREA",
       "code": "IE.473",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "reduce_speed",
         "speed"
@@ -7019,9 +6629,6 @@
     {
       "rule_id": "R302A_OBSTACLE_PASSING_DIRECTION",
       "code": "R.302a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "passing_obstacle"
       ],
@@ -7073,9 +6680,6 @@
     {
       "rule_id": "R302B_OBSTACLE_PASSING_DIRECTION",
       "code": "R.302b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "passing_obstacle"
       ],
@@ -7127,9 +6731,6 @@
     {
       "rule_id": "R302C_OBSTACLE_PASSING_DIRECTION",
       "code": "R.302c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "passing_obstacle"
       ],
@@ -7187,9 +6788,6 @@
     {
       "rule_id": "R303_MANDATORY_ROUNDABOUT_DIRECTION",
       "code": "R.303",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "roundabout_circulation",
         "circulation",
@@ -7244,9 +6842,6 @@
     },
     {
       "code": "R.305",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "excluded_actor_scope": [
         "bicycle",
         "mobility_aid"
@@ -7291,9 +6886,6 @@
     },
     {
       "code": "R.305",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "excluded_actor_scope": [
         "bicycle",
         "mobility_aid"
@@ -7346,9 +6938,6 @@
     },
     {
       "code": "R.305",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "excluded_actor_scope": [],
       "additional_legal_basis": [
         {
@@ -7392,9 +6981,6 @@
     },
     {
       "code": "R.305",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "excluded_actor_scope": [],
       "additional_legal_basis": [
         {
@@ -7448,9 +7034,6 @@
     {
       "rule_id": "R309_HORN_REQUIRED_AT_SIGN_POSITION",
       "code": "R.309",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "using_horn"
       ],
@@ -7503,9 +7086,6 @@
     {
       "rule_id": "R310A_REQUIRE_LEFT_TURN_HAZMAT",
       "code": "R.310a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left"
       ],
@@ -7558,9 +7138,6 @@
     {
       "rule_id": "R310A_PROHIBIT_STRAIGHT_HAZMAT",
       "code": "R.310a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight"
       ],
@@ -7609,9 +7186,6 @@
     {
       "rule_id": "R310A_PROHIBIT_RIGHT_TURN_HAZMAT",
       "code": "R.310a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_right"
       ],
@@ -7660,9 +7234,6 @@
     {
       "rule_id": "R310B_REQUIRE_STRAIGHT_HAZMAT",
       "code": "R.310b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight"
       ],
@@ -7715,9 +7286,6 @@
     {
       "rule_id": "R310B_PROHIBIT_LEFT_TURN_HAZMAT",
       "code": "R.310b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left"
       ],
@@ -7766,9 +7334,6 @@
     {
       "rule_id": "R310B_PROHIBIT_RIGHT_TURN_HAZMAT",
       "code": "R.310b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_right"
       ],
@@ -7817,9 +7382,6 @@
     {
       "rule_id": "R310C_REQUIRE_RIGHT_TURN_HAZMAT",
       "code": "R.310c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_right"
       ],
@@ -7872,9 +7434,6 @@
     {
       "rule_id": "R310C_PROHIBIT_LEFT_TURN_HAZMAT",
       "code": "R.310c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left"
       ],
@@ -7923,9 +7482,6 @@
     {
       "rule_id": "R310C_PROHIBIT_STRAIGHT_HAZMAT",
       "code": "R.310c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight"
       ],
@@ -7974,9 +7530,6 @@
     {
       "rule_id": "R122_REQUIRE_STOP_BEFORE_SIGN_OR_LINE",
       "code": "R.122",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "stopping"
       ],
@@ -8026,9 +7579,6 @@
     {
       "rule_id": "R122_PROCEED_ONLY_AFTER_CONTROL_PERMISSION",
       "code": "R.122",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "circulation",
@@ -8093,9 +7643,6 @@
     {
       "rule_id": "R122_PROCEED_WITHOUT_ACTIVE_CONTROL_ONLY_IF_SAFE",
       "code": "R.122",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "circulation",
@@ -8168,9 +7715,6 @@
     {
       "rule_id": "R122_S506B_YIELD_TO_PRIORITY_ROAD_TRAFFIC",
       "code": "R.122",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering",
@@ -8258,9 +7802,6 @@
     },
     {
       "code": "R.403a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -8331,9 +7872,6 @@
     },
     {
       "code": "R.403a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -8395,9 +7933,6 @@
     },
     {
       "code": "R.403b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -8472,9 +8007,6 @@
     },
     {
       "code": "R.403b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -8538,9 +8070,6 @@
     },
     {
       "code": "R.403c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -8605,9 +8134,6 @@
     },
     {
       "code": "R.403c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -8666,9 +8192,6 @@
     },
     {
       "code": "R.403d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -8735,9 +8258,6 @@
     },
     {
       "code": "R.403d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -8797,9 +8317,6 @@
     },
     {
       "code": "R.403e",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -8866,9 +8383,6 @@
     },
     {
       "code": "R.403e",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -8928,9 +8442,6 @@
     },
     {
       "code": "R.403f",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9017,9 +8528,6 @@
     },
     {
       "code": "R.403f",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9089,9 +8597,6 @@
     },
     {
       "code": "R.403g",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9156,9 +8661,6 @@
     },
     {
       "code": "R.403g",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9217,9 +8719,6 @@
     },
     {
       "code": "R.403h",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9284,9 +8783,6 @@
     },
     {
       "code": "R.403h",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9345,9 +8841,6 @@
     },
     {
       "code": "R.403k",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9414,9 +8907,6 @@
     },
     {
       "code": "R.403k",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9477,9 +8967,6 @@
     {
       "rule_id": "R404A_END_DESIGNATED_VEHICLE_ROAD_SCOPE",
       "code": "R.404a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9551,9 +9038,6 @@
     {
       "rule_id": "R404B_END_DESIGNATED_VEHICLE_ROAD_SCOPE",
       "code": "R.404b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9629,9 +9113,6 @@
     {
       "rule_id": "R404C_END_DESIGNATED_VEHICLE_ROAD_SCOPE",
       "code": "R.404c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9697,9 +9178,6 @@
     {
       "rule_id": "R404D_END_DESIGNATED_VEHICLE_ROAD_SCOPE",
       "code": "R.404d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9767,9 +9245,6 @@
     {
       "rule_id": "R404E_END_DESIGNATED_VEHICLE_ROAD_SCOPE",
       "code": "R.404e",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9837,9 +9312,6 @@
     {
       "rule_id": "R404F_END_DESIGNATED_VEHICLE_ROAD_SCOPE",
       "code": "R.404f",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9927,9 +9399,6 @@
     {
       "rule_id": "R404G_END_DESIGNATED_VEHICLE_ROAD_SCOPE",
       "code": "R.404g",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -9995,9 +9464,6 @@
     {
       "rule_id": "R404H_END_DESIGNATED_VEHICLE_ROAD_SCOPE",
       "code": "R.404h",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -10063,9 +9529,6 @@
     {
       "rule_id": "R404K_END_DESIGNATED_VEHICLE_ROAD_SCOPE",
       "code": "R.404k",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -10133,9 +9596,6 @@
     {
       "rule_id": "R308A_STRAIGHT_OR_SHOWN_TURN",
       "code": "R.308a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight",
         "turn_left"
@@ -10182,9 +9642,6 @@
     {
       "rule_id": "R308A_OPPOSITE_TURN_NOT_INDICATED",
       "code": "R.308a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_right"
       ],
@@ -10230,9 +9687,6 @@
     {
       "rule_id": "R308B_STRAIGHT_OR_SHOWN_TURN",
       "code": "R.308b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight",
         "turn_right"
@@ -10279,9 +9733,6 @@
     {
       "rule_id": "R308B_OPPOSITE_TURN_NOT_INDICATED",
       "code": "R.308b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left"
       ],
@@ -10327,9 +9778,6 @@
     {
       "rule_id": "P132_STOP_AND_YIELD_TO_ONCOMING_MOTOR_VEHICLES",
       "code": "P.132",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "stopping",
         "yielding",
@@ -10400,9 +9848,6 @@
     {
       "rule_id": "W208_YIELD_TO_PRIORITY_ROAD_AT_UNCONTROLLED_INTERSECTION",
       "code": "W.208",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -10491,9 +9936,6 @@
     {
       "rule_id": "W207A_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION",
       "code": "W.207a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -10596,9 +10038,6 @@
     {
       "rule_id": "W207B_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION",
       "code": "W.207b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -10701,9 +10140,6 @@
     {
       "rule_id": "W207C_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION",
       "code": "W.207c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -10806,9 +10242,6 @@
     {
       "rule_id": "W207D_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION",
       "code": "W.207d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -10919,9 +10352,6 @@
     {
       "rule_id": "W207E_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION",
       "code": "W.207e",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -11032,9 +10462,6 @@
     {
       "rule_id": "W207F_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION",
       "code": "W.207f",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -11137,9 +10564,6 @@
     {
       "rule_id": "W207G_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION",
       "code": "W.207g",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -11242,9 +10666,6 @@
     {
       "rule_id": "W207H_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION",
       "code": "W.207h",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -11347,9 +10768,6 @@
     {
       "rule_id": "W207I_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION",
       "code": "W.207i",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -11452,9 +10870,6 @@
     {
       "rule_id": "W207K_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION",
       "code": "W.207k",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -11557,9 +10972,6 @@
     {
       "rule_id": "W207L_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION",
       "code": "W.207l",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -11662,9 +11074,6 @@
     {
       "rule_id": "I401_PRIORITY_ROAD_UNCONTROLLED_INTERSECTION_MEANING",
       "code": "I.401",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -11767,9 +11176,6 @@
     {
       "rule_id": "I402_END_OF_PRIORITY_ROAD_SEGMENT_MEANING",
       "code": "I.402",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation",
@@ -11835,9 +11241,6 @@
     {
       "rule_id": "P140_PROHIBIT_CONG_NONG_VEHICLES",
       "code": "P.140",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -11884,9 +11287,6 @@
     {
       "rule_id": "R411_FOLLOW_DIRECTION_FOR_CURRENT_LANE",
       "code": "R.411",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "going_straight",
         "turn_left",
@@ -11970,9 +11370,6 @@
     {
       "rule_id": "W201A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.201a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -12071,9 +11468,6 @@
     {
       "rule_id": "W201B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.201b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -12172,9 +11566,6 @@
     {
       "rule_id": "W201C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.201c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -12273,9 +11664,6 @@
     {
       "rule_id": "W201D_COMMON_WARNING_SIGN_DUTY",
       "code": "W.201d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -12374,9 +11762,6 @@
     {
       "rule_id": "W202A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.202a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -12475,9 +11860,6 @@
     {
       "rule_id": "W202B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.202b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -12576,9 +11958,6 @@
     {
       "rule_id": "W203A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.203a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -12677,9 +12056,6 @@
     {
       "rule_id": "W203B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.203b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -12778,9 +12154,6 @@
     {
       "rule_id": "W203C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.203c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -12879,9 +12252,6 @@
     {
       "rule_id": "W204_COMMON_WARNING_SIGN_DUTY",
       "code": "W.204",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -12980,9 +12350,6 @@
     {
       "rule_id": "W205_COMMON_WARNING_SIGN_DUTY",
       "code": "W.205",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -13081,9 +12448,6 @@
     {
       "rule_id": "W205A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.205a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -13182,9 +12546,6 @@
     {
       "rule_id": "W205B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.205b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -13283,9 +12644,6 @@
     {
       "rule_id": "W205C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.205c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -13384,9 +12742,6 @@
     {
       "rule_id": "W205D_COMMON_WARNING_SIGN_DUTY",
       "code": "W.205d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -13485,9 +12840,6 @@
     {
       "rule_id": "W205E_COMMON_WARNING_SIGN_DUTY",
       "code": "W.205e",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -13586,9 +12938,6 @@
     {
       "rule_id": "W206_COMMON_WARNING_SIGN_DUTY",
       "code": "W.206",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -13687,9 +13036,6 @@
     {
       "rule_id": "W207_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -13788,9 +13134,6 @@
     {
       "rule_id": "W207A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -13889,9 +13232,6 @@
     {
       "rule_id": "W207B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -13990,9 +13330,6 @@
     {
       "rule_id": "W207C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -14091,9 +13428,6 @@
     {
       "rule_id": "W207D_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -14192,9 +13526,6 @@
     {
       "rule_id": "W207E_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207e",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -14293,9 +13624,6 @@
     {
       "rule_id": "W207F_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207f",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -14394,9 +13722,6 @@
     {
       "rule_id": "W207G_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207g",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -14495,9 +13820,6 @@
     {
       "rule_id": "W207H_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207h",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -14596,9 +13918,6 @@
     {
       "rule_id": "W207I_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207i",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -14697,9 +14016,6 @@
     {
       "rule_id": "W207K_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207k",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -14798,9 +14114,6 @@
     {
       "rule_id": "W207L_COMMON_WARNING_SIGN_DUTY",
       "code": "W.207l",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -14899,9 +14212,6 @@
     {
       "rule_id": "W208_COMMON_WARNING_SIGN_DUTY",
       "code": "W.208",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -15000,9 +14310,6 @@
     {
       "rule_id": "W209_COMMON_WARNING_SIGN_DUTY",
       "code": "W.209",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -15101,9 +14408,6 @@
     {
       "rule_id": "W210_COMMON_WARNING_SIGN_DUTY",
       "code": "W.210",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -15202,9 +14506,6 @@
     {
       "rule_id": "W211_COMMON_WARNING_SIGN_DUTY",
       "code": "W.211",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -15303,9 +14604,6 @@
     {
       "rule_id": "W212_COMMON_WARNING_SIGN_DUTY",
       "code": "W.212",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -15404,9 +14702,6 @@
     {
       "rule_id": "W213_COMMON_WARNING_SIGN_DUTY",
       "code": "W.213",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -15505,9 +14800,6 @@
     {
       "rule_id": "W214_COMMON_WARNING_SIGN_DUTY",
       "code": "W.214",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -15606,9 +14898,6 @@
     {
       "rule_id": "W215_COMMON_WARNING_SIGN_DUTY",
       "code": "W.215",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -15707,9 +14996,6 @@
     {
       "rule_id": "W215A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.215a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -15808,9 +15094,6 @@
     {
       "rule_id": "W215B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.215b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -15909,9 +15192,6 @@
     {
       "rule_id": "W215C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.215c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -16010,9 +15290,6 @@
     {
       "rule_id": "W216_COMMON_WARNING_SIGN_DUTY",
       "code": "W.216",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -16111,9 +15388,6 @@
     {
       "rule_id": "W216A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.216a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -16212,9 +15486,6 @@
     {
       "rule_id": "W216B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.216b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -16313,9 +15584,6 @@
     {
       "rule_id": "W217_COMMON_WARNING_SIGN_DUTY",
       "code": "W.217",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -16414,9 +15682,6 @@
     {
       "rule_id": "W218_COMMON_WARNING_SIGN_DUTY",
       "code": "W.218",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -16515,9 +15780,6 @@
     {
       "rule_id": "W219_COMMON_WARNING_SIGN_DUTY",
       "code": "W.219",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -16616,9 +15878,6 @@
     {
       "rule_id": "W220_COMMON_WARNING_SIGN_DUTY",
       "code": "W.220",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -16717,9 +15976,6 @@
     {
       "rule_id": "W221_COMMON_WARNING_SIGN_DUTY",
       "code": "W.221",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -16818,9 +16074,6 @@
     {
       "rule_id": "W221A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.221a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -16919,9 +16172,6 @@
     {
       "rule_id": "W221B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.221b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -17020,9 +16270,6 @@
     {
       "rule_id": "W222_COMMON_WARNING_SIGN_DUTY",
       "code": "W.222",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -17121,9 +16368,6 @@
     {
       "rule_id": "W222A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.222a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -17222,9 +16466,6 @@
     {
       "rule_id": "W222B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.222b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -17323,9 +16564,6 @@
     {
       "rule_id": "W223_COMMON_WARNING_SIGN_DUTY",
       "code": "W.223",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -17424,9 +16662,6 @@
     {
       "rule_id": "W223A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.223a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -17525,9 +16760,6 @@
     {
       "rule_id": "W223B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.223b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -17626,9 +16858,6 @@
     {
       "rule_id": "W224_COMMON_WARNING_SIGN_DUTY",
       "code": "W.224",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -17727,9 +16956,6 @@
     {
       "rule_id": "W225_COMMON_WARNING_SIGN_DUTY",
       "code": "W.225",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -17828,9 +17054,6 @@
     {
       "rule_id": "W226_COMMON_WARNING_SIGN_DUTY",
       "code": "W.226",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -17929,9 +17152,6 @@
     {
       "rule_id": "W227_COMMON_WARNING_SIGN_DUTY",
       "code": "W.227",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -18030,9 +17250,6 @@
     {
       "rule_id": "W228_COMMON_WARNING_SIGN_DUTY",
       "code": "W.228",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -18131,9 +17348,6 @@
     {
       "rule_id": "W228A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.228a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -18232,9 +17446,6 @@
     {
       "rule_id": "W228B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.228b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -18333,9 +17544,6 @@
     {
       "rule_id": "W228C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.228c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -18434,9 +17642,6 @@
     {
       "rule_id": "W228D_COMMON_WARNING_SIGN_DUTY",
       "code": "W.228d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -18535,9 +17740,6 @@
     {
       "rule_id": "W229_COMMON_WARNING_SIGN_DUTY",
       "code": "W.229",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -18636,9 +17838,6 @@
     {
       "rule_id": "W230_COMMON_WARNING_SIGN_DUTY",
       "code": "W.230",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -18737,9 +17936,6 @@
     {
       "rule_id": "W231_COMMON_WARNING_SIGN_DUTY",
       "code": "W.231",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -18838,9 +18034,6 @@
     {
       "rule_id": "W232_COMMON_WARNING_SIGN_DUTY",
       "code": "W.232",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -18939,9 +18132,6 @@
     {
       "rule_id": "W233_COMMON_WARNING_SIGN_DUTY",
       "code": "W.233",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -19040,9 +18230,6 @@
     {
       "rule_id": "W234_COMMON_WARNING_SIGN_DUTY",
       "code": "W.234",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -19141,9 +18328,6 @@
     {
       "rule_id": "W235_COMMON_WARNING_SIGN_DUTY",
       "code": "W.235",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -19242,9 +18426,6 @@
     {
       "rule_id": "W236_COMMON_WARNING_SIGN_DUTY",
       "code": "W.236",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -19343,9 +18524,6 @@
     {
       "rule_id": "W237_COMMON_WARNING_SIGN_DUTY",
       "code": "W.237",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -19444,9 +18622,6 @@
     {
       "rule_id": "W238_COMMON_WARNING_SIGN_DUTY",
       "code": "W.238",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -19545,9 +18720,6 @@
     {
       "rule_id": "W239_COMMON_WARNING_SIGN_DUTY",
       "code": "W.239",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -19646,9 +18818,6 @@
     {
       "rule_id": "W239A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.239a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -19747,9 +18916,6 @@
     {
       "rule_id": "W239B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.239b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -19848,9 +19014,6 @@
     {
       "rule_id": "W240_COMMON_WARNING_SIGN_DUTY",
       "code": "W.240",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -19949,9 +19112,6 @@
     {
       "rule_id": "W241_COMMON_WARNING_SIGN_DUTY",
       "code": "W.241",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -20050,9 +19210,6 @@
     {
       "rule_id": "W242_COMMON_WARNING_SIGN_DUTY",
       "code": "W.242",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -20151,9 +19308,6 @@
     {
       "rule_id": "W242A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.242a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -20252,9 +19406,6 @@
     {
       "rule_id": "W242B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.242b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -20353,9 +19504,6 @@
     {
       "rule_id": "W243_COMMON_WARNING_SIGN_DUTY",
       "code": "W.243",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -20454,9 +19602,6 @@
     {
       "rule_id": "W243A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.243a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -20555,9 +19700,6 @@
     {
       "rule_id": "W243B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.243b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -20656,9 +19798,6 @@
     {
       "rule_id": "W243C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.243c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -20757,9 +19896,6 @@
     {
       "rule_id": "W244_COMMON_WARNING_SIGN_DUTY",
       "code": "W.244",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -20858,9 +19994,6 @@
     {
       "rule_id": "W245_COMMON_WARNING_SIGN_DUTY",
       "code": "W.245",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -20959,9 +20092,6 @@
     {
       "rule_id": "W245A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.245a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -21060,9 +20190,6 @@
     {
       "rule_id": "W245B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.245b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -21161,9 +20288,6 @@
     {
       "rule_id": "W246_COMMON_WARNING_SIGN_DUTY",
       "code": "W.246",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -21262,9 +20386,6 @@
     {
       "rule_id": "W246A_COMMON_WARNING_SIGN_DUTY",
       "code": "W.246a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -21363,9 +20484,6 @@
     {
       "rule_id": "W246B_COMMON_WARNING_SIGN_DUTY",
       "code": "W.246b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -21464,9 +20582,6 @@
     {
       "rule_id": "W246C_COMMON_WARNING_SIGN_DUTY",
       "code": "W.246c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -21565,9 +20680,6 @@
     {
       "rule_id": "W247_COMMON_WARNING_SIGN_DUTY",
       "code": "W.247",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping",
@@ -21666,9 +20778,6 @@
     {
       "rule_id": "I406_MOTOR_VEHICLE_PRIORITY_NARROW_ROAD",
       "code": "I.406",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation",
@@ -21743,9 +20852,6 @@
     {
       "rule_id": "I406_YIELD_WHEN_ONCOMING_VEHICLE_ALREADY_IN_NARROW_SECTION",
       "code": "I.406",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "yielding",
         "entering",
@@ -21807,9 +20913,6 @@
     {
       "rule_id": "I407A_ONE_WAY_DIRECTION_ONLY",
       "code": "I.407a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation",
@@ -21872,9 +20975,6 @@
     {
       "rule_id": "I407B_ONE_WAY_DIRECTION_ONLY",
       "code": "I.407b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation",
@@ -21937,9 +21037,6 @@
     {
       "rule_id": "I407C_ONE_WAY_DIRECTION_ONLY",
       "code": "I.407c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation",
@@ -22002,9 +21099,6 @@
     {
       "rule_id": "RE9D_MAXIMUM_SPEED_WITHIN_CONFIRMED_ZONE",
       "code": "R.E.9d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -22087,9 +21181,6 @@
     {
       "rule_id": "RE10D_END_OF_ZONE_MAXIMUM_SPEED_RESTRICTION",
       "code": "R.E.10d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed",
         "circulation",
@@ -22162,9 +21253,6 @@
     {
       "rule_id": "RE9A_NO_PARKING_IN_ZONE",
       "code": "R.E.9a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -22230,9 +21318,6 @@
     {
       "rule_id": "RE9B_NO_PARKING_DURING_DISPLAYED_TIME_IN_ZONE",
       "code": "R.E.9b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -22315,9 +21400,6 @@
     {
       "rule_id": "RE10A_END_OF_NO_PARKING_ZONE",
       "code": "R.E.10a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -22379,9 +21461,6 @@
     {
       "rule_id": "RE10B_END_OF_TIMED_NO_PARKING_ZONE",
       "code": "R.E.10b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -22443,9 +21522,6 @@
     {
       "rule_id": "RE9C_PARKING_AREA_ZONE_DESIGNATION",
       "code": "R.E.9c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -22516,9 +21592,6 @@
     {
       "rule_id": "RE10C_END_OF_PARKING_AREA_ZONE",
       "code": "R.E.10c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -22581,9 +21654,6 @@
     {
       "rule_id": "RE11A_TUNNEL_SPECIAL_REGULATIONS_APPLY",
       "code": "R.E.11a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering"
@@ -22647,9 +21717,6 @@
     {
       "rule_id": "RE11B_END_TUNNEL_SPECIAL_REGULATIONS",
       "code": "R.E.11b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering"
@@ -22713,9 +21780,6 @@
     {
       "rule_id": "W239A_COMPARE_VEHICLE_HEIGHT_WITH_SAFE_HEIGHT_PANEL",
       "code": "W.239a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering"
@@ -22799,9 +21863,6 @@
     {
       "rule_id": "DP127A_END_COMBINED_SPEED_LIMIT",
       "code": "DP.127a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -22886,9 +21947,6 @@
     {
       "rule_id": "DP127B_END_COMBINED_SPEED_LIMIT",
       "code": "DP.127b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -22973,9 +22031,6 @@
     {
       "rule_id": "DP127C_END_COMBINED_SPEED_LIMIT",
       "code": "DP.127c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -23060,9 +22115,6 @@
     {
       "rule_id": "I418_DIAGRAM_DEPENDENT_ROUTE_GUIDANCE",
       "code": "I.418",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left",
         "turn_right",
@@ -23138,9 +22190,6 @@
     {
       "rule_id": "I408_PERMIT_PARKING_WITHIN_DESIGNATED_PLACE",
       "code": "I.408",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -23211,9 +22260,6 @@
     {
       "rule_id": "I408A_PERMIT_PARTIAL_SIDEWALK_PARKING",
       "code": "I.408a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -23292,9 +22338,6 @@
     {
       "rule_id": "I409_PERMIT_U_TURN_AT_DESIGNATED_PLACE",
       "code": "I.409",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "u_turn"
       ],
@@ -23365,9 +22408,6 @@
     {
       "rule_id": "I410_PERMIT_U_TURN_WITHIN_DESIGNATED_AREA",
       "code": "I.410",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "u_turn"
       ],
@@ -23447,9 +22487,6 @@
     {
       "rule_id": "I413A_BUS_LANE_OPPOSITE_DIRECTION_GUIDANCE",
       "code": "I.413a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation"
       ],
@@ -23532,9 +22569,6 @@
     {
       "rule_id": "I413B_BUS_LANE_ROUTE_GUIDANCE",
       "code": "I.413b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation"
       ],
@@ -23617,9 +22651,6 @@
     {
       "rule_id": "I413C_BUS_LANE_ROUTE_GUIDANCE",
       "code": "I.413c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation"
       ],
@@ -23702,9 +22733,6 @@
     {
       "rule_id": "I417A_VEHICLE_SPECIFIC_ROUTE_GUIDANCE",
       "code": "I.417a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation"
       ],
@@ -23787,9 +22815,6 @@
     {
       "rule_id": "I417B_VEHICLE_SPECIFIC_ROUTE_GUIDANCE",
       "code": "I.417b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation"
       ],
@@ -23872,9 +22897,6 @@
     {
       "rule_id": "I417C_VEHICLE_SPECIFIC_ROUTE_GUIDANCE",
       "code": "I.417c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation"
       ],
@@ -23957,9 +22979,6 @@
     {
       "rule_id": "I414A_DESTINATION_ROUTE_GUIDANCE",
       "code": "I.414a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering"
@@ -24043,9 +23062,6 @@
     {
       "rule_id": "I414B_DESTINATION_ROUTE_GUIDANCE",
       "code": "I.414b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering"
@@ -24129,9 +23145,6 @@
     {
       "rule_id": "I414C_DESTINATION_ROUTE_GUIDANCE",
       "code": "I.414c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering"
@@ -24215,9 +23228,6 @@
     {
       "rule_id": "I414D_DESTINATION_ROUTE_GUIDANCE",
       "code": "I.414d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering"
@@ -24301,9 +23311,6 @@
     {
       "rule_id": "I415_DESTINATION_DIRECTION_ARROW_GUIDANCE",
       "code": "I.415",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering"
@@ -24378,9 +23385,6 @@
     {
       "rule_id": "I416_DETOUR_ROUTE_GUIDANCE_WITH_RESTRICTION_CONTEXT",
       "code": "I.416",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering"
@@ -24473,9 +23477,6 @@
     {
       "rule_id": "I437_HIGHWAY_START_NOT_VEHICLE_ELIGIBILITY",
       "code": "I.437",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -24547,9 +23548,6 @@
     {
       "rule_id": "I448_EMERGENCY_LANE_LOCATION_AND_DISTANCE_GUIDANCE",
       "code": "I.448",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -24629,9 +23627,6 @@
     {
       "rule_id": "I446_ACCESSIBLE_PARKING_SCOPE_REQUIRES_ELIGIBILITY_AND_OVERLAY_REVIEW",
       "code": "I.446",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -24714,9 +23709,6 @@
     {
       "rule_id": "I440_ACTIVE_WORKZONE_SEGMENT_GUIDANCE",
       "code": "I.440",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering",
@@ -24810,9 +23802,6 @@
     {
       "rule_id": "I441A_WORKZONE_AHEAD_GUIDANCE",
       "code": "I.441a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering",
@@ -24915,9 +23904,6 @@
     {
       "rule_id": "I441B_WORKZONE_AHEAD_GUIDANCE",
       "code": "I.441b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering",
@@ -25020,9 +24006,6 @@
     {
       "rule_id": "I441C_WORKZONE_AHEAD_GUIDANCE",
       "code": "I.441c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "entering",
@@ -25125,9 +24108,6 @@
     {
       "rule_id": "I423A_PEDESTRIAN_CROSSING_DUTY",
       "code": "I.423a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "crossing",
@@ -25222,9 +24202,6 @@
     {
       "rule_id": "I423B_PEDESTRIAN_CROSSING_DUTY",
       "code": "I.423b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "crossing",
@@ -25319,9 +24296,6 @@
     {
       "rule_id": "I423C_START_OF_PEDESTRIAN_PATH_GUIDANCE",
       "code": "I.423c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "crossing",
@@ -25394,9 +24368,6 @@
     {
       "rule_id": "I424A_PEDESTRIAN_OVERPASS_GUIDANCE",
       "code": "I.424a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "crossing",
         "walking"
@@ -25459,9 +24430,6 @@
     {
       "rule_id": "I424B_PEDESTRIAN_OVERPASS_GUIDANCE",
       "code": "I.424b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "crossing",
         "walking"
@@ -25524,9 +24492,6 @@
     {
       "rule_id": "I424C_PEDESTRIAN_UNDERPASS_GUIDANCE",
       "code": "I.424c",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "crossing",
         "walking"
@@ -25589,9 +24554,6 @@
     {
       "rule_id": "I424D_PEDESTRIAN_UNDERPASS_GUIDANCE",
       "code": "I.424d",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "crossing",
         "walking"
@@ -25656,9 +24618,6 @@
       "code": "I.425",
       "trigger_sign_codes": [
         "I.425"
-      ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -25750,9 +24709,6 @@
       "trigger_sign_codes": [
         "I.445a"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "speed",
@@ -25833,9 +24789,6 @@
       "code": "I.445b",
       "trigger_sign_codes": [
         "I.445b"
-      ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -25918,9 +24871,6 @@
       "trigger_sign_codes": [
         "I.445c"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "speed",
@@ -26001,9 +24951,6 @@
       "code": "I.445d",
       "trigger_sign_codes": [
         "I.445d"
-      ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26086,9 +25033,6 @@
       "trigger_sign_codes": [
         "I.445e"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "speed",
@@ -26169,9 +25113,6 @@
       "code": "I.445f",
       "trigger_sign_codes": [
         "I.445f"
-      ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26254,9 +25195,6 @@
       "trigger_sign_codes": [
         "I.445g"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "speed",
@@ -26337,9 +25275,6 @@
       "code": "I.445h",
       "trigger_sign_codes": [
         "I.445h"
-      ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26422,9 +25357,6 @@
       "trigger_sign_codes": [
         "I.445a"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "speed",
@@ -26490,9 +25422,6 @@
       "code": "I.445b",
       "trigger_sign_codes": [
         "I.445b"
-      ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26560,9 +25489,6 @@
       "trigger_sign_codes": [
         "I.445c"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "speed",
@@ -26629,9 +25555,6 @@
       "trigger_sign_codes": [
         "I.445d"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "speed",
@@ -26697,9 +25620,6 @@
       "code": "I.445e",
       "trigger_sign_codes": [
         "I.445e"
-      ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26783,9 +25703,6 @@
       "trigger_sign_codes": [
         "I.445f"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "speed",
@@ -26851,9 +25768,6 @@
       "code": "I.445g",
       "trigger_sign_codes": [
         "I.445g"
-      ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
       ],
       "actions": [
         "circulation",
@@ -26921,9 +25835,6 @@
       "trigger_sign_codes": [
         "I.445h"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "circulation",
         "speed",
@@ -26987,9 +25898,6 @@
     {
       "rule_id": "I436_REQUIRE_SAFE_SPEED_WHILE_PASSING_POLICE_STATION_AREA",
       "code": "I.436",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -27042,9 +25950,6 @@
     {
       "rule_id": "I436_PROHIBIT_OVERTAKING_WHILE_PASSING_POLICE_STATION_AREA",
       "code": "I.436",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "overtaking"
       ],
@@ -27097,9 +26002,6 @@
     {
       "rule_id": "R415A_LANE_AND_VEHICLE_DIAGRAM_MEANING",
       "code": "R.415a",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "unknown",
         "circulation",
@@ -27193,9 +26095,6 @@
     {
       "rule_id": "R415B_END_OF_VEHICLE_LANE_SCOPE_MEANING",
       "code": "R.415b",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "unknown",
         "circulation",
@@ -27259,9 +26158,6 @@
     {
       "rule_id": "R420_START_POPULATED_AREA_SCOPE_NOT_SPEED_VALUE",
       "code": "R.420",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "unknown",
         "speed",
@@ -27327,9 +26223,6 @@
     {
       "rule_id": "R421_END_POPULATED_AREA_SCOPE_NO_PERMISSION_INFERENCE",
       "code": "R.421",
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "unknown",
         "speed",

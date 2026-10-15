@@ -113,12 +113,6 @@ def load_rulebook(path: str | Path = RULEBOOK_PATH) -> tuple[dict[str, Any], tup
                 *[dict(ref) for ref in draft.get("additional_legal_basis", []) if isinstance(ref, dict)],
             ]
             rule_payload["verification_status"] = "unverified"
-            rule_payload["metadata"] = {
-                "review_status": "unreviewed_draft",
-                "draft_registry": str(RULE_DRAFT_REGISTRY_PATH.name),
-                "official_source_meaning": source_entry.legal_meaning,
-                "review_notes": "Draft mapping from official QCVN wording; requires team legal review.",
-            }
             registry_rules.append(TrafficRule(**rule_payload))
         # The source-first registry is the maintained override layer: matching
         # rule IDs replace their older base-rule definitions rather than firing

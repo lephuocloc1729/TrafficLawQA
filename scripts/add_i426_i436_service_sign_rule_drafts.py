@@ -39,7 +39,6 @@ def duty_rule(rule_id: str, action: str, effect_type: str, description: str) -> 
     return {
         "rule_id": rule_id,
         "code": "I.436",
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": [action],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

@@ -64,26 +64,18 @@ class TrafficRule(SerializableMixin):
     rule_id: str
     legal_basis: list[dict[str, Any]]
     trigger_sign_codes: list[str]
-    intent_kinds: list[str]
     actions: list[str]
     actor_scope: list[str]
     outcome: Decision
     conditions: list[RuleCondition] = field(default_factory=list)
     reason: str = ""
-    priority: int = 100
     verification_status: str = "unverified"
-    effective_from: str | None = None
-    effective_to: str | None = None
-    metadata: dict[str, Any] = field(default_factory=dict)
-    schema_version: str = "2.0"
     effects: list[RuleEffect] = field(default_factory=list)
     excluded_actor_scope: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        self.schema_version = str(self.schema_version or "2.0").strip()
         self.rule_id = str(self.rule_id or "").strip()
         self.trigger_sign_codes = [str(x).strip() for x in self.trigger_sign_codes]
-        self.intent_kinds = [str(x).strip().upper() for x in self.intent_kinds]
         self.actions = [str(x).strip().lower() for x in self.actions]
         self.actor_scope = [str(x).strip().lower() for x in self.actor_scope]
         self.excluded_actor_scope = [str(x).strip().lower() for x in self.excluded_actor_scope]
@@ -120,7 +112,6 @@ class TrafficRule(SerializableMixin):
             )
         self.reason = str(self.reason or "").strip()
         self.legal_basis = [item for item in self.legal_basis if isinstance(item, dict)]
-        self.metadata = dict(self.metadata) if isinstance(self.metadata, dict) else {}
         self.verification_status = str(self.verification_status or "unverified").strip().lower()
         if self.verification_status not in {"verified", "unverified", "draft", "superseded"}:
             self.verification_status = "unverified"

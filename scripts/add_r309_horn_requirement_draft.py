@@ -21,7 +21,6 @@ def main() -> None:
     rule = {
         "rule_id": "R309_HORN_REQUIRED_AT_SIGN_POSITION",
         "code": "R.309",
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["using_horn"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

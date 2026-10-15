@@ -25,9 +25,6 @@
       "trigger_sign_codes": [
         "P.130"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking",
         "stopping"
@@ -38,12 +35,7 @@
       "outcome": "PROHIBITED",
       "conditions": [],
       "reason": "Biển P.130 cấm dừng xe và đỗ xe trong phạm vi hiệu lực của biển.",
-      "priority": 100,
       "verification_status": "unverified",
-      "effective_from": null,
-      "effective_to": null,
-      "metadata": {},
-      "schema_version": "2.0",
       "effects": [
         {
           "effect_type": "prohibit_action",
@@ -103,9 +95,6 @@
       "trigger_sign_codes": [
         "P.131a"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -115,12 +104,7 @@
       "outcome": "PROHIBITED",
       "conditions": [],
       "reason": "Biển P.131a cấm đỗ xe trong phạm vi hiệu lực của biển.",
-      "priority": 100,
       "verification_status": "unverified",
-      "effective_from": null,
-      "effective_to": null,
-      "metadata": {},
-      "schema_version": "2.0",
       "effects": [
         {
           "effect_type": "prohibit_action",
@@ -169,9 +153,6 @@
       "trigger_sign_codes": [
         "P.131b"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -190,12 +171,7 @@
         }
       ],
       "reason": "Biển P.131b cấm đỗ xe vào ngày lẻ.",
-      "priority": 100,
       "verification_status": "unverified",
-      "effective_from": null,
-      "effective_to": null,
-      "metadata": {},
-      "schema_version": "2.0",
       "effects": [
         {
           "effect_type": "prohibit_action",
@@ -245,9 +221,6 @@
       "trigger_sign_codes": [
         "P.131c"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "parking"
       ],
@@ -266,12 +239,7 @@
         }
       ],
       "reason": "Biển P.131c cấm đỗ xe vào ngày chẵn.",
-      "priority": 100,
       "verification_status": "unverified",
-      "effective_from": null,
-      "effective_to": null,
-      "metadata": {},
-      "schema_version": "2.0",
       "effects": [
         {
           "effect_type": "prohibit_action",
@@ -307,9 +275,6 @@
       "trigger_sign_codes": [
         "P.123a"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_left"
       ],
@@ -319,12 +284,7 @@
       "outcome": "PROHIBITED",
       "conditions": [],
       "reason": "Biển P.123a cấm rẽ trái trong phạm vi hiệu lực của biển.",
-      "priority": 100,
       "verification_status": "unverified",
-      "effective_from": null,
-      "effective_to": null,
-      "metadata": {},
-      "schema_version": "2.0",
       "effects": [
         {
           "effect_type": "prohibit_action",
@@ -359,9 +319,6 @@
       "trigger_sign_codes": [
         "P.123b"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "turn_right"
       ],
@@ -371,12 +328,7 @@
       "outcome": "PROHIBITED",
       "conditions": [],
       "reason": "Biển P.123b cấm rẽ phải trong phạm vi hiệu lực của biển.",
-      "priority": 100,
       "verification_status": "unverified",
-      "effective_from": null,
-      "effective_to": null,
-      "metadata": {},
-      "schema_version": "2.0",
       "effects": [
         {
           "effect_type": "prohibit_action",
@@ -411,9 +363,6 @@
       "trigger_sign_codes": [
         "P.102"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "entering",
         "circulation"
@@ -427,12 +376,7 @@
       "outcome": "PROHIBITED",
       "conditions": [],
       "reason": "B.2 cấm xe cơ giới và xe thô sơ đi vào theo chiều đặt biển, trừ xe được ưu tiên theo quy định; người đi bộ được phép đi trên vỉa hè hoặc lề đường.",
-      "priority": 100,
       "verification_status": "unverified",
-      "effective_from": null,
-      "effective_to": null,
-      "metadata": {},
-      "schema_version": "2.0",
       "effects": [
         {
           "effect_type": "prohibit_action",
@@ -469,9 +413,6 @@
       "trigger_sign_codes": [
         "P.127"
       ],
-      "intent_kinds": [
-        "CHECK_PERMISSION"
-      ],
       "actions": [
         "speed"
       ],
@@ -490,12 +431,7 @@
         }
       ],
       "reason": "Biển P.127 quy định tốc độ tối đa; cần đọc trị số trên biển hoặc biển phụ.",
-      "priority": 100,
       "verification_status": "unverified",
-      "effective_from": null,
-      "effective_to": null,
-      "metadata": {},
-      "schema_version": "2.0",
       "effects": [
         {
           "effect_type": "maximum",

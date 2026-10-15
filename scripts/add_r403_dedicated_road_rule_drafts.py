@@ -67,7 +67,6 @@ def make_rules(code: str, designated: list[str]) -> list[dict]:
     ]
     common = {
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["entering", "circulation"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

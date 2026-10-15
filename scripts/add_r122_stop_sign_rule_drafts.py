@@ -45,7 +45,6 @@ def main() -> None:
         {
             "rule_id": "R122_REQUIRE_STOP_BEFORE_SIGN_OR_LINE",
             "code": "R.122",
-            "intent_kinds": ["CHECK_PERMISSION"],
             "actions": ["stopping"],
             "actor_scope": ["vehicle"],
             "excluded_actor_scope": [],
@@ -69,7 +68,6 @@ def main() -> None:
         {
             "rule_id": "R122_PROCEED_ONLY_AFTER_CONTROL_PERMISSION",
             "code": "R.122",
-            "intent_kinds": ["CHECK_PERMISSION"],
             "actions": ["yielding", "circulation", "entering", "going_straight", "turn_left", "turn_right", "u_turn", "crossing"],
             "actor_scope": ["vehicle"],
             "excluded_actor_scope": [],
@@ -94,7 +92,6 @@ def main() -> None:
         {
             "rule_id": "R122_PROCEED_WITHOUT_ACTIVE_CONTROL_ONLY_IF_SAFE",
             "code": "R.122",
-            "intent_kinds": ["CHECK_PERMISSION"],
             "actions": ["yielding", "circulation", "entering", "going_straight", "turn_left", "turn_right", "u_turn", "crossing"],
             "actor_scope": ["vehicle"],
             "excluded_actor_scope": [],
@@ -120,7 +117,6 @@ def main() -> None:
         {
             "rule_id": "R122_S506B_YIELD_TO_PRIORITY_ROAD_TRAFFIC",
             "code": "R.122",
-            "intent_kinds": ["CHECK_PERMISSION"],
             "actions": ["circulation", "entering", "going_straight", "turn_left", "turn_right", "u_turn", "crossing"],
             "actor_scope": ["vehicle"],
             "excluded_actor_scope": [],

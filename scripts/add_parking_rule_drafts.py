@@ -37,7 +37,6 @@ def prohibition(rule_id: str, code: str, actions: list[str], reason: str,
     return {
         "rule_id": rule_id,
         "code": code,
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": actions,
         "actor_scope": actor_scope or ["motor_vehicle"],
         "excluded_actor_scope": excluded or ["priority_vehicle"],
@@ -109,7 +108,6 @@ def main() -> None:
         {
             "rule_id": "P130_BUS_STOPPING_OR_PARKING_REQUIRES_CONTEXT",
             "code": "P.130",
-            "intent_kinds": ["CHECK_PERMISSION"],
             "actions": ["parking", "stopping"],
             "actor_scope": ["bus"],
             "excluded_actor_scope": [],

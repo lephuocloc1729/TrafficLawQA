@@ -33,7 +33,6 @@ def main() -> None:
     rule = {
         "rule_id": "R411_FOLLOW_DIRECTION_FOR_CURRENT_LANE",
         "code": "R.411",
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["going_straight", "turn_left", "turn_right", "u_turn", "circulation", "entering"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

@@ -72,7 +72,6 @@ def make_rules() -> list[dict]:
     return [{
         "rule_id": item["rule_id"],
         "code": item["code"],
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["entering", "circulation"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],

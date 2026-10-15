@@ -17,8 +17,8 @@ class RuleCoverageTest(unittest.TestCase):
         self.assertEqual(report["meaning_available_count"], 402)
         self.assertEqual(report["meaning_missing_count"], 0)
         self.assertEqual(report["verified_rule_sign_count"], 0)
-        self.assertEqual(report["draft_rule_sign_count"], 281)
-        self.assertEqual(report["no_rule_record_sign_count"], 121)
+        self.assertEqual(report["draft_rule_sign_count"], 263)
+        self.assertEqual(report["no_rule_record_sign_count"], 139)
         self.assertEqual(report["rule_ids_without_catalog_code"], [])
         i406 = next(item for item in report["items"] if item["official_code"] == "I.406")
         self.assertEqual(i406["draft_rule_count"], 2)
@@ -69,13 +69,13 @@ class RuleCoverageTest(unittest.TestCase):
         for code in (
             "I.426", "I.427a", "I.427b", "I.428a", "I.428b", "I.428c", "I.429",
             "I.430", "I.431", "I.432", "I.433a", "I.433b", "I.433c", "I.433d",
-            "I.433e", "I.434a", "I.434b", "I.435", "I.436",
+            "I.433e", "I.434a", "I.434b", "I.435",
         ):
             row = next(item for item in report["items"] if item["official_code"] == code)
-            self.assertGreater(row["draft_rule_count"], 0)
+            self.assertEqual(row["draft_rule_count"], 0)
             self.assertEqual(row["verified_rule_count"], 0)
         i436 = next(item for item in report["items"] if item["official_code"] == "I.436")
-        self.assertEqual(i436["draft_rule_count"], 3)
+        self.assertEqual(i436["draft_rule_count"], 2)
         for code in ("R.415a", "R.415b", "R.420", "R.421"):
             row = next(item for item in report["items"] if item["official_code"] == code)
             self.assertEqual(row["draft_rule_count"], 1)

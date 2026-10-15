@@ -42,7 +42,7 @@ def _rule_sign_codes(rule: Any) -> str:
 
 def _matches(rule: Any, query: str) -> bool:
     haystack = " ".join(
-        [rule.rule_id, _rule_sign_codes(rule), rule.reason, *rule.actions, *rule.intent_kinds]
+        [rule.rule_id, _rule_sign_codes(rule), rule.reason, *rule.actions]
     ).casefold()
     return query.casefold() in haystack
 
@@ -122,7 +122,7 @@ for item in serialized_rules:
     # Rehydrate only the basic searchable fields; rule IDs/codes/actions are plain JSON.
     haystack = " ".join(
         [item["rule_id"], ", ".join(item.get("trigger_sign_codes", [])), item.get("reason", ""),
-         *item.get("actions", []), *item.get("intent_kinds", [])]
+         *item.get("actions", [])]
     ).casefold()
     if search and search.casefold() not in haystack:
         continue
@@ -165,17 +165,14 @@ with rule_tab:
     top_left, top_right = st.columns(2)
     with top_left:
         st.markdown("**Applicability**")
-        st.write("Intent:", ", ".join(selected.get("intent_kinds", [])) or "Not specified")
+        st.write("Intent: CHECK_PERMISSION")
         st.write("Actions:", ", ".join(selected.get("actions", [])) or "Not specified")
         st.write("Actor scope:", ", ".join(selected.get("actor_scope", [])) or "Not specified")
         st.write("Excluded actors:", ", ".join(selected.get("excluded_actor_scope", [])) or "None listed")
         st.write("Decision:", selected.get("outcome", "UNKNOWN"))
-        st.write("Effective:", f"{selected.get('effective_from') or 'unspecified'} → {selected.get('effective_to') or 'unspecified'}")
     with top_right:
         st.markdown("**Rule explanation**")
         st.write(selected.get("reason") or "No reason text provided.")
-        st.write("Priority:", selected.get("priority", "unspecified"))
-        st.write("Schema version:", selected.get("schema_version", "unspecified"))
     st.markdown("**Conditions**")
     if selected.get("conditions"):
         for condition in selected["conditions"]:

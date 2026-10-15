@@ -41,7 +41,6 @@ def make_i401_rule() -> dict:
     return {
         "rule_id": "I401_PRIORITY_ROAD_UNCONTROLLED_INTERSECTION_MEANING",
         "code": "I.401",
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["yielding", "entering", "circulation", "going_straight", "turn_left", "turn_right", "crossing"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],
@@ -84,7 +83,6 @@ def make_i402_rule() -> dict:
     return {
         "rule_id": "I402_END_OF_PRIORITY_ROAD_SEGMENT_MEANING",
         "code": "I.402",
-        "intent_kinds": ["CHECK_PERMISSION"],
         "actions": ["entering", "circulation", "going_straight", "turn_left", "turn_right", "crossing"],
         "actor_scope": ["vehicle"],
         "excluded_actor_scope": [],
