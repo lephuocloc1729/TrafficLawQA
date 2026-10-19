@@ -45,6 +45,16 @@ _NUMERIC_SIGN_SPECS = {
         "unit": "km/h",
         "pattern": re.compile(r"\s*(\d{1,3})(?:\s*(?:km\s*/\s*h|kmh|kph))?\s*", re.IGNORECASE),
     },
+    "P.127": {
+        "predicate": "speed_limit_value",
+        "unit": "km/h",
+        "pattern": re.compile(r"\s*(\d{1,3})(?:\s*(?:km\s*/\s*h|kmh|kph))?\s*", re.IGNORECASE),
+    },
+    "P.127a": {
+        "predicate": "speed_limit_value",
+        "unit": "km/h",
+        "pattern": re.compile(r"\s*(\d{1,3})(?:\s*(?:km\s*/\s*h|kmh|kph))?\s*", re.IGNORECASE),
+    },
     "R.E.9d": {
         "predicate": "speed_limit_value",
         "unit": "km/h",

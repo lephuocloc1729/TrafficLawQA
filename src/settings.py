@@ -59,6 +59,11 @@ class ProjectSettings(ProjectBaseSettings):
     sign_detection_confidence_threshold: float = 0.25
     enable_sign_retrieval_fallback: bool = False
 
+    # OCR for explicit text/numeric values printed on sign crops.
+    traffic_sign_ocr_enabled: bool = True
+    traffic_sign_ocr_device: str = "auto"
+    traffic_sign_ocr_language: str = "vi"
+
     # LawDB directory
     lawdb_json_path: str = "data/law_db/vlsp2025_law_new.json"
     lawdb_image_dir: str = "data/law_db/images.fld"

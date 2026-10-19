@@ -166,6 +166,14 @@ def _add_sign_rule_coverage_gaps(
         ]
 
     result = list(evaluations)
+    # Once at least one sign has a rule for this action, a different, identified
+    # sign with no rule for that action is unrelated to the current intent. Do
+    # not turn that irrelevant sign into a scene-wide coverage gap.
+    has_action_rule_match = any(
+        item.intent_id == query.intent_id and item.status != "not_applicable"
+        for item in result
+    )
+    action = query.action.value
     for observation in observations:
         code = normalize_official_sign_code(observation.sign_code)
         explicitly_targeted = (
@@ -194,6 +202,15 @@ def _add_sign_rule_coverage_gaps(
         )
         if already_evaluated:
             continue
+
+        if has_action_rule_match and observation.identity_status == "identified" and code:
+            has_rule_for_action = any(
+                action in rule.actions
+                and code in {normalize_official_sign_code(item) for item in rule.trigger_sign_codes}
+                for rule in rules
+            )
+            if not has_rule_for_action:
+                continue
 
         catalog = load_default_sign_catalog()
         entry = catalog.lookup(code) if code else None

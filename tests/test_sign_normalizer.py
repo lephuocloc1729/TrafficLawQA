@@ -26,13 +26,11 @@ class SignObservationNormalizerTest(unittest.TestCase):
             "image_path": "data/signs/p131b.jpg",
         }, visual_evidence=[{"image_name": "crop.jpg"}])
         payload = observation.to_dict()
-        self.assertEqual(payload["sign_code"], "P.131b")
-        self.assertEqual(payload["identity_status"], "identified")
-        self.assertEqual(payload["legal_refs"][0]["article_id"], "31")
-        self.assertEqual(payload["evidence"][0]["image_name"], "crop.jpg")
-        self.assertNotIn("time_condition", payload)
-        self.assertNotIn("target_vehicle", payload)
-        self.assertEqual(payload["metadata"]["legal_conditions_unverified"]["time_condition"], "ngày lẻ")
+        self.assertEqual(payload["identity"]["sign_code"], "P.131b")
+        self.assertEqual(payload["identity"]["status"], "identified")
+        self.assertEqual(payload["catalog"]["status"], "unverified")
+        self.assertEqual(payload["evidence"][-1]["ref"], "data/signs/p131b.jpg")
+        self.assertEqual(payload["facts"], [])
 
     def test_unidentified_observation_preserves_candidates_and_ocr(self) -> None:
         observation = normalize_payload_to_observation({

@@ -78,6 +78,14 @@ class SymbolicSchemaTest(unittest.TestCase):
         self.assertNotIn("schema_version", payload)
         self.assertNotIn("scene_id", payload)
 
+    def test_speed_limit_predicate_accepts_title_case_input(self) -> None:
+        fact = ContextFact(
+            "speed-1", "Speed_limit_value", 50, "observed", "ocr",
+            raw_text="50", confidence="high",
+        )
+        self.assertEqual(fact.predicate, "speed_limit_value")
+        self.assertEqual(fact.value, 50)
+
     def test_rule_schema_is_declarative_and_serializable(self) -> None:
         rule = TrafficRule(
             rule_id="test-rule", legal_basis=[], trigger_sign_codes=["P.131b"],

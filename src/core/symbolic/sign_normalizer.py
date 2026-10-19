@@ -201,6 +201,11 @@ def normalize_detected_sign_to_observation(
     candidates = [dict(payload) for payload in (payloads or []) if isinstance(payload, dict)]
     primary = next((p for p in candidates if p.get("is_primary")), candidates[0] if candidates else {})
     merged = {**sign, **primary}
+    # Keep geometry and observation identity from the query detector; retrieval
+    # payloads describe catalog entries and may carry unrelated source-image data.
+    for key in ("bbox", "image_name", "observation_id", "role", "sign_role"):
+        if sign.get(key) is not None:
+            merged[key] = sign[key]
     if candidates:
         merged["candidates"] = candidates
     observation = normalize_payload_to_observation(
@@ -213,6 +218,13 @@ def normalize_detected_sign_to_observation(
         ),
         source=source,
     )
+    if observation.role == "unknown" and observation.sign_code:
+        normalized_code = normalize_sign_code(observation.sign_code) or ""
+        observation.role = (
+            "supplementary"
+            if normalized_code.startswith("S.") and normalized_code != "S.507"
+            else "main"
+        )
     variant_decision = sign.get("variant_decision")
     if observation.sign_code:
         if isinstance(variant_decision, dict) and variant_decision.get("confidence") in {"high", "medium"}:

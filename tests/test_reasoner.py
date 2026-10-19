@@ -80,14 +80,35 @@ class ReasonerTest(unittest.TestCase):
         self.assertEqual(payload["rule_evaluations"][0]["rule_id"], "P130_NO_STOPPING_NO_PARKING")
         self.assertEqual(payload["steps"][1]["name"], "evaluate_rules")
 
-    def test_permission_decision_waits_for_time_fact_when_explicit_time_unresolved(self) -> None:
+    def test_permission_uses_date_of_explicit_query_time_for_calendar_parity(self) -> None:
         decision = decide_symbolically(
             facts("P.131b"),
-            "Xe ô tô có được đỗ lúc 7 giờ hôm nay không?",
+            "Xe ô tô có được đỗ lúc 7 giờ ngày 17/10/2026 không?",
             rules=reviewed_rules(),
         )
-        self.assertEqual(decision.decision, "CONDITIONAL")
-        self.assertEqual(decision.rule_evaluations[0]["missing_facts"], ["calendar_parity"])
+        self.assertEqual(decision.decision, "PROHIBITED")
+        self.assertEqual(decision.rule_evaluations[0]["missing_facts"], [])
+        self.assertTrue(any(
+            item.get("predicate") == "calendar_parity" and item.get("value") == "odd_days"
+            for item in decision.rule_evaluations[0]["trace"]
+        ))
+
+    def test_unobservable_scene_conditions_do_not_block_simple_rule(self) -> None:
+        decision = decide_symbolically(
+            facts("P.132"),
+            "Xe ô tô có phải nhường xe ngược chiều không?",
+            rules=reviewed_rules(),
+        )
+        evaluation = next(
+            item for item in decision.rule_evaluations
+            if item["rule_id"] == "P132_STOP_AND_YIELD_TO_ONCOMING_MOTOR_VEHICLES"
+        )
+        self.assertEqual(evaluation["decision"], "CONDITIONAL")
+        self.assertEqual(evaluation["missing_facts"], [])
+        self.assertTrue(any(
+            item.get("state") == "skipped_unobservable_scene_fact"
+            for item in evaluation["trace"]
+        ))
 
     def test_permission_uses_default_system_clock_if_user_omits_time(self) -> None:
         decision = decide_symbolically(facts("P.131b"), query("Xe ô tô có được đỗ không?"), rules=reviewed_rules())
@@ -98,10 +119,10 @@ class ReasonerTest(unittest.TestCase):
         decision = decide_symbolically(facts("P.131b"), query("Ngày chẵn, xe ô tô có được đỗ không?"), rules=reviewed_rules())
         self.assertEqual(decision.decision, "UNKNOWN")
 
-    def test_unreviewed_rules_are_gated_to_unknown(self) -> None:
+    def test_unreviewed_rules_with_basis_can_execute(self) -> None:
         decision = decide_symbolically(facts("P.130"), "Xe ô tô có được đỗ tại đây không?")
-        self.assertEqual(decision.decision, "UNKNOWN")
-        self.assertIn("legal_review_required", decision.rule_evaluations[0]["missing_facts"])
+        self.assertEqual(decision.decision, "PROHIBITED")
+        self.assertEqual(decision.rule_evaluations[0]["verification_status"], "unverified")
 
     def test_conflicting_signs_are_reported_per_intent(self) -> None:
         observations = [
@@ -119,6 +140,29 @@ class ReasonerTest(unittest.TestCase):
         }])
         decision = decide_symbolically(both, query("Ngày lẻ, xe ô tô có được đỗ không?"), rules=reviewed_rules())
         self.assertEqual(decision.decision, "PROHIBITED")
+
+    def test_unrelated_sign_does_not_block_matching_turn_left_rule(self) -> None:
+        relevant = normalize_payload_to_observation({"sign_code": "R.301c", "image_name": "turn-left.jpg"})
+        relevant.visual_attributes["normalized_conditions"] = {"sign_effective_scope_confirmed": True}
+        relevant.confidence = "high"
+        unrelated = normalize_payload_to_observation({"sign_code": "P.130", "image_name": "no-parking.jpg"})
+        unrelated.confidence = "high"
+        scene = TrafficFacts(
+            "2.0", "two-signs", [relevant, unrelated],
+            sign_inventory_status="complete",
+            sign_inventory_evidence=[{"source": "test_fixture", "evidence": "both signs listed"}],
+        )
+
+        decision = decide_symbolically(
+            scene, "Xe ô tô có được rẽ trái không?", rules=reviewed_rules(),
+        )
+
+        self.assertEqual(decision.decision, "ALLOWED")
+        self.assertEqual(decision.rules_fired, ["R301_C_ALLOW_TURN_LEFT"])
+        self.assertFalse(any(
+            item["rule_id"] == "COVERAGE_GAP_no-parking.jpg"
+            for item in decision.rule_evaluations
+        ))
 
     def test_multi_intent_query_keeps_results_separate(self) -> None:
         query_intent = query("Biển này có ý nghĩa gì và ô tô có được đỗ ở đây không?")
@@ -143,7 +187,7 @@ class ReasonerTest(unittest.TestCase):
         gap = next(item for item in decision.rule_evaluations if item["rule_id"].startswith("COVERAGE_GAP_"))
         self.assertIn("sign_rule_coverage:P.999", gap["missing_facts"])
 
-    def test_unruled_sign_is_not_hidden_by_a_rule_for_another_sign(self) -> None:
+    def test_unrelated_sign_does_not_block_rule_for_another_sign(self) -> None:
         observations = [
             normalize_payload_to_observation({"sign_code": "P.130", "image_name": "a.jpg"}),
             normalize_payload_to_observation({"sign_code": "R.301", "image_name": "b.jpg"}),
@@ -158,10 +202,11 @@ class ReasonerTest(unittest.TestCase):
             "source": "test_fixture", "evidence": "fixture explicitly includes both signs"
         }])
         decision = decide_symbolically(scene, query("Xe ô tô có được đỗ không?"), rules=reviewed_rules())
-        self.assertEqual(decision.decision, "CONDITIONAL")
-        gap = next(item for item in decision.rule_evaluations if item["rule_id"].startswith("COVERAGE_GAP_"))
-        self.assertIn("sign_rule_coverage:R.301", gap["missing_facts"])
-        self.assertIn("unresolved_sign_rule_coverage_or_facts", decision.intent_evaluations[0]["unresolved_items"])
+        self.assertEqual(decision.decision, "PROHIBITED")
+        self.assertFalse(any(
+            item["rule_id"] == "COVERAGE_GAP_b.jpg"
+            for item in decision.rule_evaluations
+        ))
 
     def test_linked_supplementary_panel_is_evaluated_by_primary_sign_not_double_counted_as_unruled(self) -> None:
         main = normalize_payload_to_observation({"sign_code": "P.130", "image_name": "main.jpg"})
@@ -190,22 +235,23 @@ class ReasonerTest(unittest.TestCase):
             for item in decision.rule_evaluations
         ))
 
-    def test_permission_is_conditional_when_sign_inventory_is_not_confirmed_complete(self) -> None:
+    def test_known_sign_rule_does_not_require_complete_inventory_or_reached_sign_fact(self) -> None:
         partial_facts = TrafficFacts(
             "2.0", "scene-1", [normalize_payload_to_observation({"sign_code": "P.130"})],
             sign_inventory_status="partial",
         )
         decision = decide_symbolically(partial_facts, "Xe ô tô có được đỗ không?", rules=reviewed_rules())
-        self.assertEqual(decision.decision, "CONDITIONAL")
-        self.assertIn("complete_sign_inventory", decision.rule_evaluations[0]["missing_facts"])
+        self.assertEqual(decision.decision, "PROHIBITED")
+        self.assertNotIn("complete_sign_inventory", decision.rule_evaluations[0]["missing_facts"])
+        self.assertNotIn("sign_effective_scope_confirmed", decision.rule_evaluations[0]["missing_facts"])
 
     def test_context_output_exposes_new_intent_and_fact_schemas(self) -> None:
         context = build_symbolic_reasoning_context(facts("P.131a"), "Xe ô tô có được đỗ không?")
         self.assertEqual(context["query_intent"]["schema_version"], "3.0")
-        self.assertEqual(context["facts"]["sign_observations"][0]["sign_code"], "P.131a")
-        self.assertEqual(context["symbolic_decision"]["decision"], "UNKNOWN")
+        self.assertEqual(context["facts"]["sign_observations"][0]["identity"]["sign_code"], "P.131a")
+        self.assertEqual(context["symbolic_decision"]["decision"], "PROHIBITED")
         self.assertEqual(context["sign_meaning_evaluations"], [])
-        self.assertIn("legal_review_required", context["rule_evaluations"][0]["missing_facts"])
+        self.assertNotIn("legal_review_required", context["rule_evaluations"][0]["missing_facts"])
         self.assertIn("intent_evaluations", context["symbolic_decision"])
 
 

@@ -107,6 +107,22 @@ pip install --upgrade pip
 pip install -e ".[dev]"
 ```
 
+Enable traffic-sign text recognition (time ranges, distances, and numeric
+limits) with PaddleOCR:
+
+```bash
+pip install -e ".[dev,ocr]"
+```
+
+PaddleOCR uses the GPU when the installed PaddlePaddle build supports the
+machine's CUDA version; otherwise it selects CPU automatically. For GPU use,
+install the matching CUDA build of PaddlePaddle using the
+[official PaddlePaddle installation guide](https://www.paddlepaddle.org.cn/install/quick).
+OCR runs on detected sign crops before symbolic facts and rules are computed.
+Configure it with `TRAFFIC_SIGN_OCR_ENABLED`,
+`TRAFFIC_SIGN_OCR_DEVICE` (`auto`, `gpu`, or `cpu`), and
+`TRAFFIC_SIGN_OCR_LANGUAGE` (default `vi`).
+
 With `uv`:
 
 ```bash

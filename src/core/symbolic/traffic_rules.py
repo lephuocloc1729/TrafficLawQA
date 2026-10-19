@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import math
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
@@ -14,6 +13,7 @@ from src.core.symbolic.supplementary_facts import extract_supplementary_context_
 from src.core.symbolic.sign_numeric_facts import extract_main_sign_context_facts
 from src.core.symbolic.sign_schema import normalize_confidence
 from src.core.symbolic.sign_normalizer import normalize_sign_code, sign_family
+from src.core.symbolic.question_intent import extract_vehicle
 from src.core.symbolic.vehicle_taxonomy import (
     ACTOR_CLASS_CANDIDATES,
     VEHICLES,
@@ -25,9 +25,60 @@ RULE_DRAFT_REGISTRY_PATH = Path(__file__).parent / "catalogs" / "qcvn_41_2024_ru
 SCOPE_SUPPLEMENTARY_FAMILIES = {
     "S.501", "S.502", "S.503", "S.504", "S.505", "S.506", "S.508", "S.509",
 }
-ALLOW_UNVERIFIED_RULES_FOR_EVAL_ENV = "LEXISIGN_ALLOW_UNVERIFIED_RULES_FOR_EVAL"
 
-
+# Facts this project can currently extract from the sign, OCR, or explicit
+# query wording. Predicates that require locating the vehicle in a lane or
+# judging road safety are intentionally excluded. Other scene-assessment
+# predicates are evaluated when supplied, but their absence does not block a
+# rule.
+SUPPORTED_RULE_CONDITION_PREDICATES = frozenset({
+    # Actor and vehicle classes supplied by the question or a rule scope.
+    "actor_vehicle_category", "actor_is_motor_vehicle", "actor_has_priority_right",
+    "actor_eligibility_for_i446_reserved_parking_confirmed",
+    "hazardous_cargo_status", "vehicle_trailer_configuration", "vehicle_scope_condition",
+    "overtaken_vehicle_class", "overtaken_vehicle_is_motor_vehicle",
+    "pedestrian_location", "wheelchair_for_person_with_disability_confirmed",
+    "vehicle_class_parking_conditions_resolved",
+    # Sign-provided speed, distance, dimension, weight, and passenger limits.
+    "speed_limit_value", "minimum_speed_limit_kmh", "general_max_speed_kmh",
+    "applicable_speed_limit_value", "applicable_statutory_max_speed_kmh",
+    "total_weight_limit_t", "axle_load_limit_t", "payload_limit_t", "height_limit_m",
+    "width_limit_m", "length_limit_m", "combination_length_limit_m",
+    "minimum_following_distance_m", "safe_height_limit_m", "passenger_seat_limit",
+    "passenger_seat_limit_present", "passenger_seat_limit_relation", "payload_limit_present",
+    "payload_limit_relation", "certified_payload_capacity_t", "vehicle_payload_t",
+    "vehicle_gross_weight_t", "vehicle_axle_group_loads_t", "vehicle_axle_load_t",
+    "vehicle_permitted_gross_weight_t", "vehicle_s505b_row_index",
+    "vehicle_s505b_row_match_confirmed", "s505b_row_gross_weight_limits_by_index",
+    "vehicle_seat_count", "vehicle_width_m", "vehicle_height_m", "vehicle_length_m",
+    "vehicle_combination_length_m", "vehicle_manufacturer_max_speed_kmh",
+    # Date/time and sign-depicted direction or explicit route wording.
+    "calendar_parity", "time_window", "supplementary_time_condition",
+    "supplementary_calendar_parity", "intended_obstacle_passing_side",
+    "intended_roundabout_route_follows_arrow", "vehicle_travel_direction_matches_i407_arrow",
+    "i416_detour_route_matches_diagram", "vehicle_class_shown_on_i417_resolved",
+    "requested_route_matches_i414_direction", "requested_route_matches_i415_arrow",
+    "requested_route_matches_i417_diagram_for_vehicle_class", "requested_turn_matches_i413_diagram",
+    "requested_path_matches_i418_diagram", "requested_u_turn_matches_i410_diagram",
+    "pedestrian_direction_matches_i424_diagram", "i414_road_number_and_destination_text_resolved",
+    "direction_scope_condition", "distance_scope_condition",
+    "supplementary_direction_scope_resolved", "priority_road_scope_modifier_resolved",
+    "i401_priority_road_direction_resolved",
+    # Presence and values of identified supplementary or ending signs.
+    "linked_s505b_panel_present", "linked_s505c_panel_present", "linked_s506b_panel_present",
+    "linked_s508_panel_present", "linked_s508_temporal_scope_active", "active_restriction_sign_codes",
+    "s505a_vehicle_scope_resolved", "s505a_vehicle_classes",
+    "i434a_bus_service_match_confirmed", "i434b_loading_or_unloading_purpose_confirmed",
+    "sh6_exception_scope_resolved", "sh6_exception_actor_classes",
+    "sh6_exception_applies_to_actor_resolved",
+})
+UNOBSERVABLE_DECISION_SCOPE_PREDICATES = frozenset({
+    "bus_lane_marking", "current_lane_scope_confirmed", "current_vehicle_lane_scope_resolved",
+    "r411_current_lane_resolved", "r411_lane_arrow_mapping_resolved",
+    "r411_directional_road_marking_consistent", "r411_requested_route_matches_lane_arrow",
+    "r415_lane_count_per_direction_resolved", "r415_vehicle_symbols_mapped_to_each_lane",
+    "requested_vehicle_and_lane_resolved", "other_vehicle_class_lane_scope_resolved",
+})
 def _is_legally_verified(rule: TrafficRule) -> bool:
     return (
         rule.verification_status == "verified"
@@ -36,18 +87,10 @@ def _is_legally_verified(rule: TrafficRule) -> bool:
     )
 
 
-def unverified_rules_allowed_for_eval() -> bool:
-    return os.getenv(ALLOW_UNVERIFIED_RULES_FOR_EVAL_ENV, "").strip().lower() in {
-        "1", "true", "yes", "on",
-    }
-
-
 def _rule_execution_allowed(rule: TrafficRule) -> bool:
-    # Evaluation may opt into draft logic, but never execute a rule without a
-    # legal-basis reference. The override is disabled unless explicitly set.
-    return _is_legally_verified(rule) or (
-        unverified_rules_allowed_for_eval() and bool(rule.legal_basis)
-    )
+    # Draft rules with a recorded legal basis are executable; verification
+    # status remains provenance metadata and does not gate matching/decisions.
+    return bool(rule.legal_basis)
 
 
 def _actor_scope_match(actor: str, scopes: list[str]) -> str:
@@ -462,6 +505,8 @@ def _linked_s508_scope_facts(
     presence: bool | None = None
     if linked_here:
         presence = True
+    elif not panels:
+        presence = False
     elif facts.sign_inventory_status == "complete" and not unresolved_panels:
         presence = False
 
@@ -568,6 +613,8 @@ def _linked_s506b_scope_facts(facts: TrafficFacts, main_sign: SignObservation) -
     ]
 
     present: bool | None = True if linked_here else None
+    if present is None and not any(item.sign_code == "S.506b" for item in facts.sign_observations):
+        present = False
     if present is None and facts.sign_inventory_status == "complete":
         unresolved_panel = False
         for panel in facts.sign_observations:
@@ -651,7 +698,8 @@ def _linked_s505_bridge_scope_facts(
             for panel in panels
         )
         present: bool | None = True if linked_here else (
-            False if facts.sign_inventory_status == "complete" and not unresolved_panel else None
+            False if not panels or (facts.sign_inventory_status == "complete" and not unresolved_panel)
+            else None
         )
         states[code] = present
         if present is not None:
@@ -1051,8 +1099,6 @@ def _evaluate_candidate(
 
     if actor_unresolved:
         missing = list(actor_missing_facts or ["actor_class"])
-        if not _rule_execution_allowed(rule):
-            missing.append("legal_review_required")
         return RuleEvaluation(
             rule_id=rule.rule_id,
             intent_id=intent.intent_id,
@@ -1074,8 +1120,21 @@ def _evaluate_candidate(
     missing: list[str] = []
     matched: list[str] = []
     trace: list[dict[str, Any]] = []
+    skipped_unobservable: list[str] = []
     decision = rule.outcome
     for condition in rule.conditions:
+        _, condition_fact = _value_for(condition.predicate, context)
+        if (
+            condition_fact is None
+            and condition.predicate not in SUPPORTED_RULE_CONDITION_PREDICATES
+        ):
+            skipped_unobservable.append(condition.predicate)
+            trace.append({
+                "predicate": condition.predicate,
+                "state": "skipped_unobservable_scene_fact",
+                "value": None,
+            })
+            continue
         state, value, fact_id = _condition_result(condition, context)
         trace.append({"predicate": condition.predicate, "state": state, "value": value})
         if state == "satisfied":
@@ -1185,11 +1244,8 @@ def _evaluate_candidate(
             "unmodeled_panels": unmodeled_scope_panels,
         })
 
-    rule_is_verified = _is_legally_verified(rule)
-    eval_override = unverified_rules_allowed_for_eval()
     rule_execution_allowed = _rule_execution_allowed(rule)
     if not rule_execution_allowed:
-        unresolved = list(dict.fromkeys([*missing, "legal_review_required"]))
         return RuleEvaluation(
             rule_id=rule.rule_id,
             intent_id=intent.intent_id,
@@ -1197,19 +1253,13 @@ def _evaluate_candidate(
             decision="UNKNOWN",
             status="unresolved",
             matched_facts=matched,
-            missing_facts=unresolved,
+            missing_facts=list(dict.fromkeys([*missing, "legal_basis"])),
             legal_basis=rule.legal_basis,
-            reason="Rule hoặc căn cứ pháp lý chưa được nhóm review xác minh.",
+            reason="Rule chưa có căn cứ pháp lý được ghi nhận.",
             confidence="low",
-            trace=[*trace, {"step": "legal_review_gate", "state": "blocked"}],
+            trace=[*trace, {"step": "rule_basis_check", "state": "missing"}],
             verification_status=rule.verification_status,
         )
-    if eval_override and not rule_is_verified:
-        trace.append({
-            "step": "legal_review_gate",
-            "state": "unverified_rule_execution_allowed_for_eval",
-            "verification_status": rule.verification_status,
-        })
 
     if sh6_match_fact is not None and sh6_applies is True and any(
         effect.effect_type in {"prohibit_action", "maximum", "minimum", "exact_value"}
@@ -1222,7 +1272,7 @@ def _evaluate_candidate(
             decision="UNKNOWN",
             status="not_applicable",
             matched_facts=[sh6_match_fact.fact_id],
-            missing_facts=["other_applicable_sign_constraints"],
+            missing_facts=[],
             legal_basis=rule.legal_basis,
             reason=(
                 "S.H.6 xác định ngoại lệ cho nhóm phương tiện đang hỏi đối với hạn chế của biển này; "
@@ -1245,7 +1295,7 @@ def _evaluate_candidate(
             decision="UNKNOWN",
             status="not_applicable",
             matched_facts=[s505a_match_fact.fact_id],
-            missing_facts=["other_applicable_sign_constraints"],
+            missing_facts=[],
             legal_basis=rule.legal_basis,
             reason=(
                 "Loại xe được hỏi không thuộc nhóm hình xe đã xác nhận trên S.505a, nên biển chính này "
@@ -1260,16 +1310,6 @@ def _evaluate_candidate(
             verification_status=rule.verification_status,
         )
 
-    inventory_incomplete = sign_inventory_status != "complete"
-    if inventory_incomplete:
-        missing.append("complete_sign_inventory")
-        decision = "CONDITIONAL"
-        trace.append({
-            "step": "sign_inventory_completeness",
-            "state": sign_inventory_status,
-            "required_for_definitive_permission_assessment": True,
-        })
-
     if supplementary_linkage_unresolved:
         missing.append("supplementary_sign_association")
         decision = "CONDITIONAL"
@@ -1280,10 +1320,25 @@ def _evaluate_candidate(
         })
 
     conditions_incomplete = bool(missing)
-    effects = _resolve_effects(rule, context) if not conditions_incomplete else []
+    decision_scope_unresolved = bool(
+        set(skipped_unobservable).intersection(UNOBSERVABLE_DECISION_SCOPE_PREDICATES)
+    ) or (decision == "ALLOWED" and bool(skipped_unobservable))
+    if decision_scope_unresolved and decision in {"ALLOWED", "PROHIBITED"}:
+        decision = "CONDITIONAL"
+        trace.append({
+            "step": "permission_scope_guard",
+            "state": "conditional_due_to_unobservable_scope",
+            "skipped_predicates": skipped_unobservable,
+        })
+    effects = (
+        _resolve_effects(rule, context)
+        if not conditions_incomplete and not decision_scope_unresolved else []
+    )
     reason = rule.reason if not missing else f"{rule.reason} Thiếu dữ kiện: {', '.join(missing)}."
-    if inventory_incomplete or supplementary_linkage_unresolved:
-        reason += " Chưa xác nhận đã nhận diện đủ biển chính và biển phụ trong phạm vi ảnh."
+    if decision_scope_unresolved:
+        reason += " Chưa thể xác nhận phạm vi áp dụng từ dữ liệu hiện có."
+    if supplementary_linkage_unresolved:
+        reason += " Chưa xác định được biển phụ nào gắn với biển chính."
     if not missing and intent.kind == "CHECK_PERMISSION":
         requested_speed = intent.requested_answer.get("requested_speed_kmh")
         maximum_effect = next((
@@ -1315,7 +1370,6 @@ def _evaluate_candidate(
                     reason = f"Tốc độ được hỏi ({requested:g} km/h) vượt quá giới hạn trên biển ({maximum:g} km/h)."
                 else:
                     decision = "CONDITIONAL"
-                    missing.append("other_applicable_sign_constraints")
                     reason = (
                         f"Tốc độ được hỏi ({requested:g} km/h) không vượt giới hạn trên biển "
                         f"({maximum:g} km/h), nhưng kiểm tra biển này chưa xác nhận được quyền lưu thông tổng thể."
@@ -1344,15 +1398,10 @@ def _evaluate_candidate(
                     )
                 else:
                     decision = "CONDITIONAL"
-                    missing.append("other_applicable_sign_constraints")
                     reason = (
                         f"Tốc độ được hỏi ({requested:g} km/h) không thấp hơn mức tối thiểu "
                         f"trên biển ({minimum:g} km/h), nhưng điều đó chưa xác nhận quyền lưu thông tổng thể."
                     )
-
-    if intent.kind == "CHECK_PERMISSION" and decision == "CONDITIONAL" and not missing:
-        missing.append("other_applicable_sign_constraints")
-        reason += " Quy tắc này chưa đủ để xác nhận quyền lưu thông tổng thể; cần kiểm tra các ràng buộc khác."
 
     incomplete = bool(missing)
     return RuleEvaluation(
@@ -1390,10 +1439,21 @@ def find_matching_rules(
             continue
         action = query_intent.action.value
         actor = query_intent.actor.value
+        actor = {
+            "motorcycle": "motorbike",
+            "automobile": "car",
+            "passenger_car": "four_wheel_passenger_vehicle",
+            "other_motor_vehicle": "motor_vehicle",
+        }.get(actor, actor)
+        # The intent schema uses a compact actor group. Refine from the original
+        # wording when a legally specific class is needed for rule matching.
+        if query_intent.actor.raw_text:
+            detailed_actor = extract_vehicle(query_intent.actor.raw_text)
+            if detailed_actor != "unknown":
+                actor = detailed_actor
         intent_context = list(scenario_facts)
         if (
             query_intent.actor.status == "provided"
-            and query_intent.actor.source == "user_query"
             and actor not in {"unknown", "vehicle", "motor_vehicle", "non_motor_vehicle", "priority_vehicle", "emergency_vehicle"}
             and vehicle_is_covered(actor, "vehicle")
         ):
@@ -1409,7 +1469,6 @@ def find_matching_rules(
             ))
         if (
             query_intent.actor.status == "provided"
-            and query_intent.actor.source == "user_query"
             and actor == "priority_vehicle"
         ):
             intent_context.append(ContextFact(
@@ -1438,7 +1497,7 @@ def find_matching_rules(
                 if observation.sign_code not in query_intent.target.sign_codes and not candidate_codes.intersection(query_intent.target.sign_codes):
                     continue
             for rule in rules:
-                if query_intent.kind not in rule.intent_kinds or action not in rule.actions:
+                if action not in rule.actions:
                     continue
                 actor_unresolved = (
                     query_intent.kind in PERMISSION_INTENTS

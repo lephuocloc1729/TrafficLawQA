@@ -25,7 +25,10 @@ from src.core.article_context import (
     rule_article_candidates,
 )
 from src.core.symbolic.reasoner import build_symbolic_reasoning_context
+from src.core.symbolic.fact_schema import SignObservation, TrafficFacts
 from src.core.symbolic.sign_normalizer import normalize_detected_sign_to_observation
+from src.core.symbolic.sign_relations import link_supplementary_signs
+from src.core.symbolic.traffic_sign_ocr import get_traffic_sign_ocr
 from src.prompts.answer_prompt import (
     SYSTEM_PROMPT_FREEFORM_CITED_QA,
     SYSTEM_PROMPT_SIGN_VARIANT_DISAMBIGUATION,
@@ -488,12 +491,14 @@ def collect_retrieved_context(
     list[dict[str, Any]],
     list[dict[str, str]],
     list[dict[str, Any]],
-    list[dict[str, Any]],
+    TrafficFacts,
 ]:
     article_candidates: list[dict[str, Any]] = []
     visual_evidence: list[dict[str, Any]] = []
     sign_prompt_parts: list[dict[str, Any]] = []
-    traffic_sign_observations: list[dict[str, Any]] = []
+    traffic_sign_observations: list[SignObservation] = []
+    ocr_engine = None
+    ocr_unavailable = False
 
     for sign in sample.get("detected_signs", []):
         if not sign.get("is_chosen"):
@@ -501,7 +506,6 @@ def collect_retrieved_context(
 
         sign_image_path = sign_dir / sign["image_name"]
         sign_image = Image.open(sign_image_path).convert("RGB")
-        sign_b64, sign_mime = pil_to_base64_png(sign_image)
 
         sign_payloads = [
             dict(payload)
@@ -593,24 +597,31 @@ def collect_retrieved_context(
             visual_evidence=sign_visual_evidence,
             source=observation_source,
         )
+        if settings.traffic_sign_ocr_enabled and not ocr_unavailable:
+            try:
+                if ocr_engine is None:
+                    ocr_engine = get_traffic_sign_ocr(
+                        device=settings.traffic_sign_ocr_device,
+                        language=settings.traffic_sign_ocr_language,
+                    )
+                sign_observation.ocr_texts = ocr_engine.recognize(sign_image_path)
+                sign["ocr_status"] = "read" if sign_observation.ocr_texts else "no_text"
+            except Exception as exc:
+                ocr_unavailable = True
+                sign["ocr_status"] = "unavailable"
+                logging.getLogger(__name__).warning(
+                    "Traffic-sign OCR unavailable for this sample: %s", exc
+                )
         sign["sign_observation"] = sign_observation.to_dict()
-        traffic_sign_observations.append(sign["sign_observation"])
-        sign_prompt_parts.extend(
-            [
-                {
-                    "type": "text",
-                    "text": (
-                        f"DETECTED SIGN CROP: {sign.get('image_name')}\n"
-                        "VARIANT RESOLUTION: "
-                        f"{json.dumps(variant_decision, ensure_ascii=False)}"
-                    ),
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:{sign_mime};base64,{sign_b64}"},
-                },
-            ]
-        )
+        traffic_sign_observations.append(sign_observation)
+        sign_prompt_parts.append({
+            "type": "text",
+            "text": (
+                f"DETECTED SIGN CROP: {sign.get('image_name')}\n"
+                "VARIANT RESOLUTION: "
+                f"{json.dumps(variant_decision, ensure_ascii=False)}"
+            ),
+        })
 
     predicted_article_refs = sample.get("predicted_articles") or []
     sample_article_refs = predicted_article_refs or sample.get("relevant_articles", [])
@@ -632,7 +643,14 @@ def collect_retrieved_context(
         article_lookup=article_lookup,
         max_articles=MAX_ARTICLES_IN_PROMPT,
     )
-    return article_contexts, visual_evidence, sign_prompt_parts, traffic_sign_observations
+    traffic_facts = TrafficFacts(
+        schema_version="2.0",
+        scene_id=str(sample.get("image_id") or "scene-unknown"),
+        sign_observations=traffic_sign_observations,
+        sign_relations=link_supplementary_signs(traffic_sign_observations),
+        sign_inventory_status="partial",
+    )
+    return article_contexts, visual_evidence, sign_prompt_parts, traffic_facts
 
 
 def build_freeform_prompt_parts(
@@ -643,10 +661,6 @@ def build_freeform_prompt_parts(
     sign_prompt_parts: list[dict[str, Any]],
     symbolic_context: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
-    image_path = image_dir / f"{sample['image_id']}.jpg"
-    image = Image.open(image_path).convert("RGB")
-    org_b64, org_mime = pil_to_base64_png(image)
-
     symbolic_context = symbolic_context or {}
     choices = sample.get("choices")
     user_context = {
@@ -730,11 +744,6 @@ def build_freeform_prompt_parts(
                 f"{sign_specific_context}"
             ),
         },
-        {"type": "text", "text": "INPUT IMAGE"},
-        {
-            "type": "image_url",
-            "image_url": {"url": f"data:{org_mime};base64,{org_b64}"},
-        },
         *sign_prompt_parts,
     ]
 
@@ -779,7 +788,9 @@ def get_freeform_answer(
             vector_store=vector_store,
             collection_name=collection_name,
             article_lookup=article_lookup,
-            llm_client=llm_client,
+            # The LLM only explains system-produced facts; it does not inspect
+            # the image or disambiguate sign crops.
+            llm_client=None,
             limit=limit,
             temperature=temperature,
             max_tokens=min(max_tokens, 500),

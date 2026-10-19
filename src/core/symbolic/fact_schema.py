@@ -76,6 +76,9 @@ class SignObservation(SerializableMixin):
                     "raw_text": item.get("raw_text"),
                     "normalized_value": item.get("normalized_value"),
                     "confidence": normalize_confidence(item.get("confidence")),
+                    "score": item.get("score"),
+                    "bbox": item.get("bbox"),
+                    "source": item.get("source", "ocr"),
                 }
                 for item in self.ocr_texts
             ],
@@ -104,6 +107,8 @@ class ContextFact(SerializableMixin):
 
     def __post_init__(self) -> None:
         self.fact_id = str(self.fact_id or "fact-unknown").strip()
+        # Accept caller spellings such as "Speed_limit_value", then keep a
+        # lowercase canonical name for rule matching.
         self.predicate = str(self.predicate or "unknown").strip().lower()
         self.status = str(self.status or "unknown").strip().lower()
         self.source = str(self.source or "unknown").strip().lower()

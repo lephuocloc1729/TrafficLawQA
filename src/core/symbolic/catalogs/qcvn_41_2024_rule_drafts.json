@@ -1,5 +1,5 @@
 {
-  "registry_version": "qcvn41-rule-drafts-55",
+  "registry_version": "qcvn41-rule-drafts-56",
   "source_document": "QCVN 41:2024/BGTVT",
   "review_status": "unreviewed_draft",
   "rules": [
@@ -2999,8 +2999,7 @@
         "circulation"
       ],
       "actor_scope": [
-        "bus",
-        "car"
+        "bus"
       ],
       "excluded_actor_scope": [],
       "outcome": "ALLOWED",
@@ -3066,8 +3065,7 @@
         "circulation"
       ],
       "actor_scope": [
-        "bus",
-        "car"
+        "bus"
       ],
       "excluded_actor_scope": [],
       "outcome": "ALLOWED",
@@ -3156,8 +3154,7 @@
         "circulation"
       ],
       "actor_scope": [
-        "bus",
-        "car"
+        "bus"
       ],
       "excluded_actor_scope": [],
       "outcome": "PROHIBITED",
@@ -3244,7 +3241,6 @@
       ],
       "excluded_actor_scope": [
         "bus",
-        "car",
         "priority_vehicle"
       ],
       "outcome": "PROHIBITED",
@@ -26280,6 +26276,229 @@
           "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
           "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
           "accessed_at": "2026-10-05",
+          "verification_status": "verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "P102_PRIORITY_VEHICLE_EXCEPTION_REQUIRES_ROUTE_REVIEW",
+      "code": "P.102",
+      "actions": [
+        "entering",
+        "circulation"
+      ],
+      "actor_scope": [
+        "priority_vehicle"
+      ],
+      "excluded_actor_scope": [],
+      "outcome": "CONDITIONAL",
+      "conditions": [
+        {
+          "predicate": "sign_effective_scope_confirmed",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        },
+        {
+          "predicate": "priority_vehicle_status_confirmed",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        },
+        {
+          "predicate": "opposite_direction_route_passable",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        },
+        {
+          "predicate": "expressway_opposite_direction_limit_resolved",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        },
+        {
+          "predicate": "other_applicable_signs_and_controls_resolved",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        }
+      ],
+      "reason": "QCVN 41:2024/BGTVT Appendix B.2 excepts vehicles with statutory priority rights from P.102. The exception does not itself establish blanket permission: qualifying priority status, a passable route, expressway-specific limits, and other applicable controls must be reviewed.",
+      "effects": [
+        {
+          "effect_type": "sign_meaning",
+          "action": "entering",
+          "scope": {
+            "exception": "vehicles_with_confirmed_priority_rights"
+          },
+          "description": "P.102's prohibition may not apply to a qualifying priority vehicle; other route rules remain unresolved."
+        }
+      ],
+      "additional_legal_basis": [
+        {
+          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
+          "edition": "2024; effective 2025-01-01",
+          "section_or_figure": "Appendix B.2: P.102 exception for priority vehicles",
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
+          "accessed_at": "2026-10-16",
+          "verification_status": "verified"
+        },
+        {
+          "document": "Luật Trật tự, an toàn giao thông đường bộ số 36/2024/QH15",
+          "edition": "2024; effective 2025-01-01",
+          "section_or_figure": "Điều 27 khoản 3: quyền và giới hạn của xe ưu tiên khi làm nhiệm vụ",
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/9/36-2024-qh15_tiep.pdf",
+          "accessed_at": "2026-10-16",
+          "verification_status": "verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "I434A_BUS_STOP_PERMISSION_REQUIRES_SERVICE_AND_SCOPE",
+      "code": "I.434a",
+      "actions": [
+        "stopping",
+        "parking"
+      ],
+      "actor_scope": [
+        "bus"
+      ],
+      "excluded_actor_scope": [],
+      "outcome": "CONDITIONAL",
+      "conditions": [
+        {
+          "predicate": "sign_effective_scope_confirmed",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        },
+        {
+          "predicate": "i434_designated_stop_location_resolved",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        },
+        {
+          "predicate": "i434a_bus_service_match_confirmed",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        },
+        {
+          "predicate": "other_applicable_stopping_constraints_resolved",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        }
+      ],
+      "reason": "QCVN 41:2024/BGTVT Appendix E.36, Figure E.36 identifies a designated location for a bus stopping place for passenger boarding and alighting. The sign alone does not establish that the queried stop/parking maneuver is lawful in the current scene; exact sign scope, relevant service/use, and other stopping constraints must be resolved. This rule never grants blanket permission.",
+      "effects": [
+        {
+          "effect_type": "sign_meaning",
+          "action": "stopping",
+          "scope": {
+            "designated_location_fact": "i434_designated_stop_location_resolved"
+          },
+          "description": "a bus stopping place for passenger boarding and alighting"
+        }
+      ],
+      "additional_legal_basis": [
+        {
+          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
+          "edition": "2024; effective 2025-01-01",
+          "section_or_figure": "Appendix E.36, Figure E.36",
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
+          "accessed_at": "2026-10-16",
+          "verification_status": "verified"
+        }
+      ]
+    },
+    {
+      "rule_id": "I434B_TRUCK_STOP_PERMISSION_REQUIRES_LOADING_SCOPE",
+      "code": "I.434b",
+      "actions": [
+        "stopping",
+        "parking"
+      ],
+      "actor_scope": [
+        "truck"
+      ],
+      "excluded_actor_scope": [],
+      "outcome": "CONDITIONAL",
+      "conditions": [
+        {
+          "predicate": "sign_effective_scope_confirmed",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        },
+        {
+          "predicate": "i434_designated_stop_location_resolved",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        },
+        {
+          "predicate": "i434b_loading_or_unloading_purpose_confirmed",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        },
+        {
+          "predicate": "other_applicable_stopping_constraints_resolved",
+          "operator": "equals",
+          "expected_value": true,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        }
+      ],
+      "reason": "QCVN 41:2024/BGTVT Appendix E.37, Figure E.37 identifies a designated location for a truck stopping/parking place for receiving or delivering goods. The sign alone does not establish that the queried stop/parking maneuver is lawful in the current scene; exact sign scope, relevant service/use, and other stopping constraints must be resolved. This rule never grants blanket permission.",
+      "effects": [
+        {
+          "effect_type": "sign_meaning",
+          "action": "stopping",
+          "scope": {
+            "designated_location_fact": "i434_designated_stop_location_resolved"
+          },
+          "description": "a truck stopping/parking place for receiving or delivering goods"
+        }
+      ],
+      "additional_legal_basis": [
+        {
+          "document": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT",
+          "edition": "2024; effective 2025-01-01",
+          "section_or_figure": "Appendix E.37, Figure E.37",
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "gazette_source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-51-2024-tt-bgtvt-43387-53152?format=pdf",
+          "accessed_at": "2026-10-16",
           "verification_status": "verified"
         }
       ]

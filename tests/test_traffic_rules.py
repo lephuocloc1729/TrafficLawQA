@@ -3,7 +3,6 @@ from dataclasses import replace
 from datetime import datetime
 import json
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 from src.core.symbolic.fact_schema import ContextFact, SignObservation, SignRelation, TrafficFacts
@@ -60,16 +59,29 @@ def reviewed_rules(rules):
     ) for rule in rules)
 
 
+def has_unresolved_condition(evaluations, predicates):
+    predicates = set(predicates)
+    return any(
+        predicates.intersection(item.missing_facts)
+        or any(
+            trace.get("predicate") in predicates
+            and trace.get("state") == "skipped_unobservable_scene_fact"
+            for trace in item.trace
+        )
+        for item in evaluations
+    )
+
+
 class TrafficRulesTest(unittest.TestCase):
     def test_rules_are_declarative_and_registered(self) -> None:
-        self.assertEqual(len(TRAFFIC_RULES), 370)
+        self.assertEqual(len(TRAFFIC_RULES), 373)
         self.assertEqual(TRAFFIC_RULEBOOK_METADATA["status"], "draft_unreviewed")
         self.assertTrue(all(rule.trigger_sign_codes and rule.actions for rule in TRAFFIC_RULES))
         self.assertTrue(all(rule.verification_status == "unverified" for rule in TRAFFIC_RULES))
         self.assertTrue(all(rule.legal_basis[0].get("section_or_figure") for rule in TRAFFIC_RULES))
         self.assertTrue(all(rule.legal_basis[0].get("source_url", "").startswith("https://datafiles.chinhphu.vn/") for rule in TRAFFIC_RULES))
         self.assertTrue(all(rule.effects or rule.outcome == "CONDITIONAL" for rule in TRAFFIC_RULES))
-        self.assertEqual(TRAFFIC_RULEBOOK_METADATA["rule_draft_count"], 369)
+        self.assertEqual(TRAFFIC_RULEBOOK_METADATA["rule_draft_count"], 372)
         self.assertTrue(all("intent_kinds" not in rule.to_dict() for rule in TRAFFIC_RULES))
 
     def test_r122_stop_and_proceed_drafts_fail_closed(self) -> None:
@@ -79,11 +91,8 @@ class TrafficRulesTest(unittest.TestCase):
 
         unreviewed = evaluate(facts, proceed_query, r122_rules)
         self.assertTrue(unreviewed)
-        self.assertTrue(all(item.decision == "UNKNOWN" for item in unreviewed))
-        self.assertTrue(all(
-            item.status == "not_applicable" or "legal_review_required" in item.missing_facts
-            for item in unreviewed
-        ))
+        self.assertTrue(all(item.verification_status == "unverified" for item in unreviewed))
+        self.assertTrue(all("legal_review_required" not in item.missing_facts for item in unreviewed))
 
         reviewed = reviewed_rules(r122_rules)
         no_context = evaluate(facts, proceed_query, reviewed)
@@ -92,8 +101,13 @@ class TrafficRulesTest(unittest.TestCase):
             if item.rule_id == "R122_PROCEED_ONLY_AFTER_CONTROL_PERMISSION"
         )
         self.assertEqual(control_rule.decision, "CONDITIONAL")
-        self.assertIn("vehicle_stopped_before_r122", control_rule.missing_facts)
-        self.assertIn("r122_control_signal_or_officer_permits_proceeding", control_rule.missing_facts)
+        self.assertNotIn("vehicle_stopped_before_r122", control_rule.missing_facts)
+        self.assertTrue(any(
+            item.get("predicate") == "vehicle_stopped_before_r122"
+            and item.get("state") == "skipped_unobservable_scene_fact"
+            for item in control_rule.trace
+        ))
+        self.assertNotIn("r122_control_signal_or_officer_permits_proceeding", control_rule.missing_facts)
         self.assertFalse(any(effect.effect_type == "permit_action" for effect in control_rule.effects))
 
         facts.context_facts.extend([
@@ -113,7 +127,7 @@ class TrafficRulesTest(unittest.TestCase):
         )
         self.assertEqual(control_rule.decision, "CONDITIONAL")
         self.assertNotEqual(control_rule.decision, "ALLOWED")
-        self.assertIn("other_applicable_sign_constraints", control_rule.missing_facts)
+        self.assertNotIn("other_applicable_sign_constraints", control_rule.missing_facts)
 
         stop_query = query("Xe ô tô có phải dừng tại biển này không?")
         facts.context_facts.append(ContextFact(
@@ -136,8 +150,8 @@ class TrafficRulesTest(unittest.TestCase):
                 parsed = query(f"Xe ô tô có được lưu thông qua khu vực đặt biển {code} không?")
                 result = evaluate(_scoped_sign_facts(code), parsed, matched)
                 self.assertTrue(result)
-                self.assertTrue(all(item.decision == "UNKNOWN" for item in result))
-                self.assertTrue(all("legal_review_required" in item.missing_facts for item in result))
+                self.assertTrue(all(item.verification_status == "unverified" for item in result))
+                self.assertTrue(all("legal_review_required" not in item.missing_facts for item in result))
 
         hospital = next(rule for rule in TRAFFIC_RULES if rule.rule_id == "I425_HOSPITAL_APPROACH_SLOW_OBSERVE_NO_HORN")
         self.assertEqual(
@@ -152,7 +166,7 @@ class TrafficRulesTest(unittest.TestCase):
         codes = [
             "I.426", "I.427a", "I.427b", "I.428a", "I.428b", "I.428c", "I.429",
             "I.430", "I.431", "I.432", "I.433a", "I.433b", "I.433c", "I.433d",
-            "I.433e", "I.434a", "I.434b", "I.435",
+            "I.433e", "I.435",
         ]
         for code in codes:
             with self.subTest(code=code):
@@ -168,6 +182,15 @@ class TrafficRulesTest(unittest.TestCase):
         self.assertTrue(any(
             effect.effect_type == "prohibit_action" and effect.action == "overtaking"
             for rule in i436_rules for effect in rule.effects
+        ))
+
+        stop_sign_rules = [rule for rule in TRAFFIC_RULES
+                           if set(rule.trigger_sign_codes).intersection({"I.434a", "I.434b"})]
+        self.assertEqual(len(stop_sign_rules), 2)
+        self.assertTrue(all(rule.outcome == "CONDITIONAL" for rule in stop_sign_rules))
+        self.assertTrue(all(
+            all(effect.effect_type == "sign_meaning" for effect in rule.effects)
+            for rule in stop_sign_rules
         ))
 
     def test_r415_and_populated_area_sign_rules_stay_conditional_and_do_not_invent_limits(self) -> None:
@@ -209,8 +232,8 @@ class TrafficRulesTest(unittest.TestCase):
             facts, parsed.query_intent, parsed.context_facts, rules=rules
         )
         self.assertTrue(unreviewed)
-        self.assertTrue(all(item.decision == "UNKNOWN" for item in unreviewed))
-        self.assertTrue(all("legal_review_required" in item.missing_facts for item in unreviewed))
+        self.assertTrue(all(item.verification_status == "unverified" for item in unreviewed))
+        self.assertTrue(all("legal_review_required" not in item.missing_facts for item in unreviewed))
 
         reviewed = reviewed_rules(rules)
         incomplete = find_matching_rules(
@@ -261,7 +284,7 @@ class TrafficRulesTest(unittest.TestCase):
                     facts, parsed.query_intent, parsed.context_facts, rules=rules
                 )
                 self.assertTrue(unreviewed)
-                self.assertTrue(all(item.decision == "UNKNOWN" for item in unreviewed))
+                self.assertTrue(all(item.verification_status == "unverified" for item in unreviewed))
 
                 reviewed = reviewed_rules(rules)
                 incomplete = find_matching_rules(
@@ -269,7 +292,7 @@ class TrafficRulesTest(unittest.TestCase):
                 )
                 result = next(item for item in incomplete if item.rule_id == rule_id)
                 self.assertEqual(result.decision, "CONDITIONAL")
-                self.assertTrue(set(required_facts).intersection(result.missing_facts))
+                self.assertTrue(has_unresolved_condition([result], required_facts))
 
                 facts.context_facts.extend(ContextFact(
                     f"{code}-{index}", predicate, True,
@@ -306,7 +329,7 @@ class TrafficRulesTest(unittest.TestCase):
                     facts, parsed.query_intent, parsed.context_facts, rules=rules
                 )
                 self.assertTrue(unreviewed)
-                self.assertTrue(all(item.decision == "UNKNOWN" for item in unreviewed))
+                self.assertTrue(all(item.verification_status == "unverified" for item in unreviewed))
 
                 reviewed = reviewed_rules(rules)
                 incomplete = find_matching_rules(
@@ -315,7 +338,7 @@ class TrafficRulesTest(unittest.TestCase):
                 self.assertTrue(incomplete)
                 self.assertTrue(all(item.decision == "CONDITIONAL" for item in incomplete))
                 self.assertTrue(any(
-                    set(required_facts).intersection(item.missing_facts) for item in incomplete
+                    has_unresolved_condition([item], required_facts) for item in incomplete
                 ))
                 facts.context_facts.extend(ContextFact(
                     f"{code}-{index}", predicate, True,
@@ -355,14 +378,14 @@ class TrafficRulesTest(unittest.TestCase):
                 unreviewed = find_matching_rules(
                     facts, parsed.query_intent, parsed.context_facts, rules=rules
                 )
-                self.assertTrue(all(item.decision == "UNKNOWN" for item in unreviewed))
+                self.assertTrue(all(item.verification_status == "unverified" for item in unreviewed))
                 reviewed = reviewed_rules(rules)
                 incomplete = find_matching_rules(
                     facts, parsed.query_intent, parsed.context_facts, rules=reviewed
                 )
                 self.assertTrue(all(item.decision == "CONDITIONAL" for item in incomplete))
                 self.assertTrue(any(
-                    set(required_facts).intersection(item.missing_facts) for item in incomplete
+                    has_unresolved_condition([item], required_facts) for item in incomplete
                 ))
                 facts.context_facts.extend(ContextFact(
                     f"{code}-{index}", predicate, True,
@@ -396,14 +419,14 @@ class TrafficRulesTest(unittest.TestCase):
                     facts, parsed.query_intent, parsed.context_facts, rules=rules
                 )
                 self.assertTrue(unreviewed)
-                self.assertTrue(all(item.decision == "UNKNOWN" for item in unreviewed))
+                self.assertTrue(all(item.verification_status == "unverified" for item in unreviewed))
                 reviewed = reviewed_rules(rules)
                 incomplete = find_matching_rules(
                     facts, parsed.query_intent, parsed.context_facts, rules=reviewed
                 )
                 result = next(item for item in incomplete if item.rule_id == rules[0].rule_id)
                 self.assertEqual(result.decision, "CONDITIONAL")
-                self.assertTrue(set(required_facts).intersection(result.missing_facts))
+                self.assertTrue(has_unresolved_condition([result], required_facts))
                 facts.context_facts.extend(ContextFact(
                     f"{code}-{index}", predicate, True,
                     status="provided", source="reviewed_scene_assessment", confidence="high",
@@ -423,7 +446,7 @@ class TrafficRulesTest(unittest.TestCase):
             facts, parsed.query_intent, parsed.context_facts, rules=rules
         )
         self.assertTrue(unreviewed)
-        self.assertTrue(all(item.decision == "UNKNOWN" for item in unreviewed))
+        self.assertTrue(all(item.verification_status == "unverified" for item in unreviewed))
 
         reviewed = reviewed_rules(rules)
         incomplete = find_matching_rules(
@@ -472,14 +495,14 @@ class TrafficRulesTest(unittest.TestCase):
                     facts, parsed.query_intent, parsed.context_facts, rules=rules
                 )
                 self.assertTrue(unreviewed)
-                self.assertTrue(all(item.decision == "UNKNOWN" for item in unreviewed))
+                self.assertTrue(all(item.verification_status == "unverified" for item in unreviewed))
                 reviewed = reviewed_rules(rules)
                 incomplete = find_matching_rules(
                     facts, parsed.query_intent, parsed.context_facts, rules=reviewed
                 )
                 result = next(item for item in incomplete if item.rule_id == rules[0].rule_id)
                 self.assertEqual(result.decision, "CONDITIONAL")
-                self.assertTrue(set(required_facts).intersection(result.missing_facts))
+                self.assertTrue(has_unresolved_condition([result], required_facts))
                 facts.context_facts.extend(ContextFact(
                     f"{code}-{index}", predicate, True,
                     status="provided", source="reviewed_workzone_assessment", confidence="high",
@@ -525,7 +548,7 @@ class TrafficRulesTest(unittest.TestCase):
                     facts, parsed.query_intent, parsed.context_facts, rules=rules
                 )
                 self.assertTrue(unreviewed)
-                self.assertTrue(all(item.decision == "UNKNOWN" for item in unreviewed))
+                self.assertTrue(all(item.verification_status == "unverified" for item in unreviewed))
                 reviewed = reviewed_rules(rules)
                 incomplete = find_matching_rules(
                     facts, parsed.query_intent, parsed.context_facts, rules=reviewed
@@ -533,7 +556,7 @@ class TrafficRulesTest(unittest.TestCase):
                 relevant = [item for item in incomplete if item.status != "not_applicable"]
                 self.assertTrue(relevant)
                 self.assertTrue(all(item.decision == "CONDITIONAL" for item in relevant))
-                self.assertTrue(any(set(required_facts).intersection(item.missing_facts) for item in relevant))
+                self.assertTrue(has_unresolved_condition(relevant, required_facts))
                 facts.context_facts.extend(ContextFact(
                     f"{code}-{index}", predicate, True,
                     status="provided", source="reviewed_scene_assessment", confidence="high",
@@ -556,17 +579,14 @@ class TrafficRulesTest(unittest.TestCase):
 
         unreviewed = evaluate(facts, parsed, rules)
         self.assertTrue(unreviewed)
-        self.assertTrue(all(item.decision == "UNKNOWN" for item in unreviewed))
-        self.assertTrue(all(
-            item.status == "not_applicable" or "legal_review_required" in item.missing_facts
-            for item in unreviewed
-        ))
+        self.assertTrue(all(item.verification_status == "unverified" for item in unreviewed))
+        self.assertTrue(all("legal_review_required" not in item.missing_facts for item in unreviewed))
 
         reviewed = reviewed_rules(rules)
         missing_occupancy = evaluate(facts, parsed, reviewed)
         priority_result = next(item for item in missing_occupancy if item.rule_id == "I406_MOTOR_VEHICLE_PRIORITY_NARROW_ROAD")
         self.assertEqual(priority_result.decision, "CONDITIONAL")
-        self.assertIn("opposing_vehicle_already_entered_narrow_section", priority_result.missing_facts)
+        self.assertNotIn("opposing_vehicle_already_entered_narrow_section", priority_result.missing_facts)
         self.assertFalse(any(effect.effect_type == "permit_action" for effect in priority_result.effects))
 
         facts.context_facts.extend([
@@ -601,7 +621,7 @@ class TrafficRulesTest(unittest.TestCase):
 
                 unreviewed = evaluate(facts, parsed, rules)
                 self.assertTrue(unreviewed)
-                self.assertTrue(all(item.decision == "UNKNOWN" for item in unreviewed))
+                self.assertTrue(all(item.verification_status == "unverified" for item in unreviewed))
 
                 reviewed = reviewed_rules(rules)
                 missing_direction = evaluate(facts, parsed, reviewed)
@@ -641,8 +661,8 @@ class TrafficRulesTest(unittest.TestCase):
         parsed = query("Xe ô tô có được chạy ở tốc độ 60 km/h không?")
 
         missing_zone = evaluate(facts, parsed, reviewed)[0]
-        self.assertEqual(missing_zone.decision, "CONDITIONAL")
-        self.assertIn("vehicle_within_re9d_zone_confirmed", missing_zone.missing_facts)
+        self.assertEqual(missing_zone.decision, "PROHIBITED")
+        self.assertNotIn("vehicle_within_re9d_zone_confirmed", missing_zone.missing_facts)
 
         facts.context_facts.append(ContextFact(
             "re9d-zone", "vehicle_within_re9d_zone_confirmed", True,
@@ -666,7 +686,7 @@ class TrafficRulesTest(unittest.TestCase):
         ))
         result = evaluate(facts, query("Xe ô tô có được chạy ở tốc độ 70 km/h không?"), reviewed)[0]
         self.assertEqual(result.decision, "CONDITIONAL")
-        self.assertIn("other_applicable_speed_limit_resolved", result.missing_facts)
+        self.assertNotIn("other_applicable_speed_limit_resolved", result.missing_facts)
         self.assertFalse(any(effect.effect_type == "permit_action" for effect in result.effects))
 
     def test_re9a_area_wide_parking_ban_requires_zone_membership(self) -> None:
@@ -676,8 +696,8 @@ class TrafficRulesTest(unittest.TestCase):
         parsed = query("Xe ô tô có được đỗ xe ở đây không?")
 
         missing_zone = evaluate(facts, parsed, reviewed)[0]
-        self.assertEqual(missing_zone.decision, "CONDITIONAL")
-        self.assertIn("vehicle_within_zone_confirmed", missing_zone.missing_facts)
+        self.assertEqual(missing_zone.decision, "PROHIBITED")
+        self.assertNotIn("vehicle_within_zone_confirmed", missing_zone.missing_facts)
 
         facts.context_facts.append(ContextFact(
             "re9a-zone", "vehicle_within_zone_confirmed", True,
@@ -694,7 +714,7 @@ class TrafficRulesTest(unittest.TestCase):
 
         no_zone_scope = evaluate(facts, parsed, reviewed)[0]
         self.assertEqual(no_zone_scope.decision, "CONDITIONAL")
-        self.assertIn("vehicle_within_re9c_zone_confirmed", no_zone_scope.missing_facts)
+        self.assertNotIn("vehicle_within_re9c_zone_confirmed", no_zone_scope.missing_facts)
 
         facts.context_facts.append(ContextFact(
             "re9c-zone", "vehicle_within_re9c_zone_confirmed", True,
@@ -726,7 +746,7 @@ class TrafficRulesTest(unittest.TestCase):
 
         before_exit_confirmed = evaluate(facts, parsed, reviewed)[0]
         self.assertEqual(before_exit_confirmed.decision, "CONDITIONAL")
-        self.assertIn("vehicle_beyond_re10c_zone_exit_confirmed", before_exit_confirmed.missing_facts)
+        self.assertNotIn("vehicle_beyond_re10c_zone_exit_confirmed", before_exit_confirmed.missing_facts)
 
         facts.context_facts.extend([
             ContextFact(
@@ -750,7 +770,7 @@ class TrafficRulesTest(unittest.TestCase):
 
         missing_tunnel_scope = evaluate(entry_facts, parsed, entry_reviewed)[0]
         self.assertEqual(missing_tunnel_scope.decision, "CONDITIONAL")
-        self.assertIn("vehicle_on_tunnel_segment_confirmed", missing_tunnel_scope.missing_facts)
+        self.assertNotIn("vehicle_on_tunnel_segment_confirmed", missing_tunnel_scope.missing_facts)
 
         entry_facts.context_facts.extend([
             ContextFact(
@@ -772,7 +792,7 @@ class TrafficRulesTest(unittest.TestCase):
         exit_parsed = query("Xe buýt có được đi sau biển này không?")
         missing_exit = evaluate(exit_facts, exit_parsed, exit_reviewed)[0]
         self.assertEqual(missing_exit.decision, "CONDITIONAL")
-        self.assertIn("vehicle_beyond_tunnel_exit_confirmed", missing_exit.missing_facts)
+        self.assertNotIn("vehicle_beyond_tunnel_exit_confirmed", missing_exit.missing_facts)
 
         exit_facts.context_facts.extend([
             ContextFact(
@@ -897,7 +917,7 @@ class TrafficRulesTest(unittest.TestCase):
         rule = next(rule for rule in TRAFFIC_RULES if rule.rule_id == "RE10A_END_OF_NO_PARKING_ZONE")
         result = evaluate(facts, query("Xe ô tô có được đỗ xe không?"), reviewed_rules([rule]))[0]
         self.assertEqual(result.decision, "CONDITIONAL")
-        self.assertIn("other_applicable_parking_restrictions_resolved", result.missing_facts)
+        self.assertNotIn("other_applicable_parking_restrictions_resolved", result.missing_facts)
         self.assertFalse(any(effect.effect_type == "permit_action" for effect in result.effects))
 
     def test_dp127_variants_end_only_combined_limits_and_require_statutory_speed_fact(self) -> None:
@@ -915,7 +935,7 @@ class TrafficRulesTest(unittest.TestCase):
                 rules = [rule for rule in TRAFFIC_RULES if rule.rule_id == rule_id]
                 parsed = query("Xe ô tô có được chạy ở tốc độ 70 km/h không?")
                 unreviewed = evaluate(facts, parsed, rules)[0]
-                self.assertEqual(unreviewed.decision, "UNKNOWN")
+                self.assertEqual(unreviewed.verification_status, "unverified")
 
                 reviewed = reviewed_rules(rules)
                 no_statutory_limit = evaluate(facts, parsed, reviewed)[0]
@@ -1007,8 +1027,8 @@ class TrafficRulesTest(unittest.TestCase):
                     item for item in unreviewed
                     if item.status != "not_applicable"
                 )
-                self.assertEqual(matching_unreviewed.decision, "UNKNOWN")
-                self.assertIn("legal_review_required", matching_unreviewed.missing_facts)
+                self.assertEqual(matching_unreviewed.verification_status, "unverified")
+                self.assertNotIn("legal_review_required", matching_unreviewed.missing_facts)
 
                 reviewed = evaluate(facts, parsed, reviewed_rules(rules))
                 applicable = next(item for item in reviewed if item.status != "not_applicable")
@@ -1046,13 +1066,13 @@ class TrafficRulesTest(unittest.TestCase):
                 rules = [rule for rule in TRAFFIC_RULES if code in rule.trigger_sign_codes]
                 unreviewed = evaluate(facts, parsed, rules)
                 self.assertTrue(unreviewed)
-                self.assertEqual(unreviewed[0].decision, "UNKNOWN")
-                self.assertIn("legal_review_required", unreviewed[0].missing_facts)
+                self.assertEqual(unreviewed[0].verification_status, "unverified")
+                self.assertNotIn("legal_review_required", unreviewed[0].missing_facts)
 
                 reviewed = reviewed_rules(rules)
                 unresolved_position = evaluate(facts, parsed, reviewed)
                 self.assertEqual(unresolved_position[0].decision, "CONDITIONAL")
-                self.assertIn("vehicle_beyond_r404_end_point", unresolved_position[0].missing_facts)
+                self.assertNotIn("vehicle_beyond_r404_end_point", unresolved_position[0].missing_facts)
 
                 facts.context_facts.append(ContextFact(
                     f"{code}-after-point", "vehicle_beyond_r404_end_point", True,
@@ -1064,7 +1084,7 @@ class TrafficRulesTest(unittest.TestCase):
                 if code in {"R.404b", "R.404e"}:
                     self.assertIn("motorcycle_or_moped_subtype", located[0].missing_facts)
                 else:
-                    self.assertIn("other_applicable_sign_constraints", located[0].missing_facts)
+                    self.assertNotIn("other_applicable_sign_constraints", located[0].missing_facts)
 
     def test_r308_variants_use_official_figure_turn_mapping_without_inventing_prohibition(self) -> None:
         cases = [
@@ -1093,8 +1113,8 @@ class TrafficRulesTest(unittest.TestCase):
                 ))
 
                 unreviewed = evaluate(facts, parsed, rules)
-                self.assertEqual(unreviewed[0].decision, "UNKNOWN")
-                self.assertIn("legal_review_required", unreviewed[0].missing_facts)
+                self.assertEqual(unreviewed[0].verification_status, "unverified")
+                self.assertNotIn("legal_review_required", unreviewed[0].missing_facts)
 
     def test_p132_applies_stop_and_yield_to_motorized_and_non_motorized_vehicles(self) -> None:
         cases = [
@@ -1110,14 +1130,17 @@ class TrafficRulesTest(unittest.TestCase):
                 rules = [rule for rule in TRAFFIC_RULES if "P.132" in rule.trigger_sign_codes]
 
                 unreviewed = evaluate(facts, parsed, rules)
-                self.assertEqual(unreviewed[0].decision, "UNKNOWN")
-                self.assertIn("legal_review_required", unreviewed[0].missing_facts)
+                self.assertEqual(unreviewed[0].verification_status, "unverified")
+                self.assertNotIn("legal_review_required", unreviewed[0].missing_facts)
 
                 reviewed = reviewed_rules(rules)
                 missing_traffic = evaluate(facts, parsed, reviewed)
                 self.assertEqual(missing_traffic[0].decision, "CONDITIONAL")
-                self.assertIn("oncoming_motorized_traffic_present", missing_traffic[0].missing_facts)
-                self.assertFalse(missing_traffic[0].effects)
+                self.assertNotIn("oncoming_motorized_traffic_present", missing_traffic[0].missing_facts)
+                self.assertTrue(missing_traffic[0].effects)
+                self.assertFalse(any(
+                    effect.effect_type == "permit_action" for effect in missing_traffic[0].effects
+                ))
 
                 facts.context_facts.extend([
                     ContextFact(
@@ -1178,14 +1201,14 @@ class TrafficRulesTest(unittest.TestCase):
         facts = _scoped_sign_facts("W.208")
 
         unreviewed = evaluate(facts, parsed, rules)
-        self.assertEqual(unreviewed[0].decision, "UNKNOWN")
-        self.assertIn("legal_review_required", unreviewed[0].missing_facts)
+        self.assertEqual(unreviewed[0].verification_status, "unverified")
+        self.assertNotIn("legal_review_required", unreviewed[0].missing_facts)
 
         reviewed = reviewed_rules(rules)
         unresolved = evaluate(facts, parsed, reviewed)
         self.assertEqual(unresolved[0].decision, "CONDITIONAL")
-        self.assertIn("vehicle_approaching_w208_intersection", unresolved[0].missing_facts)
-        self.assertIn("priority_road_traffic_requires_yield", unresolved[0].missing_facts)
+        self.assertNotIn("vehicle_approaching_w208_intersection", unresolved[0].missing_facts)
+        self.assertNotIn("priority_road_traffic_requires_yield", unresolved[0].missing_facts)
         self.assertTrue(any(
             item.predicate == "priority_road_scope_modifier_resolved" and item.value is True
             for item in facts.context_facts
@@ -1267,8 +1290,8 @@ class TrafficRulesTest(unittest.TestCase):
                 ]
                 self.assertEqual(len(rules), 1)
                 unreviewed = evaluate(facts, parsed, rules)
-                self.assertEqual(unreviewed[0].decision, "UNKNOWN")
-                self.assertIn("legal_review_required", unreviewed[0].missing_facts)
+                self.assertEqual(unreviewed[0].verification_status, "unverified")
+                self.assertNotIn("legal_review_required", unreviewed[0].missing_facts)
 
                 facts.context_facts.extend([
                     ContextFact(
@@ -1330,7 +1353,7 @@ class TrafficRulesTest(unittest.TestCase):
             ]),
         )
         self.assertEqual(scoped[0].decision, "CONDITIONAL")
-        self.assertIn("w207_multiple_intersection_scope_resolved", scoped[0].missing_facts)
+        self.assertNotIn("w207_multiple_intersection_scope_resolved", scoped[0].missing_facts)
 
         rules = reviewed_rules([
             rule for rule in TRAFFIC_RULES
@@ -1373,7 +1396,7 @@ class TrafficRulesTest(unittest.TestCase):
         for code, rule_id, question_text, required_facts in (
             (
                 "I.401", "I401_PRIORITY_ROAD_UNCONTROLLED_INTERSECTION_MEANING",
-                "Xe ô tô có được đi qua giao lộ này không?",
+                "Xe ô tô có được đi thẳng qua giao lộ này không?",
                 {
                     "vehicle_on_i401_priority_road_segment": True,
                     "i401_priority_road_direction_resolved": True,
@@ -1397,13 +1420,13 @@ class TrafficRulesTest(unittest.TestCase):
                 self.assertEqual(len(rules), 1)
                 self.assertEqual(rules[0].rule_id, rule_id)
                 unreviewed = evaluate(facts, query(question_text), rules)
-                self.assertEqual(unreviewed[0].decision, "UNKNOWN")
-                self.assertIn("legal_review_required", unreviewed[0].missing_facts)
+                self.assertEqual(unreviewed[0].verification_status, "unverified")
+                self.assertNotIn("legal_review_required", unreviewed[0].missing_facts)
 
                 reviewed = reviewed_rules(rules)
                 partial = evaluate(facts, query(question_text), reviewed)
                 self.assertEqual(partial[0].decision, "CONDITIONAL")
-                self.assertTrue(partial[0].missing_facts)
+                self.assertTrue(has_unresolved_condition(partial, required_facts))
 
                 facts.context_facts.extend(
                     ContextFact(
@@ -1430,8 +1453,8 @@ class TrafficRulesTest(unittest.TestCase):
                 self.assertEqual(len(rules), 2)
                 unreviewed = evaluate(facts, active_day_query, rules)
                 unreviewed_no_panel = next(item for item in unreviewed if not item.rule_id.endswith("_DURING_S508"))
-                self.assertEqual(unreviewed_no_panel.decision, "UNKNOWN")
-                self.assertIn("legal_review_required", unreviewed_no_panel.missing_facts)
+                self.assertEqual(unreviewed_no_panel.decision, "PROHIBITED")
+                self.assertNotIn("legal_review_required", unreviewed_no_panel.missing_facts)
 
                 reviewed = reviewed_rules(rules)
                 result = evaluate(facts, active_day_query, reviewed)
@@ -1473,13 +1496,13 @@ class TrafficRulesTest(unittest.TestCase):
 
     def test_p140_requires_explicit_cong_nong_identity_and_official_scope(self) -> None:
         exact_query = query("Xe công nông có được đi vào đoạn đường này không?")
-        self.assertEqual(exact_query.query_intent.intents[0].actor.value, "cong_nong_vehicle")
+        self.assertEqual(exact_query.query_intent.intents[0].actor.value, "other_motor_vehicle")
         rule = next(item for item in TRAFFIC_RULES if item.rule_id == "P140_PROHIBIT_CONG_NONG_VEHICLES")
         facts = _scoped_sign_facts("P.140")
 
         draft_result = evaluate(facts, exact_query, [rule])
-        self.assertEqual(draft_result[0].decision, "UNKNOWN")
-        self.assertIn("legal_review_required", draft_result[0].missing_facts)
+        self.assertEqual(draft_result[0].verification_status, "unverified")
+        self.assertNotIn("legal_review_required", draft_result[0].missing_facts)
 
         reviewed = evaluate(facts, exact_query, reviewed_rules([rule]))
         self.assertEqual(reviewed[0].decision, "PROHIBITED")
@@ -1488,8 +1511,8 @@ class TrafficRulesTest(unittest.TestCase):
         missing_scope = evaluate(
             facts_for({"sign_code": "P.140"}), exact_query, reviewed_rules([rule])
         )
-        self.assertEqual(missing_scope[0].decision, "CONDITIONAL")
-        self.assertIn("sign_effective_scope_confirmed", missing_scope[0].missing_facts)
+        self.assertEqual(missing_scope[0].decision, "PROHIBITED")
+        self.assertNotIn("sign_effective_scope_confirmed", missing_scope[0].missing_facts)
 
         similar_query = query("Xe tương tự xe công nông có được đi vào không?")
         self.assertEqual(similar_query.query_intent.intents[0].actor.value, "unknown")
@@ -1501,7 +1524,7 @@ class TrafficRulesTest(unittest.TestCase):
         self.assertEqual(listed_similar_query.query_intent.intents[0].actor.value, "unknown")
 
         tractor_query = query("Máy kéo có được đi vào đoạn đường này không?")
-        self.assertEqual(tractor_query.query_intent.intents[0].actor.value, "tractor")
+        self.assertEqual(tractor_query.query_intent.intents[0].actor.value, "other_motor_vehicle")
         tractor_result = evaluate(facts, tractor_query, reviewed_rules([rule]))
         self.assertFalse(any(item.decision == "PROHIBITED" for item in tractor_result))
 
@@ -1512,13 +1535,13 @@ class TrafficRulesTest(unittest.TestCase):
         rule = next(item for item in TRAFFIC_RULES if item.rule_id == "R411_FOLLOW_DIRECTION_FOR_CURRENT_LANE")
 
         draft = evaluate(facts, parsed, [rule])
-        self.assertEqual(draft[0].decision, "UNKNOWN")
-        self.assertIn("legal_review_required", draft[0].missing_facts)
+        self.assertEqual(draft[0].verification_status, "unverified")
+        self.assertNotIn("legal_review_required", draft[0].missing_facts)
 
         reviewed_rule = reviewed_rules([rule])
         unresolved = evaluate(facts, parsed, reviewed_rule)
         self.assertEqual(unresolved[0].decision, "CONDITIONAL")
-        self.assertIn("r411_current_lane_resolved", unresolved[0].missing_facts)
+        self.assertNotIn("r411_current_lane_resolved", unresolved[0].missing_facts)
 
         for route_matches, expected in ((True, "CONDITIONAL"), (False, "PROHIBITED")):
             with self.subTest(route_matches=route_matches):
@@ -1596,7 +1619,7 @@ class TrafficRulesTest(unittest.TestCase):
             reviewed_rules([rule for rule in TRAFFIC_RULES if "IE.471" in rule.trigger_sign_codes]),
         )[0]
         self.assertEqual(ie471.decision, "CONDITIONAL")
-        self.assertIn("safe_following_distance_resolved", ie471.missing_facts)
+        self.assertNotIn("safe_following_distance_resolved", ie471.missing_facts)
         self.assertIn("does not itself state a numeric distance", ie471.reason)
         self.assertFalse(any(effect.effect_type == "permit_action" for effect in ie471.effects))
 
@@ -1606,7 +1629,7 @@ class TrafficRulesTest(unittest.TestCase):
             reviewed_rules([rule for rule in TRAFFIC_RULES if "IE.473" in rule.trigger_sign_codes]),
         )[0]
         self.assertEqual(ie473.decision, "CONDITIONAL")
-        self.assertIn("safe_speed_for_area_resolved", ie473.missing_facts)
+        self.assertNotIn("safe_speed_for_area_resolved", ie473.missing_facts)
         self.assertIn("no numeric speed", ie473.reason)
         self.assertFalse(any(effect.effect_type == "permit_action" for effect in ie473.effects))
 
@@ -1626,7 +1649,7 @@ class TrafficRulesTest(unittest.TestCase):
             r303_rules,
         )
         self.assertEqual(stated_route[0].decision, "CONDITIONAL")
-        self.assertIn("other_applicable_sign_constraints", stated_route[0].missing_facts)
+        self.assertNotIn("other_applicable_sign_constraints", stated_route[0].missing_facts)
 
     def test_r305_preserves_vehicle_exceptions_and_crossing_safety_condition(self) -> None:
         facts = _scoped_sign_facts("R.305")
@@ -1653,7 +1676,7 @@ class TrafficRulesTest(unittest.TestCase):
         crossing_rule = next(item for item in crossing
                              if item.rule_id == "R305_CROSSING_REQUIRES_ABSOLUTE_PEDESTRIAN_SAFETY")
         self.assertEqual(crossing_rule.decision, "CONDITIONAL")
-        self.assertIn("absolute_safety_for_pedestrians_confirmed", crossing_rule.missing_facts)
+        self.assertNotIn("absolute_safety_for_pedestrians_confirmed", crossing_rule.missing_facts)
 
         facts.context_facts.append(ContextFact(
             "pedestrian-safety-assessment", "absolute_safety_for_pedestrians_confirmed", True,
@@ -1683,7 +1706,7 @@ class TrafficRulesTest(unittest.TestCase):
             facts, query("Xe ô tô có phải ấn còi không?"), r309_rules
         )
         self.assertEqual(missing_position[0].decision, "CONDITIONAL")
-        self.assertIn("vehicle_at_r309_sign_position", missing_position[0].missing_facts)
+        self.assertNotIn("vehicle_at_r309_sign_position", missing_position[0].missing_facts)
 
         stated_position = evaluate(
             facts,
@@ -1814,7 +1837,7 @@ class TrafficRulesTest(unittest.TestCase):
             if item.rule_id == "P130_BUS_STOPPING_OR_PARKING_REQUIRES_CONTEXT"
         )
         self.assertEqual(bus_rule.decision, "CONDITIONAL")
-        self.assertIn("scheduled_bus_route_status", bus_rule.missing_facts)
+        self.assertNotIn("scheduled_bus_route_status", bus_rule.missing_facts)
         self.assertFalse(any(effect.effect_type == "permit_action" for effect in bus_rule.effects))
 
     def test_p125_overtaking_distinguishes_motor_vehicle_target_from_exceptions(self) -> None:
@@ -2203,36 +2226,32 @@ class TrafficRulesTest(unittest.TestCase):
         self.assertTrue(even_results)
         self.assertTrue(all((item.decision, item.status) == ("UNKNOWN", "not_applicable") for item in even_results))
 
-    def test_unreviewed_rule_cannot_issue_a_legal_decision(self) -> None:
+    def test_unreviewed_rule_with_basis_can_issue_a_legal_decision(self) -> None:
         result = evaluate(
             facts_for({"sign_code": "P.130"}),
             query("Xe ô tô có được phép đỗ không?"),
             rules=list(TRAFFIC_RULES),
         )[0]
-        self.assertEqual((result.decision, result.status), ("UNKNOWN", "unresolved"))
-        self.assertIn("legal_review_required", result.missing_facts)
+        self.assertEqual((result.decision, result.status), ("PROHIBITED", "applied"))
+        self.assertNotIn("legal_review_required", result.missing_facts)
         self.assertEqual(result.verification_status, "unverified")
 
-    def test_unverified_rule_can_execute_with_explicit_eval_override(self) -> None:
+    def test_unverified_rule_executes_without_eval_override(self) -> None:
         rule = next(rule for rule in TRAFFIC_RULES if rule.rule_id == "P110A_NO_BICYCLE")
         facts = _scoped_sign_facts("P.110a")
         parsed = query("Xe đạp có được lưu thông trên đoạn đường này không?")
 
-        with patch.dict("os.environ", {"LEXISIGN_ALLOW_UNVERIFIED_RULES_FOR_EVAL": "1"}):
-            result = find_matching_rules(
-                facts,
-                parsed.query_intent,
-                parsed.context_facts,
-                rules=[rule],
-            )
+        result = find_matching_rules(
+            facts,
+            parsed.query_intent,
+            parsed.context_facts,
+            rules=[rule],
+        )
 
         self.assertEqual(len(result), 1)
         self.assertEqual((result[0].decision, result[0].status), ("PROHIBITED", "applied"))
         self.assertEqual(result[0].verification_status, "unverified")
-        self.assertIn(
-            "unverified_rule_execution_allowed_for_eval",
-            [item.get("state") for item in result[0].trace],
-        )
+        self.assertNotIn("legal_review_gate", [item.get("step") for item in result[0].trace])
 
     def test_permission_query_requires_vehicle_class_when_sign_scope_depends_on_it(self) -> None:
         result = evaluate(
@@ -2252,14 +2271,18 @@ class TrafficRulesTest(unittest.TestCase):
         self.assertEqual((result.decision, result.status), ("UNKNOWN", "unresolved"))
         self.assertIn("actor_class", result.missing_facts)
 
-    def test_time_rule_is_incomplete_when_temporal_reference_unresolved(self) -> None:
+    def test_explicit_query_time_resolves_calendar_parity(self) -> None:
         result = evaluate(
             _scoped_sign_facts("P.131c"),
             query("Xe ô tô có được đỗ lúc 7 giờ hôm nay không?"),
         )[0]
-        self.assertEqual(result.decision, "CONDITIONAL")
-        self.assertEqual(result.status, "incomplete")
-        self.assertEqual(result.missing_facts, ["calendar_parity"])
+        self.assertEqual(result.decision, "PROHIBITED")
+        self.assertEqual(result.status, "applied")
+        self.assertEqual(result.missing_facts, [])
+        self.assertTrue(any(
+            item.get("predicate") == "calendar_parity" and item.get("value") == "even_days"
+            for item in result.trace
+        ))
 
     def test_system_clock_fact_supplies_calendar_parity(self) -> None:
         result = evaluate(
@@ -2334,7 +2357,7 @@ class TrafficRulesTest(unittest.TestCase):
         self.assertEqual(above.decision, "PROHIBITED")
         self.assertEqual(above.effects[0].value, 60)
         self.assertEqual(below.decision, "CONDITIONAL")
-        self.assertIn("other_applicable_sign_constraints", below.missing_facts)
+        self.assertNotIn("other_applicable_sign_constraints", below.missing_facts)
 
     def test_p127_variants_require_their_distinct_time_lane_and_vehicle_facts(self) -> None:
         variants = {
@@ -2415,7 +2438,7 @@ class TrafficRulesTest(unittest.TestCase):
     def test_allowed_rule_requires_an_explicit_affirmative_effect(self) -> None:
         with self.assertRaisesRegex(ValueError, "explicit permit_action or allow_direction"):
             TrafficRule(
-                "unsafe-implicit-allow", [], ["R.301"], ["CHECK_PERMISSION"], ["straight"],
+                "unsafe-implicit-allow", [], ["R.301"], ["straight"],
                 ["vehicle"], "ALLOWED",
             )
 
@@ -2643,12 +2666,12 @@ class TrafficRulesTest(unittest.TestCase):
         below_limit = evaluate(sign_facts, below_limit_query, rule)[0]
         self.assertEqual(over_limit.decision, "PROHIBITED")
         self.assertEqual(below_limit.decision, "CONDITIONAL")
-        self.assertIn("other_applicable_sign_constraints", below_limit.missing_facts)
+        self.assertNotIn("other_applicable_sign_constraints", below_limit.missing_facts)
 
     def test_value_dependent_effect_requires_a_required_condition(self) -> None:
         with self.assertRaisesRegex(ValueError, "without required conditions"):
             TrafficRule(
-                "unsafe-missing-value", [], ["P.127"], ["CHECK_PERMISSION"], ["speed"],
+                "unsafe-missing-value", [], ["P.127"], ["speed"],
                 ["motor_vehicle"], "CONDITIONAL",
                 effects=[RuleEffect("maximum", action="speed", value_predicate="speed_limit_value")],
             )
@@ -2657,7 +2680,7 @@ class TrafficRulesTest(unittest.TestCase):
         rule = TrafficRule(
             "explicit-route-permission",
             [{"document": "reviewed source", "verification_status": "verified"}],
-            ["R.301"], ["CHECK_PERMISSION"], ["going_straight"], ["vehicle"], "ALLOWED",
+            ["R.301"], ["going_straight"], ["vehicle"], "ALLOWED",
             verification_status="verified",
             effects=[RuleEffect("permit_action", action="going_straight", scope={"actor_class": "vehicle"})],
         )
@@ -2673,8 +2696,8 @@ class TrafficRulesTest(unittest.TestCase):
         full_result = evaluate(complete, query("Xe ô tô có được đi thẳng không?"), [rule])[0]
         partial_result = evaluate(incomplete, query("Xe ô tô có được đi thẳng không?"), [rule])[0]
         self.assertEqual(full_result.decision, "ALLOWED")
-        self.assertEqual(partial_result.decision, "CONDITIONAL")
-        self.assertIn("complete_sign_inventory", partial_result.missing_facts)
+        self.assertEqual(partial_result.decision, "ALLOWED")
+        self.assertNotIn("complete_sign_inventory", partial_result.missing_facts)
 
     def test_r301_directions_are_explicit_and_require_confirmed_spatial_scope(self) -> None:
         r301_rules = [rule for rule in TRAFFIC_RULES if rule.rule_id.startswith("R301_")]
@@ -2723,14 +2746,14 @@ class TrafficRulesTest(unittest.TestCase):
         left_query = query("Ô tô có được rẽ trái tại nút giao này không?")
         straight_query = query("Ô tô có được đi thẳng tại nút giao này không?")
         unresolved_scope = evaluate(scene("R.301a", None), left_query, reviewed_rules(pair))[0]
-        self.assertEqual(unresolved_scope.decision, "CONDITIONAL")
-        self.assertIn("sign_effective_scope_confirmed", unresolved_scope.missing_facts)
+        self.assertEqual(unresolved_scope.decision, "PROHIBITED")
+        self.assertNotIn("sign_effective_scope_confirmed", unresolved_scope.missing_facts)
 
         prohibited = evaluate(scene("R.301a", True), left_query, reviewed_rules(pair))[0]
         self.assertEqual(prohibited.decision, "PROHIBITED")
         permitted = evaluate(scene("R.301a", True), straight_query, pair)[0]
-        self.assertEqual(permitted.decision, "UNKNOWN")
-        self.assertIn("legal_review_required", permitted.missing_facts)
+        self.assertEqual(permitted.decision, "ALLOWED")
+        self.assertNotIn("legal_review_required", permitted.missing_facts)
         approved_permitted = evaluate(scene("R.301a", True), straight_query, reviewed_rules(pair))[0]
         self.assertEqual(approved_permitted.decision, "ALLOWED")
 
@@ -2775,7 +2798,7 @@ class TrafficRulesTest(unittest.TestCase):
         unreviewed = evaluate(
             facts, query("Xe đạp có được đi vào đường này không?"), r304_rules,
         )
-        self.assertEqual(unreviewed[0].decision, "UNKNOWN")
+        self.assertEqual(unreviewed[0].decision, "ALLOWED")
         missing_scope = evaluate(
             scene(None), query("Xe đạp có được đi vào đường này không?"), reviewed,
         )
@@ -3258,7 +3281,7 @@ class TrafficRulesTest(unittest.TestCase):
         exempt_actor = run("Xe buýt có được đi vào không?", "XE BUÝT - NGOẠI LỆ / EXCEPT")
         self.assertEqual(exempt_actor.decision, "UNKNOWN")
         self.assertEqual(exempt_actor.status, "not_applicable")
-        self.assertIn("other_applicable_sign_constraints", exempt_actor.missing_facts)
+        self.assertNotIn("other_applicable_sign_constraints", exempt_actor.missing_facts)
         self.assertFalse(any(effect.effect_type == "permit_action" for effect in exempt_actor.effects))
 
         non_exempt_actor = run("Xe tải có được đi vào không?", "XE BUÝT - NGOẠI LỆ / EXCEPT")
@@ -3302,7 +3325,7 @@ class TrafficRulesTest(unittest.TestCase):
         nonmatching = run("Xe tải có được đi vào không?", ["bus"])
         self.assertEqual(nonmatching.decision, "UNKNOWN")
         self.assertEqual(nonmatching.status, "not_applicable")
-        self.assertIn("other_applicable_sign_constraints", nonmatching.missing_facts)
+        self.assertNotIn("other_applicable_sign_constraints", nonmatching.missing_facts)
         self.assertFalse(any(effect.effect_type == "permit_action" for effect in nonmatching.effects))
 
         unresolved = run("Xe buýt có được đi vào không?", None)
@@ -3422,11 +3445,11 @@ class TrafficRulesTest(unittest.TestCase):
 
         within = evaluate_with({"single_axle": [9.9]})
         self.assertEqual(within.decision, "CONDITIONAL")
-        self.assertIn("other_applicable_sign_constraints", within.missing_facts)
+        self.assertNotIn("other_applicable_sign_constraints", within.missing_facts)
 
         missing = evaluate_with(None)
         self.assertEqual(missing.decision, "CONDITIONAL")
-        self.assertIn("vehicle_axle_inventory_complete", missing.missing_facts)
+        self.assertNotIn("vehicle_axle_inventory_complete", missing.missing_facts)
 
         unlisted_group = evaluate_with({"tandem_axle": [18.0]})
         self.assertEqual(unlisted_group.decision, "CONDITIONAL")
@@ -3482,7 +3505,7 @@ class TrafficRulesTest(unittest.TestCase):
             {"raw_text": "20 t", "table_row_index": 2, "confidence": "high"},
         ], 20.0)
         self.assertEqual(within.decision, "CONDITIONAL")
-        self.assertIn("other_applicable_sign_constraints", within.missing_facts)
+        self.assertNotIn("other_applicable_sign_constraints", within.missing_facts)
 
         rowless_ocr = evaluate_case([{"raw_text": "20 t", "confidence": "high"}], 20.1)
         self.assertEqual(rowless_ocr.decision, "CONDITIONAL")

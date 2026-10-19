@@ -27,7 +27,9 @@ SCOPE = {
 }
 
 ALLOWED_ACTORS = {
-    "R.412a": ["bus", "car"],
+    # QCVN D.14 distinguishes passenger coaches (including buses) on R.412a
+    # from passenger cars on R.412b.
+    "R.412a": ["bus"],
     "R.412b": ["car"],
     "R.412c": ["truck"],
     "R.412d": ["motorbike", "motorcycle", "moped"],

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 import unicodedata as ud
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -343,8 +343,18 @@ def extract_pedestrian_location(question: str) -> str | None:
 def extract_obstacle_passing_side(question: str) -> str | None:
     """Extract an explicitly stated route side; never infer it from sign identity."""
     text = normalize_question_text(question)
-    left_phrases = ("vong sang trai", "vong ben trai", "di ben trai chuong ngai vat", "qua ben trai chuong ngai vat")
-    right_phrases = ("vong sang phai", "vong ben phai", "di ben phai chuong ngai vat", "qua ben phai chuong ngai vat")
+    left_phrases = (
+        "vong sang trai", "vong ben trai", "di ben trai chuong ngai vat",
+        "qua ben trai chuong ngai vat", "chuong ngai vat ben trai",
+        "chuong ngai vat ve ben trai", "tranh chuong ngai vat ben trai",
+        "tranh chuong ngai vat ve ben trai",
+    )
+    right_phrases = (
+        "vong sang phai", "vong ben phai", "di ben phai chuong ngai vat",
+        "qua ben phai chuong ngai vat", "chuong ngai vat ben phai",
+        "chuong ngai vat ve ben phai", "tranh chuong ngai vat ben phai",
+        "tranh chuong ngai vat ve ben phai",
+    )
     left = any(_contains(text, phrase) for phrase in left_phrases)
     right = any(_contains(text, phrase) for phrase in right_phrases)
     if _contains(text, "ben trai") and _contains(text, "ben phai"):
@@ -385,6 +395,58 @@ def _now_in_zone(now: datetime | None, timezone_name: str) -> datetime:
     if now is None:
         return datetime.now(timezone)
     return now.replace(tzinfo=timezone) if now.tzinfo is None else now.astimezone(timezone)
+
+
+def _resolve_query_datetime(
+    normalized_question: str,
+    now: datetime,
+) -> tuple[datetime | None, str | None]:
+    """Resolve explicit clock/date wording against the current zoned time."""
+    if any(phrase in normalized_question for phrase in ("bay gio", "hien tai", "luc nay")):
+        return now, "user_referred_to_now"
+
+    target_date = now.date()
+    date_expression: str | None = None
+    if "ngay mai" in normalized_question:
+        target_date += timedelta(days=1)
+        date_expression = "tomorrow"
+    elif "hom qua" in normalized_question:
+        target_date -= timedelta(days=1)
+        date_expression = "yesterday"
+    elif "hom nay" in normalized_question:
+        date_expression = "today"
+    else:
+        explicit_date = re.search(
+            r"\b(\d{1,2})(?:[/-]|\s+)(\d{1,2})(?:(?:[/-]|\s+)(\d{2,4}))?\b",
+            normalized_question,
+        )
+        if explicit_date:
+            day, month = int(explicit_date.group(1)), int(explicit_date.group(2))
+            year_text = explicit_date.group(3)
+            year = int(year_text) if year_text else now.year
+            if year < 100:
+                year += 2000
+            try:
+                target_date = datetime(year, month, day).date()
+                date_expression = explicit_date.group(0)
+            except ValueError:
+                return None, None
+
+    clock_match = re.search(
+        r"\b(\d{1,2})\s*(?:gio|h)(?:\s*(\d{1,2})\s*(?:phut|p))?\b",
+        normalized_question,
+    )
+    if clock_match:
+        hour = int(clock_match.group(1))
+        minute = int(clock_match.group(2) or 0)
+        if hour > 23 or minute > 59:
+            return None, None
+        resolved_time = time(hour, minute, tzinfo=now.tzinfo)
+        return datetime.combine(target_date, resolved_time), "explicit_query_date_time"
+
+    if date_expression:
+        return datetime.combine(target_date, now.timetz()), "explicit_query_date"
+    return None, None
 
 
 def _context_facts(question: str, intent_kinds: list[str], now: datetime | None, timezone_name: str) -> list[dict[str, Any]]:
@@ -460,17 +522,18 @@ def _context_facts(question: str, intent_kinds: list[str], now: datetime | None,
 
     mention = TIME_MENTION_RE.search(text) if not parity else None
     if mention:
-        if mention.group(0) in {"bay gio", "hien tai", "luc nay"}:
-            current = _now_in_zone(now, timezone_name)
+        current = _now_in_zone(now, timezone_name)
+        resolved_at, resolution = _resolve_query_datetime(text, current)
+        if resolved_at is not None:
             facts.append({
                 "fact_id": "query-observed-at",
                 "predicate": "observed_at",
-                "value": current.isoformat(),
+                "value": resolved_at.isoformat(),
                 "status": "resolved",
-                "source": "system_clock",
+                "source": "user_query",
                 "raw_text": question,
                 "confidence": "high",
-                "metadata": {"resolution": "user_referred_to_now", "timezone": timezone_name},
+                "metadata": {"resolution": resolution, "timezone": timezone_name},
             })
         else:
             facts.append({

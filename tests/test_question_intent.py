@@ -142,12 +142,24 @@ class QueryIntentTest(unittest.TestCase):
         )
         self.assertFalse(any(item.predicate == "pedestrian_location" for item in denied_location.context_facts))
 
-    def test_explicit_time_is_kept_as_query_fact_not_replaced_by_now(self) -> None:
-        query = parse_query_intent_deterministic("Xe ô tô có được đỗ lúc 7 giờ hôm nay không?")
-        temporal = query.context_facts[0]
-        self.assertEqual(temporal.predicate, "temporal_reference")
-        self.assertEqual(temporal.status, "needs_resolution")
-        self.assertEqual(temporal.source, "user_query")
+    def test_explicit_time_resolves_query_datetime_and_overrides_clock_time(self) -> None:
+        now = datetime(2026, 10, 5, 8, 30, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
+        query = parse_query_intent_deterministic(
+            "Xe ô tô có được đỗ lúc 7 giờ hôm nay không?", now=now,
+        )
+        observed_at = next(item for item in query.context_facts if item.predicate == "observed_at")
+        self.assertEqual(observed_at.value, "2026-10-05T07:00:00+07:00")
+        self.assertEqual(observed_at.source, "user_query")
+        self.assertEqual(observed_at.status, "resolved")
+
+    def test_explicit_relative_date_overrides_today_for_calendar_parity(self) -> None:
+        now = datetime(2026, 10, 5, 8, 30, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
+        query = parse_query_intent_deterministic(
+            "Xe ô tô có được đỗ lúc 7 giờ ngày mai không?", now=now,
+        )
+        observed_at = next(item for item in query.context_facts if item.predicate == "observed_at")
+        self.assertEqual(observed_at.value, "2026-10-06T07:00:00+07:00")
+        self.assertEqual(observed_at.metadata["resolution"], "explicit_query_date_time")
 
     def test_calendar_parity_is_an_explicit_context_fact(self) -> None:
         query = parse_query_intent_deterministic(
