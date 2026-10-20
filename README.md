@@ -273,6 +273,32 @@ python -m src.core.sub_task_2 --set_name public_test
 python -m src.core.sub_task_2 --set_name private_test
 ```
 
+### Baseline 1: BM25 + LLM
+
+This separate baseline uses the configured fixed sign detector to crop sign
+regions, reads text from those crops with Tesseract OCR, searches structured
+LawDB article/clause/point text with BM25, and asks the LLM to answer from only
+the question, OCR output, and retrieved legal units. It does not call Qdrant,
+image embeddings, VLM sign filtering, or the symbolic reasoner.
+
+Install the optional Python OCR wrapper and the system Tesseract binary with
+Vietnamese language data (`vie`), then run:
+
+```bash
+pip install -e '.[baseline1]'
+python -m src.core.baseline1_bm25_llm \
+  --image path/to/road-scene.jpg \
+  --question "Xe máy có được dừng tại đây không?" \
+  --choices $'A. Có\nB. Không'
+```
+
+The existing YoloE detector localizes broad sign shapes; it does not identify
+sign codes or meanings. The baseline reports that limitation and uses the
+question plus OCR text for BM25 when sign identity is unavailable. Tesseract
+is optional at runtime: without the OCR dependency or language data, the
+pipeline continues with the question alone and reports the OCR status. Set
+`LLM_API_KEYS` and the usual LLM settings in `.env` before running.
+
 The QA pipeline writes these fields to each processed sample:
 
 - `freeform_answer`

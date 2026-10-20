@@ -19,3 +19,6 @@ dependencies = [
     "loguru==0.7.3",
     "clip @ git+https://github.com/ultralytics/CLIP.git",
 ]
+
+[project.optional-dependencies]
+baseline1 = ["pytesseract>=0.3.13"]
