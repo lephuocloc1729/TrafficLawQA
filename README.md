@@ -369,6 +369,45 @@ Required services on the GPU machine:
 
 ## Evaluation
 
+### Baseline 2: VLM-only
+
+This baseline sends the original image, question, and answer choices directly
+to one fixed multimodal model in a single request. It does not initialize or
+call a detector, OCR, LawDB, BM25/vector retrieval, or symbolic reasoner. The
+locked run uses the same `train_40`–`train_59` sample IDs as the other baseline.
+
+The model is `gemma-3-12b-it` (Gemma 3 12B IT), served through the repository's
+Google Gemini OpenAI-compatible API endpoint configured by `LLM_BASE_URL`; the
+API key comes from `LLM_API_KEYS`. The provider exposes a model ID rather than
+an immutable weight revision, so the config records that limitation. The
+request uses temperature 0, top-p 0.1, and a 1000-token output cap. The prompt
+is fixed in `src/eval/vlm_only.py` and asks for a natural Vietnamese answer,
+explicit choice selection when applicable, and an explicit uncertainty
+statement when the image/question do not provide enough evidence. It does not
+request legal citations. Any law mentioned is treated as model-generated text,
+not verified authority.
+
+Run with the usual `.env` endpoint settings:
+
+```bash
+make baseline-vlm-only
+```
+
+Use `--resume` to continue a partial run:
+
+```bash
+python -m src.eval.vlm_only --config configs/baseline2_vlm_only.json --resume
+```
+
+Outputs are `outputs/baseline2_vlm_only_metrics.json` and
+`outputs/baseline2_vlm_only_rows.json`. Answer correctness is exact agreement
+between the explicitly selected choice key and the gold key. Citation metrics
+are `null` and labeled `not_applicable`, so citation absence is not scored as
+an error. The evaluator records mean/median latency and token usage. It
+reports estimated USD cost only when input and output per-token rates are
+configured in the model config; they are unset by default because endpoint
+pricing depends on the serving account/provider.
+
 Run a small free-form QA evaluation:
 
 ```bash

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "name": "baseline2-vlm-only-train-40-59-gemma-3-12b-it",
+  "dataset": {
+    "json_path": "data/raw/train_data/vlsp_2025_train.json",
+    "image_dir": "data/raw/train_data/train_images",
+    "sample_ids": [
+      "train_40", "train_41", "train_42", "train_43", "train_44",
+      "train_45", "train_46", "train_47", "train_48", "train_49",
+      "train_50", "train_51", "train_52", "train_53", "train_54",
+      "train_55", "train_56", "train_57", "train_58", "train_59"
+    ]
+  },
+  "model": {
+    "provider": "Google Gemini API, OpenAI-compatible endpoint",
+    "model_id": "gemma-3-12b-it",
+    "model_version": "Gemma 3 12B IT; API model ID (provider does not expose an immutable weight revision)",
+    "base_url_env": "LLM_BASE_URL",
+    "api_key_env": "LLM_API_KEYS",
+    "temperature": 0.0,
+    "top_p": 0.1,
+    "max_tokens": 1000,
+    "input_usd_per_million_tokens": null,
+    "output_usd_per_million_tokens": null
+  },
+  "outputs": {
+    "metrics": "outputs/baseline2_vlm_only_metrics.json",
+    "rows": "outputs/baseline2_vlm_only_rows.json"
+  }
+}
