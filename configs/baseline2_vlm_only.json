@@ -23,6 +23,9 @@
     "input_usd_per_million_tokens": null,
     "output_usd_per_million_tokens": null
   },
+  "evaluation": {
+    "answer_correctness": "gold answer text overlap heuristic; dataset choices are evaluator-only and are not sent to the model"
+  },
   "outputs": {
     "metrics": "outputs/baseline2_vlm_only_metrics.json",
     "rows": "outputs/baseline2_vlm_only_rows.json"

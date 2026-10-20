@@ -25,7 +25,7 @@ from tqdm import tqdm
 from src.settings import settings
 
 
-SYSTEM_PROMPT = """Bạn là trợ lý trả lời câu hỏi về tình huống giao thông dựa trực tiếp trên ảnh được cung cấp và kiến thức sẵn có của bạn. Trả lời bằng tiếng Việt tự nhiên. Nếu câu hỏi có lựa chọn, hãy chọn một lựa chọn và ghi rõ mã lựa chọn theo mẫu 'Đáp án: A' (thay A bằng mã phù hợp), sau đó giải thích ngắn gọn. Nếu ảnh hoặc thông tin không đủ căn cứ, hãy nói rõ điều đó và không đoán. Không cần viện dẫn điều luật hoặc tạo citation; nếu nhắc đến quy định, hãy trình bày như kiến thức của bạn, không khẳng định đó là trích dẫn đã xác minh."""
+SYSTEM_PROMPT = """Bạn là trợ lý trả lời câu hỏi về tình huống giao thông dựa trực tiếp trên ảnh được cung cấp và kiến thức sẵn có của bạn. Chỉ trả lời câu hỏi bằng tiếng Việt tự nhiên, trực tiếp và ngắn gọn. Nếu ảnh hoặc thông tin không đủ căn cứ, hãy nói rõ điều đó và không đoán. Không cần viện dẫn điều luật hoặc tạo citation; nếu nhắc đến quy định, hãy trình bày như kiến thức của bạn, không khẳng định đó là trích dẫn đã xác minh."""
 
 
 def load_config(path: Path) -> dict[str, Any]:
@@ -61,12 +61,8 @@ def image_data_url(path: Path) -> str:
 
 
 def format_question(sample: dict[str, Any]) -> str:
-    question = str(sample.get("question", "")).strip()
-    choices = sample.get("choices") or {}
-    if isinstance(choices, dict) and choices:
-        options = "\n".join(f"{key}. {value}" for key, value in choices.items())
-        question += f"\n\nCác lựa chọn:\n{options}"
-    return question
+    """Return only the natural-language question; choices stay evaluator-only."""
+    return str(sample.get("question", "")).strip()
 
 
 def answer_one(client: OpenAI, model: dict[str, Any], sample: dict[str, Any], image_path: Path) -> dict[str, Any]:
@@ -96,17 +92,19 @@ def answer_one(client: OpenAI, model: dict[str, Any], sample: dict[str, Any], im
     }
 
 
-def answer_key(answer_text: str, choices: dict[str, Any]) -> str | None:
-    keys = [str(key) for key in choices]
-    if not keys:
+def heuristic_answer_correctness(answer_text: str, reference_text: str) -> float | None:
+    """Score free-form answers against the gold answer text, without choices in prompt."""
+    reference = re.sub(r"[^\w\s]", " ", reference_text.casefold()).split()
+    prediction = re.sub(r"[^\w\s]", " ", answer_text.casefold())
+    if not reference:
         return None
-    match = re.search(r"đáp\s*án\s*:\s*([\w]+)", answer_text, flags=re.IGNORECASE)
-    if not match:
-        match = re.search(r"^\s*([A-Z])\s*[.)]", answer_text, flags=re.IGNORECASE)
-    if match:
-        candidate = match.group(1).strip().upper()
-        return next((key for key in keys if key.upper() == candidate), None)
-    return None
+    informative_tokens = [token for token in reference if len(token) > 2]
+    if not informative_tokens:
+        normalized_reference = " ".join(reference)
+        normalized_prediction = " ".join(prediction.split())
+        return float(normalized_reference in normalized_prediction)
+    overlap = sum(token in prediction for token in informative_tokens) / len(informative_tokens)
+    return float(overlap >= 0.55)
 
 
 def summarize(rows: list[dict[str, Any]], model: dict[str, Any]) -> dict[str, Any]:
@@ -185,18 +183,18 @@ def main() -> None:
         image_path = resolve_image(image_dir, str(sample["image_id"]))
         prediction = answer_one(client, model, sample, image_path)
         choices = sample.get("choices") or {}
-        predicted_key = answer_key(prediction["answer"], choices)
-        gold_key = str(sample.get("answer", "")).strip().upper()
-        correctness = float(predicted_key == gold_key) if choices and gold_key else None
+        gold_key = str(sample.get("answer", "")).strip()
+        gold_text = str(choices.get(gold_key, "")) if isinstance(choices, dict) else ""
+        correctness = heuristic_answer_correctness(prediction["answer"], gold_text)
         rows[sample_id] = {
             "id": sample_id,
             "image_id": sample.get("image_id"),
             "question": sample.get("question"),
-            "choices": choices,
             "gold_answer": sample.get("answer"),
-            "predicted_choice": predicted_key,
+            "gold_answer_text_for_evaluation": gold_text,
             "answer": prediction["answer"],
             "answer_correctness": correctness,
+            "answer_correctness_method": "gold_answer_text_overlap_heuristic",
             "citation_status": "not_applicable",
             "latency_seconds": prediction["latency_seconds"],
             "input_tokens": prediction["input_tokens"],
