@@ -8,6 +8,8 @@ from src.eval.baseline_config import (
     select_samples,
 )
 from src.eval.compare_baseline import METRIC_DIRECTIONS, compare_metrics, load_metrics
+from src.eval.freeform_qa_metrics import apply_baseline_config
+from src.settings import settings
 
 
 def test_baseline_config_locks_20_samples():
@@ -17,6 +19,21 @@ def test_baseline_config_locks_20_samples():
     assert config["pipeline"]["limit"] == 5
     assert config["pipeline"]["llm_model"] == "gemma-3-12b-it"
     assert config["pipeline"]["collection_name"].endswith("clip-gmp-vit-l-14")
+
+
+def test_pipeline_configs_keep_rag_and_neuro_symbolic_modes_independent(monkeypatch):
+    monkeypatch.setattr(settings, "enable_sign_retrieval_fallback", False)
+    monkeypatch.setattr(settings, "enable_symbolic_reasoning", True)
+    rag = load_baseline_config("configs/baseline_eval.json")
+    neuro = load_baseline_config("configs/neuro_symbolic_eval.json")
+
+    apply_baseline_config(rag)
+    assert settings.enable_sign_retrieval_fallback is True
+    assert settings.enable_symbolic_reasoning is False
+
+    apply_baseline_config(neuro)
+    assert settings.enable_sign_retrieval_fallback is False
+    assert settings.enable_symbolic_reasoning is True
 
 
 def test_select_samples_uses_manifest_order():

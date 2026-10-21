@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "name": "train-40-59-neuro-symbolic-yolo26m",
+  "dataset": {
+    "json_path": "data/raw/train_data/vlsp_2025_train.json",
+    "image_dir": "data/raw/train_data/train_images",
+    "lawdb_json_path": "data/raw/law_db/vlsp2025_law_new.json",
+    "sample_ids": [
+      "train_40",
+      "train_41",
+      "train_42",
+      "train_43",
+      "train_44",
+      "train_45",
+      "train_46",
+      "train_47",
+      "train_48",
+      "train_49",
+      "train_50",
+      "train_51",
+      "train_52",
+      "train_53",
+      "train_54",
+      "train_55",
+      "train_56",
+      "train_57",
+      "train_58",
+      "train_59"
+    ]
+  },
+  "pipeline": {
+    "llm_model": "gemma-3-12b-it",
+    "limit": 5,
+    "query_detector": "Yolo26m",
+    "lawdb_detector": "ImageProcessing",
+    "embedding_model": "CLIP-GmP-ViT-L-14",
+    "collection_name": "lawdb_processed_by_imageprocessing_and_clip-gmp-vit-l-14",
+    "use_vlm_filter": true,
+    "judge": true,
+    "temperature": 0.0,
+    "max_new_tokens": 5000,
+    "enable_sign_retrieval_fallback": false,
+    "enable_symbolic_reasoning": true
+  },
+  "outputs": {
+    "metrics": "outputs/neuro_symbolic_metrics.json",
+    "rows": "outputs/neuro_symbolic_rows.json"
+  }
+}

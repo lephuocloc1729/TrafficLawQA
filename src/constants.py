@@ -7,6 +7,7 @@ class DetectionName(Enum):
     YoloE = "YoloE"
     YoloESegment = "YoloESegment"
     YoloV8m = "YoloV8m"
+    Yolo26m = "Yolo26m"
 
 
 class QuestionType(Enum):

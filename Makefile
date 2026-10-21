@@ -1,7 +1,7 @@
 # VLSP2025 Legal Q&A System Makefile
 # This Makefile provides convenient commands for common project tasks
 
-.PHONY: help install setup venv venv-create venv-activate venv-remove lawdb task1 task2 clean docker-up docker-down test baseline baseline-compare format lint ui-freeform-demo
+.PHONY: help install setup venv venv-create venv-activate venv-remove lawdb task1 task2 clean docker-up docker-down test baseline neuro-symbolic baseline-compare baseline-vlm-only format lint ui-freeform-demo
 
 # Default target
 help:
@@ -125,9 +125,15 @@ test:
 baseline:
 	python -m src.eval.freeform_qa_metrics --config configs/baseline_eval.json
 
+neuro-symbolic:
+	python -m src.eval.freeform_qa_metrics --config configs/neuro_symbolic_eval.json
+
 baseline-compare:
 	@test -n "$(CANDIDATE)" || (echo "Usage: make baseline-compare CANDIDATE=outputs/candidate_metrics.json" && exit 2)
 	python -m src.eval.compare_baseline --candidate "$(CANDIDATE)"
+
+baseline-vlm-only:
+	python -m src.eval.vlm_only --config configs/baseline2_vlm_only.json
 
 lint:
 	@echo "Running linting checks..."

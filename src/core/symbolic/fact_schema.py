@@ -57,6 +57,14 @@ class SignObservation(SerializableMixin):
                 {
                     "sign_code": item.get("sign_code"),
                     "confidence": item.get("confidence", item.get("score")),
+                    **({"retrieval_rank": item.get("retrieval_rank", item.get("rank"))}
+                       if item.get("retrieval_rank", item.get("rank")) is not None else {}),
+                    **({"retrieval_score": item.get("retrieval_score", item.get("score"))}
+                       if item.get("retrieval_score", item.get("score")) is not None else {}),
+                    **({"attributes": item["attributes"]}
+                       if isinstance(item.get("attributes"), dict) and item["attributes"] else {}),
+                    **({"normalized_conditions": item["normalized_conditions"]}
+                       if isinstance(item.get("normalized_conditions"), dict) and item["normalized_conditions"] else {}),
                 }
                 for item in self.candidates
             ],

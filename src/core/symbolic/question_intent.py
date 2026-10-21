@@ -89,6 +89,8 @@ INTENT_PATTERNS = (
         "bao xa", "khoang cach", "pham vi", "bao nhieu met",
         "thoi gian nao", "thoi diem nao", "hieu luc vao luc nao", "co hieu luc khi nao",
         "toc do toi da", "gioi han toc do", "bao nhieu km h", "toc do bao nhieu", "van toc bao nhieu",
+        "cao toc nao", "cao toc gi", "ten cao toc", "ten duong cao toc", "cao toc nay la gi", "ma cao toc",
+        "ten duong nao", "bien chi duong", "di den dau",
         "dieu kien gi", "truong hop nao", "ap dung khi nao",
     )),
     ("QUERY_SIGN", (
@@ -104,6 +106,7 @@ INFORMATION_SCOPE_PHRASES = (
     "phuong tien nao", "loai phuong tien nao", "ap dung cho loai phuong tien nao",
     "huong nao", "chieu nao", "re huong", "ben nao", "phia nao",
     "bao xa", "khoang cach", "pham vi", "bao nhieu met",
+    "con cach", "cach ha noi", "cach sai gon", "cach tphcm",
     "thoi gian nao", "thoi diem nao", "hieu luc vao luc nao", "co hieu luc khi nao",
     "toc do toi da", "gioi han toc do", "bao nhieu km h", "toc do bao nhieu", "van toc bao nhieu",
 )
@@ -656,6 +659,13 @@ def _information_type(question: str) -> str | None:
         return "direction_scope"
     if any(term in text for term in ("toc do", "van toc", "km h")):
         return "speed"
+    if any(term in text for term in (
+        "ten cao toc", "cao toc nao", "cao toc gi", "cao toc nay la gi", "ma cao toc",
+        "ten duong cao toc", "ten duong nao",
+    )):
+        return "road_identity"
+    if "bao xa" in text and any(term in text for term in ("con cach", "cach ha noi", "cach sai gon", "cach tphcm", "cach tp hcm")):
+        return "destination_distance"
     if any(term in text for term in ("khoang cach", "pham vi", "bao xa", "bao nhieu met")):
         return "distance_scope"
     return None
@@ -852,7 +862,7 @@ def parse_query_intent_with_llm(
         "bao gồm cách hỏi khẩu ngữ hoặc diễn đạt gián tiếp.\n"
         "- QUERY_SIGN: hỏi biển là biển gì, ký hiệu/mã nào, hoặc biển/biểu tượng mang ý nghĩa hay thông điệp gì.\n"
         "- INFORMATION: hỏi một thông tin cụ thể thể hiện bởi biển/dữ liệu nhận diện, như đối tượng xe, "
-        "thời gian hiệu lực, hướng, tốc độ hoặc phạm vi áp dụng. Nếu câu hỏi nhắm vào một thuộc tính cụ thể, "
+        "thời gian hiệu lực, hướng, tốc độ, khoảng cách đến địa điểm, mã/tên đường cao tốc hoặc phạm vi áp dụng. Nếu câu hỏi nhắm vào một thuộc tính cụ thể, "
         "chọn INFORMATION thay vì QUERY_SIGN.\n"
         "- PENALTY: hỏi tiền phạt, mức xử phạt hoặc chế tài cho vi phạm. Nhãn này không có nghĩa là hệ thống "
         "được phép tự đưa ra mức phạt.\n"
@@ -867,7 +877,7 @@ def parse_query_intent_with_llm(
         '"target":"scene|sign_observation|sign_code|unresolved",'
         '"action":"parking|stopping|yielding|turn_left|turn_right|u_turn|going_straight|entering|exiting|speed|reduce_speed|circulation|crossing|overtaking|reversing|lane_change|using_horn|following_distance|passing_obstacle|roundabout_circulation|unknown",'
         '"actor":"'
-        + vehicle_enum + '","information_type":"prohibited_subjects|time_condition|direction_scope|speed|distance_scope|unknown",'
+        + vehicle_enum + '","information_type":"prohibited_subjects|time_condition|direction_scope|speed|distance_scope|destination_distance|road_identity|unknown",'
         '"requested_answer":{}}],'
         '"context_facts":[],"unresolved_items":[],"confidence":"high|medium|low"}\n'
         f"Câu hỏi: {question}"

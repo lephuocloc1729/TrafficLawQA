@@ -11,6 +11,7 @@ from src.core.symbolic.intent_schema import Intent, QueryIntent
 from src.core.symbolic.rule_schema import RuleEffect, RuleEvaluation, TrafficRule
 from src.core.symbolic.supplementary_facts import extract_supplementary_context_facts
 from src.core.symbolic.sign_numeric_facts import extract_main_sign_context_facts
+from src.core.symbolic.sign_information_facts import extract_sign_information_facts
 from src.core.symbolic.sign_schema import normalize_confidence
 from src.core.symbolic.sign_normalizer import normalize_sign_code, sign_family
 from src.core.symbolic.question_intent import extract_vehicle
@@ -40,7 +41,7 @@ SUPPORTED_RULE_CONDITION_PREDICATES = frozenset({
     "pedestrian_location", "wheelchair_for_person_with_disability_confirmed",
     "vehicle_class_parking_conditions_resolved",
     # Sign-provided speed, distance, dimension, weight, and passenger limits.
-    "speed_limit_value", "minimum_speed_limit_kmh", "general_max_speed_kmh",
+    "speed_limit_value", "minimum_speed_limit_kmh", "slope_percent", "general_max_speed_kmh",
     "applicable_speed_limit_value", "applicable_statutory_max_speed_kmh",
     "total_weight_limit_t", "axle_load_limit_t", "payload_limit_t", "height_limit_m",
     "width_limit_m", "length_limit_m", "combination_length_limit_m",
@@ -53,7 +54,7 @@ SUPPORTED_RULE_CONDITION_PREDICATES = frozenset({
     "vehicle_seat_count", "vehicle_width_m", "vehicle_height_m", "vehicle_length_m",
     "vehicle_combination_length_m", "vehicle_manufacturer_max_speed_kmh",
     # Date/time and sign-depicted direction or explicit route wording.
-    "calendar_parity", "time_window", "supplementary_time_condition",
+    "calendar_parity", "sign_applicability_calendar_parity", "time_window", "supplementary_time_condition",
     "supplementary_calendar_parity", "intended_obstacle_passing_side",
     "intended_roundabout_route_follows_arrow", "vehicle_travel_direction_matches_i407_arrow",
     "i416_detour_route_matches_diagram", "vehicle_class_shown_on_i417_resolved",
@@ -197,6 +198,9 @@ def _observation_context_facts(
         "distance_scope": "distance_scope_condition",
         "numeric_value": "supplementary_numeric_value",
         "speed_limit_value": "speed_limit_value",
+        "minimum_speed_limit_kmh": "minimum_speed_limit_kmh",
+        "sign_applicability_calendar_parity": "sign_applicability_calendar_parity",
+        "slope_percent": "slope_percent",
         "total_weight_limit_t": "total_weight_limit_t",
         "axle_load_limit_t": "axle_load_limit_t",
         "payload_limit_t": "payload_limit_t",
@@ -228,13 +232,25 @@ def _observation_context_facts(
     fields = observation.visual_attributes.get("normalized_conditions", {})
     if isinstance(fields, dict):
         for source_key, predicate in normalized_fields.items():
+            # P.121's minimum distance must come from OCR of its displayed
+            # number. Ignore pre-normalized values so conflicting OCR remains
+            # ambiguous and cannot be turned into a firm prohibition.
+            if (
+                normalize_sign_code(observation.sign_code) == "P.121"
+                and source_key == "minimum_following_distance_m"
+            ):
+                continue
             if source_key in fields:
                 result.append(ContextFact(
                     fact_id=f"{observation.observation_id}:{predicate}",
                     predicate=predicate,
                     value=fields[source_key],
                     status="derived",
-                    source=source,
+                    source=(
+                        "yolo26m_class_attribute"
+                        if observation.source == "yolo26m_vtsdb100"
+                        else source
+                    ),
                     confidence=observation.confidence,
                     evidence=observation.evidence,
                     metadata={
@@ -268,6 +284,7 @@ def _observation_context_facts(
         ))
     elif observation.sign_code:
         result.extend(extract_main_sign_context_facts(observation, subject_id=subject_id))
+    result.extend(extract_sign_information_facts(observation, subject_id=subject_id))
     return result
 
 

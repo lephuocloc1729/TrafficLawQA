@@ -234,12 +234,18 @@ def main() -> None:
 
     with st.sidebar:
         st.header("Settings")
+        direct_class_detector = settings.image_query_detection_model == "Yolo26m"
         st.caption(
-            "The demo detects signs, retrieves LawDB evidence from Qdrant, "
-            "and generates a cited free-form answer."
+            "YOLO26m detects and classifies signs directly; the symbolic rule engine "
+            "then supplies legal evidence."
+            if direct_class_detector
+            else "The configured detector may use sign filtering and LawDB image retrieval."
         )
         debug = st.checkbox("Debug", value=False)
-        use_vlm_filter = st.checkbox("Use VLM sign filter", value=True)
+        use_vlm_filter = (
+            False if direct_class_detector
+            else st.checkbox("Use VLM sign filter", value=True)
+        )
         with st.expander("Optional reference choices", expanded=False):
             choices = st.text_area(
                 "Choices",
@@ -281,7 +287,7 @@ def main() -> None:
 
     try:
         with st.spinner(
-            "Detecting signs, retrieving legal evidence, and preparing answer..."
+            "Detecting signs, resolving legal evidence, and preparing answer..."
         ):
             resources = load_resources()
             result = answer_image_question(

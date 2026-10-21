@@ -26,9 +26,10 @@ from src.core.article_context import (
 )
 from src.core.symbolic.reasoner import build_symbolic_reasoning_context
 from src.core.symbolic.fact_schema import SignObservation, TrafficFacts
-from src.core.symbolic.sign_normalizer import normalize_detected_sign_to_observation
+from src.core.symbolic.sign_normalizer import normalize_detected_sign_to_observation, normalize_sign_code
 from src.core.symbolic.sign_relations import link_supplementary_signs
 from src.core.symbolic.traffic_sign_ocr import get_traffic_sign_ocr
+from src.core.symbolic.sign_information_facts import extract_nearby_highway_profile_facts
 from src.prompts.answer_prompt import (
     SYSTEM_PROMPT_FREEFORM_CITED_QA,
     SYSTEM_PROMPT_SIGN_VARIANT_DISAMBIGUATION,
@@ -303,6 +304,9 @@ def normalize_freeform_response(
 
 
 def _sign_code(payload: dict[str, Any]) -> str:
+    direct = normalize_sign_code(str(payload.get("sign_code") or ""))
+    if direct:
+        return direct
     text = " ".join(
         str(payload.get(key) or "")
         for key in ("sign_name", "sign_description", "name", "description")
@@ -315,14 +319,24 @@ def _sign_family(sign_code: str) -> str:
     return re.sub(r"([,\.]\d+)[a-z]$", r"\1", sign_code)
 
 
-def _has_ambiguous_variants(payloads: list[dict[str, Any]]) -> bool:
-    families: dict[str, set[str]] = {}
+def _has_multiple_candidate_identities(payloads: list[dict[str, Any]]) -> bool:
+    identities = set()
     for payload in payloads:
         code = _sign_code(payload)
-        if not code or not re.search(r"[a-z]$", code):
-            continue
-        families.setdefault(_sign_family(code), set()).add(code)
-    return any(len(codes) > 1 for codes in families.values())
+        attributes = payload.get("attributes") or {}
+        conditions = payload.get("normalized_conditions") or {}
+        if code:
+            identities.add((
+                code,
+                json.dumps(attributes, ensure_ascii=False, sort_keys=True, default=str),
+                json.dumps(conditions, ensure_ascii=False, sort_keys=True, default=str),
+            ))
+        else:
+            identities.add((
+                str(payload.get("sign_name") or payload.get("name") or "").strip().casefold(),
+                str(payload.get("sign_description") or payload.get("description") or "").strip().casefold(),
+            ))
+    return len(identities) > 1
 
 
 def _variant_hint_from_question(
@@ -360,19 +374,19 @@ def _parse_selected_index(
         parsed = extract_json_object(response_content)
     except Exception as exc:
         return {
-            "selected_index": 0,
+            "selected_index": None,
             "confidence": "low",
-            "reason": f"Fallback to top-1 because variant JSON parse failed: {exc}",
+            "reason": f"Candidate selection abstained because response JSON was invalid: {exc}",
             "raw_response": response_content,
         }
 
-    selected_index = parsed.get("selected_index", 0)
+    selected_index = parsed.get("selected_index")
     if (
         not isinstance(selected_index, int)
         or selected_index < 0
         or selected_index >= len(payloads)
     ):
-        selected_index = 0
+        selected_index = None
 
     confidence = str(parsed.get("confidence") or "low").lower().strip()
     if confidence not in {"high", "medium", "low"}:
@@ -407,24 +421,50 @@ def disambiguate_sign_payloads(
         return reordered, {
             "selected_index": hint_index,
             "confidence": "medium",
+            "identity_confirmed": True,
             "reason": "Selected from explicit question hint.",
             "method": "question_hint",
         }
 
     if (
-        not llm_client
-        or len(sign_payloads) < 2
-        or not _has_ambiguous_variants(sign_payloads)
+        len(sign_payloads) < 2
     ):
-        return sign_payloads, {"selected_index": 0, "method": "top1"}
+        return sign_payloads, {
+            "selected_index": None,
+            "confidence": "low",
+            "identity_confirmed": False,
+            "reason": "No LLM choice was made because fewer than two retrieved candidates were available.",
+            "method": "retrieval_candidates_insufficient",
+        }
+
+    if not _has_multiple_candidate_identities(sign_payloads):
+        return [sign_payloads[0], *sign_payloads[1:]], {
+            "selected_index": 0,
+            "confidence": "medium",
+            "identity_confirmed": True,
+            "reason": "Retrieved candidates agree on the same sign identity and attributes.",
+            "method": "retrieval_candidate_consensus",
+        }
+
+    if not llm_client:
+        return sign_payloads, {
+            "selected_index": None,
+            "confidence": "low",
+            "identity_confirmed": False,
+            "reason": "Candidate identities differ but no LLM client is available to resolve them.",
+            "method": "retrieval_candidates_unresolved",
+        }
 
     candidates = [
         {
             "index": index,
+            "sign_code": _sign_code(payload),
+            "retrieval_rank": payload.get("retrieval_rank", index + 1),
+            "retrieval_score": payload.get("score"),
             "sign_name": payload.get("sign_name", ""),
             "description": payload.get("sign_description", ""),
-            "law_id": payload.get("law_id", ""),
-            "article_id": payload.get("article_id", ""),
+            "attributes": payload.get("attributes", {}),
+            "normalized_conditions": payload.get("normalized_conditions", {}),
         }
         for index, payload in enumerate(sign_payloads)
     ]
@@ -444,7 +484,7 @@ def disambiguate_sign_payloads(
                             "text": (
                                 "QUESTION\n"
                                 f"{sample.get('question', '')}\n\n"
-                                "CANDIDATES\n"
+                                "RETRIEVED SIGN CANDIDATES (choose only by index)\n"
                                 f"{json.dumps(candidates, ensure_ascii=False)}"
                             ),
                         },
@@ -461,18 +501,24 @@ def disambiguate_sign_payloads(
         decision = _parse_selected_index(response_content, sign_payloads)
     except Exception as exc:
         decision = {
-            "selected_index": 0,
+            "selected_index": None,
             "confidence": "low",
-            "reason": f"Fallback to top-1 because variant disambiguation failed: {exc}",
+            "identity_confirmed": False,
+            "reason": f"Candidate selection abstained because the LLM call failed: {exc}",
             "method": "vlm_variant_disambiguation",
         }
     selected_index = decision["selected_index"]
-    reordered = [
-        sign_payloads[selected_index],
-        *sign_payloads[:selected_index],
-        *sign_payloads[selected_index + 1 :],
-    ]
-    decision["method"] = "vlm_variant_disambiguation"
+    decision["identity_confirmed"] = (
+        selected_index is not None and decision.get("confidence") == "high"
+    )
+    reordered = sign_payloads
+    if selected_index is not None:
+        reordered = [
+            sign_payloads[selected_index],
+            *sign_payloads[:selected_index],
+            *sign_payloads[selected_index + 1 :],
+        ]
+    decision["method"] = "llm_top10_sign_selection"
     return reordered, decision
 
 
@@ -487,6 +533,7 @@ def collect_retrieved_context(
     limit: int = 1,
     temperature: float = 0.0,
     max_tokens: int = 500,
+    allow_sign_retrieval: bool = True,
 ) -> tuple[
     list[dict[str, Any]],
     list[dict[str, str]],
@@ -512,7 +559,11 @@ def collect_retrieved_context(
             for payload in sign.get("retrieved_payloads", [])
             if isinstance(payload, dict)
         ]
+        if not allow_sign_retrieval:
+            sign_payloads = []
         can_query_fallback = (
+            allow_sign_retrieval
+            and
             not sign_payloads
             and not sign.get("retrieval_attempted")
             and settings.enable_sign_retrieval_fallback
@@ -525,10 +576,15 @@ def collect_retrieved_context(
         if can_query_fallback:
             embedding = embedding_model.embed_image(sign_image)
             retrieved_results = vector_store.query(collection_name, embedding, top_k=limit)
-            sign_payloads = [
-                dict(retrieved_result.payload or {})
-                for retrieved_result in retrieved_results
-            ]
+            sign_payloads = []
+            for rank, retrieved_result in enumerate(retrieved_results, start=1):
+                payload = dict(retrieved_result.payload or {})
+                payload["retrieval_rank"] = rank
+                payload["source"] = "retrieval"
+                score = getattr(retrieved_result, "score", None)
+                if score is not None:
+                    payload["score"] = score
+                sign_payloads.append(payload)
 
         if sign_payloads:
             sign_payloads, variant_decision = disambiguate_sign_payloads(
@@ -539,6 +595,10 @@ def collect_retrieved_context(
                 temperature=temperature,
                 max_tokens=max_tokens,
             )
+        elif isinstance(sign.get("variant_decision"), dict):
+            # Direct-class detectors such as YOLO26m already resolve the class;
+            # preserve their confidence and mapping status without re-ranking.
+            variant_decision = dict(sign["variant_decision"])
         else:
             detector_confidence = float(sign.get("confidence") or 0.0)
             variant_decision = {
@@ -560,6 +620,13 @@ def collect_retrieved_context(
                     else "retrieval_disabled"
                 ),
             }
+        selection_confirmed = (
+            variant_decision.get(
+                "identity_confirmed",
+                variant_decision.get("selected_index") is not None
+                and variant_decision.get("confidence") in {"high", "medium"},
+            ) is True
+        )
         primary_payload = sign_payloads[0] if sign_payloads else {}
         sign["variant_decision"] = variant_decision
         if primary_payload:
@@ -568,13 +635,14 @@ def collect_retrieved_context(
 
         sign_visual_evidence: list[dict[str, Any]] = []
         for rank, payload in enumerate(sign_payloads, start=1):
-            article_candidate = article_candidate_from_payload(
-                payload,
-                retrieval_rank=rank,
-                context_source="retrieval",
-            )
-            if article_candidate:
-                article_candidates.append(article_candidate)
+            if selection_confirmed and rank == 1:
+                article_candidate = article_candidate_from_payload(
+                    payload,
+                    retrieval_rank=payload.get("retrieval_rank", rank),
+                    context_source="retrieval",
+                )
+                if article_candidate:
+                    article_candidates.append(article_candidate)
 
             evidence_item = {
                 "sign_code": _sign_code(payload),
@@ -583,21 +651,57 @@ def collect_retrieved_context(
                 "description": str(payload.get("sign_description") or ""),
                 "legal_conditions": payload.get("legal_conditions", {}),
                 "image_name": str(sign.get("image_name") or ""),
-                "retrieval_rank": rank,
-                "is_primary": rank == 1,
+                "retrieval_rank": payload.get("retrieval_rank", rank),
+                "retrieval_score": payload.get("score"),
+                "is_primary": selection_confirmed and rank == 1,
+                "is_candidate": True,
             }
             sign_visual_evidence.append(evidence_item)
             visual_evidence.append(evidence_item)
 
+        if not sign_payloads and (
+            sign.get("sign_code")
+            or sign.get("sign_family")
+            or sign.get("class_label")
+        ):
+            direct_evidence = {
+                "sign_code": sign.get("sign_code") or "",
+                "sign_family": sign.get("sign_family") or "",
+                "sign_name": sign.get("sign_name") or sign.get("class_label") or "",
+                "description": sign.get("sign_description") or "",
+                "legal_conditions": sign.get("normalized_conditions") or {},
+                "image_name": str(sign.get("image_name") or ""),
+                "retrieval_rank": None,
+                "is_primary": bool(
+                    sign.get("identity_status") == "identified"
+                    and sign.get("sign_code")
+                ),
+                "is_candidate": False,
+            }
+            sign_visual_evidence.append(direct_evidence)
+            visual_evidence.append(direct_evidence)
+
+            direct_article = article_candidate_from_payload(
+                sign,
+                context_source="detector",
+            )
+            if direct_article and selection_confirmed and sign.get("sign_code"):
+                article_candidates.append(direct_article)
+
         sign["retrieved_payloads"] = sign_payloads
-        observation_source = "yolov8m" if sign.get("source") == "yolov8m" else "retrieval"
+        observation_source = str(sign.get("source") or "retrieval")
         sign_observation = normalize_detected_sign_to_observation(
             sign=sign,
             payloads=sign_payloads,
             visual_evidence=sign_visual_evidence,
             source=observation_source,
         )
-        if settings.traffic_sign_ocr_enabled and not ocr_unavailable:
+        if (
+            settings.traffic_sign_ocr_enabled
+            and not ocr_unavailable
+            and not sign_observation.ocr_texts
+            and not sign.get("ocr_status")
+        ):
             try:
                 if ocr_engine is None:
                     ocr_engine = get_traffic_sign_ocr(
@@ -612,6 +716,9 @@ def collect_retrieved_context(
                 logging.getLogger(__name__).warning(
                     "Traffic-sign OCR unavailable for this sample: %s", exc
                 )
+        if sign_observation.ocr_texts:
+            sign["ocr_texts"] = sign_observation.ocr_texts
+            sign.setdefault("ocr_status", "read")
         sign["sign_observation"] = sign_observation.to_dict()
         traffic_sign_observations.append(sign_observation)
         sign_prompt_parts.append({
@@ -647,6 +754,7 @@ def collect_retrieved_context(
         schema_version="2.0",
         scene_id=str(sample.get("image_id") or "scene-unknown"),
         sign_observations=traffic_sign_observations,
+        context_facts=extract_nearby_highway_profile_facts(traffic_sign_observations),
         sign_relations=link_supplementary_signs(traffic_sign_observations),
         sign_inventory_status="partial",
     )
@@ -698,12 +806,12 @@ def build_freeform_prompt_parts(
     primary_articles = [
         article
         for article in article_contexts
-        if article.get("context_source") == "retrieval"
+        if article.get("context_source") in {"retrieval", "detector"}
     ]
     related_articles = [
         article
         for article in article_contexts
-        if article.get("context_source") != "retrieval"
+        if article.get("context_source") not in {"retrieval", "detector"}
     ]
     legal_context = "\n\n".join(
         [
@@ -773,6 +881,7 @@ def get_freeform_answer(
     limit: int = 1,
     temperature: float = 0.0,
     max_tokens: int = 5000,
+    allow_sign_retrieval: bool = True,
 ) -> dict[str, Any]:
     t1 = time.time()
     try:
@@ -789,20 +898,24 @@ def get_freeform_answer(
             collection_name=collection_name,
             article_lookup=article_lookup,
             # The LLM only explains system-produced facts; it does not inspect
-            # the image or disambiguate sign crops.
-            llm_client=None,
-            limit=limit,
+            # legal conclusions. It may select a sign identity from retrieved
+            # candidates before the symbolic pipeline evaluates any rule.
+            llm_client=llm_client,
+            limit=settings.sign_recognition_candidate_limit,
             temperature=temperature,
             max_tokens=min(max_tokens, 500),
+            allow_sign_retrieval=allow_sign_retrieval,
         )
-        symbolic_context = build_symbolic_reasoning_context(
-            traffic_facts=traffic_sign_observations,
-            question=str(sample.get("question") or ""),
-            llm_client=llm_client,
-            use_llm=True,
-            temperature=temperature,
-            max_tokens=min(max_tokens, 300),
-        )
+        symbolic_context = {}
+        if settings.enable_symbolic_reasoning:
+            symbolic_context = build_symbolic_reasoning_context(
+                traffic_facts=traffic_sign_observations,
+                question=str(sample.get("question") or ""),
+                llm_client=llm_client,
+                use_llm=True,
+                temperature=temperature,
+                max_tokens=min(max_tokens, 300),
+            )
         article_contexts = build_article_contexts(
             [*article_contexts, *rule_article_candidates(symbolic_context)],
             article_lookup=article_lookup,
@@ -947,7 +1060,7 @@ def main() -> None:
             vector_store=vector_store,
             collection_name=settings.collection_name,
             article_lookup=article_lookup,
-            limit=settings.limit,
+            limit=settings.sign_recognition_candidate_limit,
             temperature=settings.llm_temperature,
             max_tokens=settings.llm_max_new_tokens,
         )

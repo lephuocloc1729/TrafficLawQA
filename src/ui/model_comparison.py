@@ -30,7 +30,7 @@ def available_device() -> str:
 def load_comparison_resources(device: str):
     yolov8m_detector = YoloV8mSignDetector(
         device=device,
-        model_path=settings.sign_model_path,
+        model_path="models/yolov8m_final.pt",
         confidence_threshold=settings.sign_detection_confidence_threshold,
     )
     # YoloE's MobileCLIP TorchScript text encoder cannot be loaded on MPS on

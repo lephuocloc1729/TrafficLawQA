@@ -3,6 +3,7 @@ from .grounding_dino import GroundingDINO
 from .image_processing import LawDBSignExtractor
 from .yoloE import YoloE
 from .yolov8m import YoloV8mSignDetector
+from .yolo26m import Yolo26mSignDetector
 from src.constants import DetectionName
 
 
@@ -18,12 +19,14 @@ class SignExtractor:
             self.sign_extractor = YoloE(device=device)
         elif detector == DetectionName.YoloV8m.value:
             self.sign_extractor = YoloV8mSignDetector(device=device, **detector_options)
+        elif detector == DetectionName.Yolo26m.value:
+            self.sign_extractor = Yolo26mSignDetector(device=device, **detector_options)
         else:
             raise ValueError(f"Detector {detector} not supported")
 
     def crop_signs(self, image_path: str) -> list[Image.Image]:
         image = Image.open(image_path).convert("RGB")
-        if isinstance(self.sign_extractor, YoloV8mSignDetector):
+        if isinstance(self.sign_extractor, (YoloV8mSignDetector, Yolo26mSignDetector)):
             detections = self.sign_extractor.detect(image)
             return self.sign_extractor.crop_boxes(detections, image)
         boxes, confidences, class_names = self.sign_extractor(image_path)
@@ -33,7 +36,7 @@ class SignExtractor:
     def detect_and_crop(self, image_path: str) -> list[tuple[Image.Image, dict]]:
         """Return crops with detector metadata where the backend supports it."""
         image = Image.open(image_path).convert("RGB")
-        if isinstance(self.sign_extractor, YoloV8mSignDetector):
+        if isinstance(self.sign_extractor, (YoloV8mSignDetector, Yolo26mSignDetector)):
             detections = self.sign_extractor.detect(image)
             return list(zip(self.sign_extractor.crop_boxes(detections, image), detections))
         boxes, confidences, class_names = self.sign_extractor(image_path)

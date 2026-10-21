@@ -11,6 +11,7 @@ class ArticleLookup(Protocol):
 
 CONTEXT_SOURCE_PRIORITY = {
     "retrieval": 0,
+    "detector": 0,
     "rule": 1,
     "fallback_default_article": 2,
 }

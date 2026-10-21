@@ -79,6 +79,20 @@ def extract_main_sign_context_facts(
     if spec is None:
         return []
 
+    # Some YOLO classes already identify the numeric value (for example,
+    # speed_limit_40 and min_speed_limit_30). Do not let OCR create a second,
+    # possibly conflicting value for the same sign attribute.
+    normalized_conditions = observation.visual_attributes.get("normalized_conditions", {})
+    # P.121's displayed following distance is read from the sign itself. OCR
+    # must remain authoritative so conflicting readings stay unresolved rather
+    # than being hidden by a stale/pre-filled normalized value.
+    if (
+        code != "P.121"
+        and isinstance(normalized_conditions, dict)
+        and spec["predicate"] in normalized_conditions
+    ):
+        return []
+
     readings: list[tuple[Any, str, str, dict[str, Any]]] = []
     for index, item in enumerate(observation.ocr_texts):
         raw = str(item.get("normalized_value") or item.get("raw_text") or "").strip()

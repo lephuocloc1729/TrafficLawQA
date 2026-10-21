@@ -68,11 +68,16 @@ def _payload_candidates(payload: dict[str, Any]) -> list[dict[str, Any]]:
                 continue
             code = extract_sign_code(item.get("sign_code"), item.get("sign_name"), item.get("name"))
             if code:
-                candidates.append({
+                candidate = {
                     "sign_code": code,
                     "confidence": item.get("confidence", item.get("score")),
                     "source": item.get("source", "retrieval"),
-                })
+                    "retrieval_rank": item.get("retrieval_rank", item.get("rank")),
+                    "retrieval_score": item.get("score", item.get("retrieval_score")),
+                    "attributes": item.get("attributes", {}),
+                    "normalized_conditions": item.get("normalized_conditions", {}),
+                }
+                candidates.append(candidate)
     return candidates
 
 
@@ -122,9 +127,27 @@ def normalize_payload_to_observation(
     class_attributes = payload.get("attributes")
     if isinstance(class_attributes, dict):
         visual_attributes["class_attributes"] = dict(class_attributes)
-        if "speed_limit_kmh" in class_attributes:
-            conditions = dict(visual_attributes.get("normalized_conditions") or {})
-            conditions.setdefault("speed_limit_value", class_attributes["speed_limit_kmh"])
+        conditions = dict(visual_attributes.get("normalized_conditions") or {})
+        attribute_to_condition = {
+            "speed_limit_kmh": "speed_limit_value",
+            "min_speed_kmh": "minimum_speed_limit_kmh",
+            "slope_percent": "slope_percent",
+        }
+        for attribute, condition in attribute_to_condition.items():
+            if attribute in class_attributes:
+                conditions.setdefault(condition, class_attributes[attribute])
+
+        # P.131b/P.131c encode the days on which the sign applies. Keep this
+        # separate from calendar_parity, which describes the date being asked
+        # about and is used by the symbolic rules to evaluate applicability.
+        if (
+            normalize_sign_code(sign_code) in {"P.131b", "P.131c"}
+            and class_attributes.get("time_condition") in {"odd_days", "even_days"}
+        ):
+            conditions.setdefault(
+                "sign_applicability_calendar_parity", class_attributes["time_condition"]
+            )
+        if conditions:
             visual_attributes["normalized_conditions"] = conditions
     visual_attributes.setdefault("name", name or None)
     visual_attributes.setdefault("description", description or None)
@@ -227,7 +250,18 @@ def normalize_detected_sign_to_observation(
         )
     variant_decision = sign.get("variant_decision")
     if observation.sign_code:
-        if isinstance(variant_decision, dict) and variant_decision.get("confidence") in {"high", "medium"}:
+        llm_candidate_selection = (
+            isinstance(variant_decision, dict)
+            and variant_decision.get("method") == "llm_top10_sign_selection"
+        )
+        if (
+            isinstance(variant_decision, dict)
+            and (
+                variant_decision.get("identity_confirmed") is True
+                if llm_candidate_selection
+                else variant_decision.get("confidence") in {"high", "medium"}
+            )
+        ):
             observation.identity_status = "identified"
         else:
             observation.identity_status = "ambiguous"
