@@ -381,13 +381,11 @@ The demo supports:
 
 - image upload;
 - free-form Vietnamese question input;
-- optional choices/reference text;
-- detected sign crops;
-- selected relevant signs;
-- free-form answer;
-- citations and legal evidence;
-- visual evidence;
-- raw JSON/debug information.
+- selection between the RAG baseline, YOLO26m neuro-symbolic pipeline,
+  BM25 + LLM, and VLM-only;
+- optional choices for pipelines that use them;
+- pipeline-specific answers, citations, OCR/retrieval details, and visual
+  evidence where those outputs apply.
 
 ## Compare YOLOv8m with Image Retrieval
 
