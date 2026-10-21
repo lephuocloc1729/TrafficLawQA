@@ -654,6 +654,7 @@ def _intent_kinds(question: str, action: str) -> list[str]:
 
 
 def _information_type(question: str) -> str | None:
+    """Return a known hint when available; unmatched information stays untyped."""
     text = normalize_question_text(question)
     if any(term in text for term in (
         "cam nhung phuong tien nao", "cam phuong tien nao", "loai xe nao bi cam",
@@ -867,14 +868,16 @@ def parse_query_intent_with_llm(
         "- CHECK_PERMISSION: hỏi một hành động có được phép/bị cấm hay có bắt buộc phải làm không; "
         "bao gồm cách hỏi khẩu ngữ hoặc diễn đạt gián tiếp.\n"
         "- QUERY_SIGN: hỏi biển là biển gì, ký hiệu/mã nào, hoặc biển/biểu tượng mang ý nghĩa hay thông điệp gì.\n"
-        "- INFORMATION: hỏi một thông tin cụ thể thể hiện bởi biển/dữ liệu nhận diện, như đối tượng xe, "
-        "thời gian hiệu lực, hướng, tốc độ, khoảng cách đến địa điểm, mã/tên đường cao tốc hoặc phạm vi áp dụng. Nếu câu hỏi nhắm vào một thuộc tính cụ thể, "
-        "chọn INFORMATION thay vì QUERY_SIGN.\n"
+        "- INFORMATION: hỏi thông tin thể hiện bởi biển hoặc dữ liệu nhận diện, gồm đối tượng xe, thời gian hiệu lực, "
+        "hướng, tốc độ, khoảng cách, mã/tên đường và các thông tin cụ thể khác. information_type chỉ là gợi ý tùy chọn: "
+        "nếu không khớp các giá trị liệt kê, vẫn chọn INFORMATION và bỏ qua trường information_type để LLM tự trả lời "
+        "từ câu hỏi cùng context. Nếu câu hỏi nhắm vào một thuộc tính cụ thể, chọn INFORMATION thay vì QUERY_SIGN.\n"
         "- UNKNOWN: bao gồm câu hỏi ngoài phạm vi giao thông/biển báo, không thể xác định ý định, hoặc hỏi tiền phạt, "
         "mức xử phạt hay chế tài cho vi phạm. Câu hỏi lạ cách "
         "diễn đạt nhưng vẫn rõ nghĩa không được gán UNKNOWN chỉ vì không khớp từ khóa.\n"
-        "Chỉ thêm trường liên quan đến kind: CHECK_PERMISSION dùng action, actor; INFORMATION dùng "
-        "information_type; target chỉ thêm khi câu hỏi nhắm tới biển/cảnh cụ thể. "
+        "Chỉ thêm trường liên quan đến kind: CHECK_PERMISSION dùng action, actor; INFORMATION có thể có "
+        "information_type nếu khớp một giá trị đã liệt kê; nếu không, hãy bỏ trường đó. "
+        "target chỉ thêm khi câu hỏi nhắm tới biển/cảnh cụ thể. "
         "Với cách gọi chung 'xe máy', dùng actor=motorcycle_or_moped, không tự chọn mô tô hay xe gắn máy.\n"
         "Intent mô tả điều người dùng muốn biết; không suy đoán dữ kiện từ ảnh. Dữ kiện thời gian/vị trí "
         "được nêu rõ đưa vào context_facts với source=user_query. Trả về JSON hợp lệ, không thêm văn xuôi.\n"
@@ -882,7 +885,7 @@ def parse_query_intent_with_llm(
         '"target":"scene|sign_observation|sign_code|unresolved",'
         '"action":"parking|stopping|yielding|turn_left|turn_right|u_turn|going_straight|entering|exiting|speed|reduce_speed|circulation|crossing|overtaking|reversing|lane_change|using_horn|following_distance|passing_obstacle|roundabout_circulation|unknown",'
         '"actor":"'
-        + vehicle_enum + '","information_type":"prohibited_subjects|time_condition|direction_scope|speed|distance_scope|destination_distance|road_identity|unknown",'
+        + vehicle_enum + '","information_type":"prohibited_subjects|time_condition|direction_scope|speed|distance_scope|destination_distance|road_identity",'
         '"requested_answer":{}}],'
         '"context_facts":[],"unresolved_items":[],"confidence":"high|medium|low"}\n'
         f"Câu hỏi: {question}"
