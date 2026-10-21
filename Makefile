@@ -132,8 +132,6 @@ baseline-compare:
 	@test -n "$(CANDIDATE)" || (echo "Usage: make baseline-compare CANDIDATE=outputs/candidate_metrics.json" && exit 2)
 	python -m src.eval.compare_baseline --candidate "$(CANDIDATE)"
 
-baseline-vlm-only:
-	python -m src.eval.vlm_only --config configs/baseline2_vlm_only.json
 
 lint:
 	@echo "Running linting checks..."
@@ -192,3 +190,6 @@ status:
 	@echo "Docker status: $(shell docker-compose ps --services --filter status=running)"
 	@echo "Qdrant status: $(shell curl -s http://localhost:6333/collections 2>/dev/null && echo 'Running' || echo 'Not running')"
 	@echo "Environment file: $(shell test -f .env && echo 'Present' || echo 'Missing')"
+
+baseline-vlm-only:
+	python -m src.eval.vlm_only --config configs/baseline2_vlm_only.json
