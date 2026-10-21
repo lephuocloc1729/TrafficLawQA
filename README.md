@@ -293,31 +293,26 @@ python -m src.core.sub_task_2 --set_name public_test
 python -m src.core.sub_task_2 --set_name private_test
 ```
 
-### Baseline 1: BM25 + LLM
+### Baseline 1: YOLO26s + image + VLM
 
-This separate baseline uses the configured fixed sign detector to crop sign
-regions, reads text from those crops with Tesseract OCR, searches structured
-LawDB article/clause/point text with BM25, and asks the LLM to answer from only
-the question, OCR output, and retrieved legal units. It does not call Qdrant,
-image embeddings, VLM sign filtering, or the symbolic reasoner.
-
-Install the optional Python OCR wrapper and the system Tesseract binary with
-Vietnamese language data (`vie`), then run:
+This baseline runs the fine-tuned YOLO26s detector, then sends the original
+image, question, choices, and detected sign labels/codes together to the VLM.
+It does not use OCR, BM25, LawDB, vector retrieval, VLM filtering, or symbolic
+reasoning, and it does not provide verified legal citations. Set `LLM_API_KEYS`
+and the usual LLM settings in `.env`, and make the YOLO26s checkpoint available
+at the configured `SIGN_MODEL_PATH`, then run:
 
 ```bash
-pip install -e '.[baseline1]'
-python -m src.core.baseline1_bm25_llm \
+python -m src.core.baseline1_yolo26s_vlm \
   --image path/to/road-scene.jpg \
   --question "Xe máy có được dừng tại đây không?" \
   --choices $'A. Có\nB. Không'
 ```
 
-The existing YoloE detector localizes broad sign shapes; it does not identify
-sign codes or meanings. The baseline reports that limitation and uses the
-question plus OCR text for BM25 when sign identity is unavailable. Tesseract
-is optional at runtime: without the OCR dependency or language data, the
-pipeline continues with the question alone and reports the OCR status. Set
-`LLM_API_KEYS` and the usual LLM settings in `.env` before running.
+Override the detector checkpoint with `--model path/to/best.pt`; use
+`--device cpu` or `--device cuda` to choose the inference device. The VLM gets
+the original image as visual input plus a text summary of YOLO26s detections;
+it is asked to state when the available evidence is insufficient.
 
 The QA pipeline writes these fields to each processed sample:
 
