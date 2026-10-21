@@ -8,51 +8,60 @@ reasoning.
 from __future__ import annotations
 
 import argparse
+import base64
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from PIL import Image
+from openai import OpenAI
 
-from src.core.utils import pil_to_base64_png
-from src.deps.llm_client import LLMClient
+from src.settings import settings
 
 
 @dataclass
 class BaselineResources:
     detector: Any
-    llm: LLMClient
-    max_tokens: int = 1000
+    llm: OpenAI
+    model: dict[str, Any]
 
 
 def create_resources(
     device: str | None = None,
     model_path: str | Path | None = None,
+    vlm_config_path: str | Path = "configs/baseline2_vlm_only.json",
 ) -> BaselineResources:
-    """Load the configured YOLO26s detector and OpenAI-compatible VLM client."""
-    from src.settings import settings
+    """Load YOLO26s and the same VLM configuration used by Baseline 2."""
     from src.deps.detection.yolo26s import Yolo26sSignDetector
 
-    resolved_device = device or (_cuda_available() and "cuda") or "cpu"
-    api_keys = [
-        key.strip()
-        for key in (settings.llm_api_keys or "").split(",")
-        if key.strip()
-    ]
-    if not api_keys:
-        raise ValueError("Set LLM_API_KEYS in .env before running this baseline")
+    vlm_config = json.loads(Path(vlm_config_path).read_text(encoding="utf-8"))
+    model = vlm_config["model"]
+    base_url = os.environ.get(model.get("base_url_env", "LLM_BASE_URL")) or settings.llm_base_url
+    configured_keys = (
+        os.environ.get(model.get("api_key_env", "LLM_API_KEYS"))
+        or settings.llm_api_keys
+        or ""
+    )
+    api_keys = [key.strip() for key in configured_keys.split(",") if key.strip()]
+    if not base_url or not api_keys:
+        raise ValueError(
+            f"Set {model.get('base_url_env', 'LLM_BASE_URL')} and "
+            f"{model.get('api_key_env', 'LLM_API_KEYS')} before running this baseline"
+        )
 
+    resolved_device = device or (_cuda_available() and "cuda") or "cpu"
     detector = Yolo26sSignDetector(
         device=resolved_device,
         model_path=model_path or settings.sign_model_path,
         confidence_threshold=settings.sign_detection_confidence_threshold,
     )
-    llm = LLMClient(settings.llm_base_url, api_keys, settings.llm_model)
+    llm = OpenAI(base_url=base_url, api_key=api_keys[0])
     return BaselineResources(
         detector=detector,
         llm=llm,
-        max_tokens=min(settings.llm_max_new_tokens, 1000),
+        model=model,
     )
 
 
@@ -87,6 +96,15 @@ def _format_detection(detection: dict[str, Any], index: int) -> str:
     )
 
 
+def _mime_type(path: Path) -> str:
+    return {
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+        ".webp": "image/webp",
+    }.get(path.suffix.lower(), "application/octet-stream")
+
+
 def answer_image_question(
     image_path: str | Path,
     question: str,
@@ -109,32 +127,44 @@ def answer_image_question(
     ) or "- YOLO26s không phát hiện được biển báo."
     choice_text = "\n".join(choices) if isinstance(choices, list) else (choices or "")
     prompt = (
-        "Bạn là trợ lý hỏi đáp về tình huống giao thông Việt Nam. Trả lời ngắn gọn, "
-        "tự nhiên bằng tiếng Việt. Hãy xem ảnh gốc cùng kết quả phát hiện biển YOLO26s "
-        "dưới đây để trả lời câu hỏi. Xem nhãn YOLO là gợi ý thị giác, không phải căn cứ "
-        "pháp lý đã xác minh; nếu ảnh, nhận diện hoặc kiến thức không đủ chắc chắn, hãy "
-        "nêu rõ giới hạn và không đoán. Không bịa điều khoản hay citation. Nếu có lựa "
-        "chọn A/B/C/D, hãy nêu chữ cái lựa chọn và giải thích ngắn.\n\n"
         f"CÂU HỎI:\n{question.strip()}\n\n"
         f"LỰA CHỌN:\n{choice_text or '(không có)'}\n\n"
         f"BIỂN YOLO26s NHẬN DIỆN:\n{sign_context}"
     )
-    image_b64, image_mime = pil_to_base64_png(image)
-    answer = resources.llm.generate_content(
-        [
+    image_url = (
+        f"data:{_mime_type(image_path)};base64,"
+        f"{base64.b64encode(image_path.read_bytes()).decode('ascii')}"
+    )
+    model = resources.model
+    response = resources.llm.chat.completions.create(
+        model=model["model_id"],
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "Bạn là trợ lý trả lời câu hỏi về tình huống giao thông dựa trực tiếp "
+                    "trên ảnh được cung cấp và kiến thức sẵn có của bạn. Chỉ trả lời câu "
+                    "hỏi bằng tiếng Việt tự nhiên, trực tiếp và ngắn gọn. Xem danh sách "
+                    "YOLO26s là gợi ý nhận diện thị giác, không phải căn cứ pháp lý đã "
+                    "xác minh. Nếu ảnh hoặc thông tin không đủ căn cứ, hãy nói rõ điều "
+                    "đó và không đoán. Không cần viện dẫn điều luật hoặc tạo citation; "
+                    "nếu nhắc đến quy định, không khẳng định đó là trích dẫn đã xác minh."
+                ),
+            },
             {
                 "role": "user",
                 "content": [
                     {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {
-                        "url": f"data:{image_mime};base64,{image_b64}"
-                    }},
+                    {"type": "image_url", "image_url": {"url": image_url}},
                 ],
-            }
+            },
         ],
-        temperature=0,
-        max_tokens=resources.max_tokens,
-    ) or "Chưa đủ thông tin từ ảnh và kết quả nhận diện để trả lời chắc chắn."
+        temperature=float(model.get("temperature", 0.0)),
+        top_p=float(model.get("top_p", 0.1)),
+        max_tokens=int(model.get("max_tokens", 1000)),
+    )
+    answer = response.choices[0].message.content or ""
+    answer = answer or "Chưa đủ thông tin từ ảnh và kết quả nhận diện để trả lời chắc chắn."
 
     return {
         "answer": answer.strip(),
@@ -155,9 +185,19 @@ def main() -> None:
     parser.add_argument("--question", required=True)
     parser.add_argument("--choices", help="Optional choices, one per line")
     parser.add_argument("--model", type=Path, help="YOLO26s checkpoint path")
+    parser.add_argument(
+        "--vlm-config",
+        type=Path,
+        default=Path("configs/baseline2_vlm_only.json"),
+        help="VLM configuration; defaults to Baseline 2's configuration",
+    )
     parser.add_argument("--device", choices=("cpu", "cuda"), help="Inference device")
     args = parser.parse_args()
-    resources = create_resources(device=args.device, model_path=args.model)
+    resources = create_resources(
+        device=args.device,
+        model_path=args.model,
+        vlm_config_path=args.vlm_config,
+    )
     result = answer_image_question(
         args.image,
         args.question,

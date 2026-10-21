@@ -312,7 +312,10 @@ python -m src.core.baseline1_yolo26s_vlm \
 Override the detector checkpoint with `--model path/to/best.pt`; use
 `--device cpu` or `--device cuda` to choose the inference device. The VLM gets
 the original image as visual input plus a text summary of YOLO26s detections;
-it is asked to state when the available evidence is insufficient.
+it is asked to state when the available evidence is insufficient. By default it
+uses the same model ID, endpoint environment variables, and generation settings
+as Baseline 2 in `configs/baseline2_vlm_only.json`; override with `--vlm-config`
+if needed.
 
 The QA pipeline writes these fields to each processed sample:
 
