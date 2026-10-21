@@ -181,6 +181,7 @@ VEHICLE_PATTERNS = (
     ("semi_trailer", ("so mi ro mooc", "xe so mi ro mooc", "so mi romoc", "xe ban romoc")),
     ("trailer", ("romoc", "ro mooc")),
     ("motorized_tricycle", ("xe ba banh co dong co", "xe ba gac may")),
+    ("tricycle", ("xe ba banh",)),
     ("electric_bicycle", ("xe dap dien",)),
     ("four_wheel_goods_vehicle", ("xe cho hang bon banh gan dong co", "xe cho hang 4 banh gan dong co")),
     ("four_wheel_passenger_vehicle", ("xe cho nguoi bon banh gan dong co", "xe cho nguoi 4 banh gan dong co")),

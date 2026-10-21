@@ -46,7 +46,7 @@ SPECIAL_USE_MACHINES = frozenset({
 OTHER_VEHICLE_ACTORS = frozenset({
     "taxi", "hand_cart", "human_pushed_vehicle", "pack_animal",
     "mobility_aid", "child_stroller", "cong_nong_vehicle",
-    "priority_vehicle", "emergency_vehicle",
+    "priority_vehicle", "emergency_vehicle", "tricycle",
 })
 
 VEHICLES = frozenset({
@@ -67,6 +67,9 @@ ROAD_USER_ACTORS = frozenset({
 })
 
 ACTOR_CLASS_CANDIDATES = {
+    # An unqualified "xe ba bánh" does not say whether it has a motor.
+    # Keep both subtypes so rules can state explicitly which kinds they cover.
+    "tricycle": ("motorized_tricycle", "non_motorized_tricycle"),
     # Everyday "xe máy" does not reliably distinguish the statutory xe mô tô
     # from xe gắn máy (moped); retain both until a subtype is stated.
     "motorcycle_or_moped": ("motorbike", "moped"),

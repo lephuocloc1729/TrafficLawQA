@@ -25,7 +25,7 @@ ALLOWED_IMAGE_TYPES = ["jpg", "jpeg", "png"]
 DEMO_CONTENT_MAX_WIDTH = 920
 DEMO_IMAGE_WIDTH = 520
 RAG_PIPELINE = "RAG baseline"
-NEURO_SYMBOLIC_PIPELINE = "Neuro-symbolic (YOLO26m)"
+NEURO_SYMBOLIC_PIPELINE = "Neuro-symbolic (YOLO26s)"
 BM25_PIPELINE = "BM25 + LLM"
 VLM_PIPELINE = "VLM-only"
 PIPELINE_NAMES = (
@@ -346,7 +346,7 @@ def main() -> None:
         configure_pipeline(pipeline_name)
         pipeline_descriptions = {
             RAG_PIPELINE: "Sign detection + LawDB vector retrieval + answer generation.",
-            NEURO_SYMBOLIC_PIPELINE: "YOLO26m sign recognition + symbolic traffic rules + answer generation.",
+            NEURO_SYMBOLIC_PIPELINE: "YOLO26s sign recognition + symbolic traffic rules + answer generation.",
             BM25_PIPELINE: "YoloE crops + optional OCR + BM25 legal text retrieval + answer generation.",
             VLM_PIPELINE: "Original image + question sent directly to one multimodal model.",
         }
@@ -361,7 +361,7 @@ def main() -> None:
         else:
             use_vlm_filter = False
             if pipeline_name == NEURO_SYMBOLIC_PIPELINE:
-                st.caption("All YOLO26m detections are sent to symbolic reasoning.")
+                st.caption("All YOLO26s detections are sent to symbolic reasoning.")
         with st.expander("Optional reference choices", expanded=False):
             choices = st.text_area(
                 "Choices (ignored by VLM-only)",

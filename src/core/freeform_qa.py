@@ -42,7 +42,7 @@ def create_freeform_qa_resources(device: str | None = None) -> FreeformQAResourc
     )
     embedder = None
     vector_store = None
-    direct_class_detector = settings.image_query_detection_model == "Yolo26m"
+    direct_class_detector = settings.image_query_detection_model == "Yolo26s"
     if settings.enable_sign_retrieval_fallback and not direct_class_detector:
         embedder, _ = get_embedding_model(settings.embedding_name, device=device)
         vector_store = QdrantVectorStore(uri=settings.qdrant_uri)
@@ -114,10 +114,10 @@ def answer_image_question(
     )
     timings["detect_signs"] = round(time.perf_counter() - t0, 5)
 
-    direct_class_detector = settings.image_query_detection_model == "Yolo26m"
+    direct_class_detector = settings.image_query_detection_model == "Yolo26s"
     t0 = time.perf_counter()
     if direct_class_detector:
-        # YOLO26m supplies the sign identities directly. Keep all detections;
+        # YOLO26s supplies the sign identities directly. Keep all detections;
         # no relevance-filtering VLM call is needed.
         for sign in sample.get("detected_signs", []):
             sign["is_chosen"] = True

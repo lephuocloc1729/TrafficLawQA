@@ -247,8 +247,8 @@ def _observation_context_facts(
                     value=fields[source_key],
                     status="derived",
                     source=(
-                        "yolo26m_class_attribute"
-                        if observation.source == "yolo26m_vtsdb100"
+                        "yolo26s_class_attribute"
+                        if observation.source == "yolo26s_vtsdb100"
                         else source
                     ),
                     confidence=observation.confidence,

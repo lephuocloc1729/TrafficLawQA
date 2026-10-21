@@ -596,7 +596,7 @@ def collect_retrieved_context(
                 max_tokens=max_tokens,
             )
         elif isinstance(sign.get("variant_decision"), dict):
-            # Direct-class detectors such as YOLO26m already resolve the class;
+            # Direct-class detectors such as YOLO26s already resolve the class;
             # preserve their confidence and mapping status without re-ranking.
             variant_decision = dict(sign["variant_decision"])
         else:

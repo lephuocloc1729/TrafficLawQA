@@ -5,7 +5,7 @@
   "official_pdf_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
   "accessed_at": "2026-10-05",
   "status": "draft_unreviewed_not_for_legal_decisions",
-  "items_count": 421,
+  "items_count": 423,
   "family_heading_codes": [
     "DP.127", "I.405", "I.407", "I.413", "I.414", "I.417", "I.419", "I.422", "I.423", "I.424",
     "I.428", "I.441", "I.444", "I.445", "I.447",
@@ -486,6 +486,7 @@
       "aliases": [
         "Biển số I.401 \"Bắt đầu đường ưu tiên\""
       ],
+      "dataset_class_labels": ["Main_road"],
       "family": "I.401",
       "variant": null,
       "official_name": "Bắt đầu đường ưu tiên;",
@@ -564,6 +565,7 @@
       "aliases": [
         "Biển số I.402 \"Hết đoạn đường ưu tiên\""
       ],
+      "dataset_class_labels": ["End_main_road"],
       "family": "I.402",
       "variant": null,
       "official_name": "Hết đoạn đường ưu tiên;",
@@ -1055,6 +1057,7 @@
         "Biển số I.407a (mũi tên lên)",
         "I.407"
       ],
+      "dataset_class_labels": ["One_way_road"],
       "family": "I.407",
       "variant": "a",
       "official_name": "Đường một chiều;",
@@ -29541,6 +29544,84 @@
           "C.47 Biển số W.247 \"Chú ý xe đỗ\"\na) Để cảnh báo có các loại xe ô tô, máy kéo, rơ-moóc hoặc sơ-mi rơ-moóc được kéo\nbởi xe ô tô hoặc ô tô đầu kéo, xe máy chuyên dùng đang đỗ chiếm một phần đường xe\nchạy, đặt trên mặt đường biển số W.247 “Chú ý xe đỗ”, biển được đặt cách xe phía trước\nvà phía sau xe (theo chiều đi) tối thiểu 5 m;\nb) Đối với đường một chiều, chỉ đặt một biển sau xe (hoặc đoàn xe) đỗ.\nc) Đối với đoàn xe gồm nhiều xe cùng đỗ, chỉ đặt biển này ở phía trước xe đầu và\nsau xe cuối của đoàn xe trên đường hai làn xe.\nd) Biển đặt trực tiếp trên mặt đường.\nHình C.49 - Biển số W.247\nPhụ lục D\nÝ NGHĨA - SỬ DỤNG BIỂN HIỆU LỆNH"
         ]
       }
+    },
+    {
+      "canonical_sign_id": "project_local_001_no_three_wheel_vehicles",
+      "official_code": "LOCAL.001",
+      "code_namespace": "project_defined_not_qcvn",
+      "aliases": ["No_slow_moving_vehicles"],
+      "family": "LOCAL",
+      "variant": null,
+      "official_name": "Project-defined sign: prohibition of three-wheel vehicles and xe lam",
+      "sign_category": "prohibition",
+      "visual_description": "Red prohibition circle containing symbols described by the user as three-wheel vehicles and xe lam.",
+      "legal_meaning": "Project-defined interpretation from the user-provided class description: prohibits motorized and non-motorized three-wheel vehicles, including xe lam. This is not an official QCVN sign or QCVN legal meaning.",
+      "scope_attributes": {
+        "vehicle_scope": ["motorized_tricycle", "non_motorized_tricycle"],
+        "action_scope": ["entering", "circulation"],
+        "time_condition": null,
+        "direction_scope": null,
+        "distance_scope": null,
+        "numeric_value": null,
+        "exceptions": []
+      },
+      "supplementary_sign_relationships": [],
+      "legal_basis": [],
+      "source_evidence": {
+        "source_type": "user_provided_interpretation",
+        "source_description": "User identified the attached sign as prohibiting three-wheel vehicles and xe lam and requested a project-defined code and rule.",
+        "source_image_available_in_repository": false
+      },
+      "status": "project_defined_not_qcvn",
+      "issues": [
+        "not_an_official_qcvn_sign_code",
+        "project_defined_vehicle_scope",
+        "user_provided_interpretation"
+      ],
+      "review_status": "project_defined",
+      "eligible_for_automatic_decision": false,
+      "reviewed_by": null,
+      "reviewed_at": null,
+      "review_notes": "Custom project mapping; do not cite as an official QCVN code."
+    },
+    {
+      "canonical_sign_id": "project_local_002_no_motorcycles_and_three_wheel_vehicles",
+      "official_code": "LOCAL.002",
+      "code_namespace": "project_defined_not_qcvn",
+      "aliases": ["No_motorcycles_and_slow_vehicles"],
+      "family": "LOCAL",
+      "variant": null,
+      "official_name": "Project-defined sign: prohibition of motorcycles and three-wheel vehicles",
+      "sign_category": "prohibition",
+      "visual_description": "Red prohibition circle containing symbols described by the user as a motorcycle and three-wheel vehicle.",
+      "legal_meaning": "Project-defined interpretation from the user-provided class description: prohibits motorcycles and motorized or non-motorized three-wheel vehicles. This is not an official QCVN sign or QCVN legal meaning.",
+      "scope_attributes": {
+        "vehicle_scope": ["motorbike", "motorcycle", "motorized_tricycle", "non_motorized_tricycle"],
+        "action_scope": ["entering", "circulation"],
+        "time_condition": null,
+        "direction_scope": null,
+        "distance_scope": null,
+        "numeric_value": null,
+        "exceptions": []
+      },
+      "supplementary_sign_relationships": [],
+      "legal_basis": [],
+      "source_evidence": {
+        "source_type": "user_provided_interpretation",
+        "source_description": "User identified the attached sign as prohibiting motorcycles and three-wheel vehicles and requested a project-defined code and rule.",
+        "source_image_available_in_repository": false
+      },
+      "status": "project_defined_not_qcvn",
+      "issues": [
+        "not_an_official_qcvn_sign_code",
+        "project_defined_vehicle_scope",
+        "user_provided_interpretation"
+      ],
+      "review_status": "project_defined",
+      "eligible_for_automatic_decision": false,
+      "reviewed_by": null,
+      "reviewed_at": null,
+      "review_notes": "Custom project mapping; do not cite as an official QCVN code."
     }
   ]
 }

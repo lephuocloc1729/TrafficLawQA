@@ -120,7 +120,7 @@ def extract_signs(
             sign_name = f"{sample['image_id']}_crop{i}.jpg"
             sign.save(detection_dir / sign_name, format="JPEG")
             detected = {"image_name": sign_name, "is_chosen": False, **metadata}
-            if detected.get("source") == "yolo26m_vtsdb100":
+            if detected.get("source") == "yolo26s_vtsdb100":
                 detected.setdefault("role", "main")
             sign_code = detected.get("sign_code")
             detected["identity_status"] = detected.get("identity_status") or (

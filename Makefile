@@ -1,7 +1,7 @@
 # VLSP2025 Legal Q&A System Makefile
 # This Makefile provides convenient commands for common project tasks
 
-.PHONY: help install setup venv venv-create venv-activate venv-remove lawdb task1 task2 clean docker-up docker-down test baseline neuro-symbolic baseline-compare baseline-vlm-only format lint ui-freeform-demo
+.PHONY: help install setup venv venv-create venv-activate venv-remove lawdb task1 task2 clean docker-up docker-down test baseline neuro-symbolic baseline-compare baseline-vlm-only test-four-pipelines format lint ui-freeform-demo
 
 # Default target
 help:
@@ -30,6 +30,7 @@ help:
 	@echo "Development:"
 	@echo "  test        Run the complete unit test suite"
 	@echo "  baseline    Run the locked 20-sample baseline evaluation"
+	@echo "  test-four-pipelines Capture answers and latency for the shared 20-image set"
 	@echo "  format      Format code with black"
 	@echo "  clean       Clean temporary files and caches"
 	@echo ""
@@ -193,3 +194,6 @@ status:
 
 baseline-vlm-only:
 	python -m src.eval.vlm_only --config configs/baseline2_vlm_only.json
+
+test-four-pipelines:
+	python -m src.eval.four_pipeline_test

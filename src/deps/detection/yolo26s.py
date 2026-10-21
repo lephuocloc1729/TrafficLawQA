@@ -1,4 +1,4 @@
-"""Adapter for the fine-tuned VTSDB100 YOLO26m sign detector."""
+"""Adapter for the fine-tuned VTSDB100 YOLO26s sign detector."""
 
 from __future__ import annotations
 
@@ -13,8 +13,9 @@ from src.core.symbolic.sign_normalizer import normalize_sign_code, sign_family
 from src.core.symbolic.sign_catalog import load_default_sign_catalog
 
 
-DEFAULT_MODEL_PATH = Path("models/yolo26m_vtsdb100_best.pt")
+DEFAULT_MODEL_PATH = Path("models/yolo26s_vtsdb100_best.pt")
 QCVN_LAW_ID = "QCVN 41:2024/BGTVT"
+PROJECT_DEFINED_SIGN_CODES = frozenset({"LOCAL.001", "LOCAL.002"})
 
 
 # This mapping follows the user-reviewed VTSDB100 workbook. Dataset-specific
@@ -27,7 +28,9 @@ _EXACT_CLASSES: dict[str, tuple[str, dict[str, Any], str]] = {
     "no_cars_turn_left": ("P.103c", {}, "B.3"),
     "no_motorcycles": ("P.104", {}, "B.4"),
     "no_trucks": ("P.106a", {}, "B.6"),
-    "no_trucks_over_2.5t": ("P.106b", {}, "B.6"),
+    # This VTSDB100 class is specifically the 2.5 t variant. QCVN's rule
+    # depends on the payload limit printed on the sign, so retain that value.
+    "no_trucks_over_2.5t": ("P.106b", {"payload_limit_t": 2.5}, "B.6"),
     "no_pedestrians": ("P.112", {}, "B.12"),
     "height_limit": ("P.117", {}, "B.17"),
     "no_turn_left": ("P.123a", {}, "B.23"),
@@ -46,10 +49,9 @@ _EXACT_CLASSES: dict[str, tuple[str, dict[str, Any], str]] = {
     "no_trailers": ("P.108", {}, "B.8"),
     "no_vehicles_carrying_dangerous_goods": ("P.106c", {}, "B.6"),
     "no_bicycles": ("P.110a", {}, "B.10"),
+    "no_slow_moving_vehicles": ("LOCAL.001", {}, ""),
+    "no_motorcycles_and_slow_vehicles": ("LOCAL.002", {}, ""),
     "give_way": ("W.208", {}, "C.8"),
-    "other_prohibition_signs": ("P.109", {}, "B.9"),
-    "no_slow_moving_vehicles": ("A02", {}, ""),
-    "no_motorcycles_and_slow_vehicles": ("A01", {}, ""),
     "width_limit": ("P.118", {}, "B.18"),
     "weight_limit": ("P.115", {}, "B.15"),
     "axle_weight_limit": ("P.116", {}, "B.16"),
@@ -67,13 +69,13 @@ _EXACT_CLASSES: dict[str, tuple[str, dict[str, Any], str]] = {
     "turn_left_only": ("R.301e", {}, "D.1a"),
     "turn_right_only": ("R.301d", {}, "D.1a"),
     "roundabout": ("R.303", {}, "D.3"),
-    "main_road": ("R.401", {}, ""),
-    "end_main_road": ("R.402", {}, ""),
+    "main_road": ("I.401", {}, "E.1"),
+    "end_main_road": ("I.402", {}, "E.2"),
     "hospital": ("I.425", {}, "E.26"),
     "bus_stop": ("I.434a", {}, "E.36"),
     "market": ("I.442", {}, "E.45"),
     "checkpoint": ("P.129", {}, "B.29"),
-    "one_way_road": ("R.407a", {}, ""),
+    "one_way_road": ("I.407a", {}, "E.7"),
     "u_turn_area": ("I.409", {}, "E.12"),
     "clearance_height": ("W.239b", {}, "C.39"),
     "slow_down": ("W.245a", {}, "C.45"),
@@ -122,6 +124,15 @@ _EXACT_CLASSES: dict[str, tuple[str, dict[str, Any], str]] = {
     "keep_right": ("R.302a", {}, "D.2"),
 }
 
+# These dataset labels do not identify a single reviewed QCVN sign code. In
+# particular, a broad "other prohibition" class must not be treated as P.109
+# (tractor prohibition), and the A.01/A.02 labels are legacy dataset codes.
+# Keep them detectable while preventing downstream rules from receiving a
+# fabricated legal sign identity.
+_AMBIGUOUS_CLASSES: dict[str, str] = {
+    "other_prohibition_signs": "The class groups multiple prohibition signs; the exact sign is not identified.",
+}
+
 _FAMILY_CLASSES: dict[str, tuple[str, list[str], str]] = {
     "overhead_power_lines": ("W.239", ["W.239a", "W.239b"], "C.39"),
 }
@@ -168,56 +179,88 @@ def _article_id_from_catalog(entry: Any, fallback: str) -> str:
 def class_label_to_qcvn(label: str, confidence: float) -> dict[str, Any]:
     """Map a VTSDB100 class to the application's traffic-sign schema."""
     key = _normalize_label(label)
+    if key in _AMBIGUOUS_CLASSES:
+        is_other_prohibition = key == "other_prohibition_signs"
+        return {
+            "sign_code": None,
+            "sign_family": None,
+            "dataset_sign_code": _DATASET_CODE_OVERRIDES.get(key, label),
+            "identity_status": "unidentified" if is_other_prohibition else "ambiguous",
+            "candidates": [],
+            "attributes": {},
+            "qcvn_mapping_status": "unmapped" if is_other_prohibition else "unverified_dataset_label",
+            "qcvn_section": None,
+            "law_id": None,
+            "article_id": None,
+            "related_articles": [],
+            "sign_name": "Unknown" if is_other_prohibition else label.replace("_", " "),
+            "sign_description": "",
+            "visual_attributes": {"class_attributes": {}},
+            "variant_decision": {
+                "confidence": _confidence_label(confidence),
+                "identity_confirmed": False,
+                "method": "yolo26s_unmapped_class" if is_other_prohibition else "yolo26s_unverified_dataset_class",
+                "reason": _AMBIGUOUS_CLASSES[key],
+            },
+        }
+
     if key in _EXACT_CLASSES:
         code, attributes, article_id = _EXACT_CLASSES[key]
         catalog_entry = load_default_sign_catalog().lookup(code)
         article_id = _article_id_from_catalog(catalog_entry, article_id)
         dataset_code = _DATASET_CODE_OVERRIDES.get(key, code)
         confidence_label = _confidence_label(confidence)
-        identity_status = "identified" if confidence >= 0.6 else "ambiguous"
-        candidates = [] if identity_status == "identified" else [
+        has_catalog_meaning = catalog_entry is not None and catalog_entry.status != "variant_required"
+        identity_status = "identified" if confidence >= 0.6 and has_catalog_meaning else "ambiguous"
+        candidates = [] if identity_status == "identified" or not has_catalog_meaning else [
             {
                 "sign_code": code,
                 "confidence": confidence,
-                "source": "yolo26m_vtsdb100",
+                "source": "yolo26s_vtsdb100",
                 "attributes": attributes,
             }
         ]
-        has_catalog_meaning = catalog_entry is not None and catalog_entry.status != "variant_required"
         related_articles = (
             [{"law_id": QCVN_LAW_ID, "article_id": article_id}]
             if has_catalog_meaning and article_id
             else []
         )
+        is_project_defined = code in PROJECT_DEFINED_SIGN_CODES
         return {
-            "sign_code": code,
-            "sign_family": sign_family(code),
+            "sign_code": code if has_catalog_meaning else None,
+            "sign_family": sign_family(code) if has_catalog_meaning else None,
             "dataset_sign_code": dataset_code,
             "identity_status": identity_status,
             "candidates": candidates,
             "attributes": attributes,
             "qcvn_mapping_status": (
-                "exact_code"
-                if has_catalog_meaning and identity_status == "identified"
+                "dataset_code_unverified"
+                if not has_catalog_meaning
+                else "project_defined"
+                if is_project_defined and identity_status == "identified"
+                else "exact_code"
+                if identity_status == "identified"
                 else "low_confidence"
-                if identity_status != "identified"
-                else "dataset_code_unverified"
             ),
             "qcvn_section": article_id if related_articles else None,
             "law_id": QCVN_LAW_ID if related_articles else None,
             "article_id": article_id if related_articles else None,
             "related_articles": related_articles,
-            "sign_name": catalog_entry.official_name if catalog_entry else label.replace("_", " "),
+            "sign_name": catalog_entry.official_name if has_catalog_meaning else label.replace("_", " "),
             "sign_description": (
                 (catalog_entry.visual_description or catalog_entry.legal_meaning)
-                if catalog_entry else label.replace("_", " ")
+                if has_catalog_meaning else ""
             ),
             "visual_attributes": {"class_attributes": attributes},
             "variant_decision": {
                 "confidence": confidence_label,
                 "identity_confirmed": identity_status == "identified",
-                "method": "yolo26m_direct_classification",
-                "reason": "Canonical sign class predicted directly by the fine-tuned detector.",
+                "method": "yolo26s_direct_classification",
+                "reason": (
+                    "Project-defined code based on the supplied dataset label and sign interpretation; not an official QCVN code."
+                    if is_project_defined
+                    else "Canonical sign class predicted directly by the fine-tuned detector."
+                ),
             },
         }
 
@@ -230,7 +273,7 @@ def class_label_to_qcvn(label: str, confidence: float) -> dict[str, Any]:
             "dataset_sign_code": _DATASET_CODE_OVERRIDES.get(key, family_code),
             "identity_status": "ambiguous",
             "candidates": [
-                {"sign_code": code, "confidence": confidence, "source": "yolo26m_vtsdb100"}
+                {"sign_code": code, "confidence": confidence, "source": "yolo26s_vtsdb100"}
                 for code in codes
             ],
             "qcvn_mapping_status": "family_ambiguous",
@@ -243,7 +286,7 @@ def class_label_to_qcvn(label: str, confidence: float) -> dict[str, Any]:
             "variant_decision": {
                 "confidence": _confidence_label(confidence),
                 "identity_confirmed": False,
-                "method": "yolo26m_family_classification",
+                "method": "yolo26s_family_classification",
                 "reason": "The detector class identifies a sign family but not its exact variant.",
             },
         }
@@ -265,7 +308,7 @@ def class_label_to_qcvn(label: str, confidence: float) -> dict[str, Any]:
                 "variant_decision": {
                     "confidence": _confidence_label(confidence),
                     "identity_confirmed": confidence >= 0.6,
-                    "method": "yolo26m_direct_classification",
+                    "method": "yolo26s_direct_classification",
                     "reason": "The model class label is an official sign code.",
                 },
             }
@@ -281,14 +324,14 @@ def class_label_to_qcvn(label: str, confidence: float) -> dict[str, Any]:
         "variant_decision": {
             "confidence": _confidence_label(confidence),
             "identity_confirmed": False,
-            "method": "yolo26m_unmapped_class",
+            "method": "yolo26s_unmapped_class",
             "reason": "No reviewed QCVN class mapping is available for this detector label.",
         },
     }
 
 
-class Yolo26mSignDetector:
-    """Run YOLO26m and return detections compatible with the QA pipeline."""
+class Yolo26sSignDetector:
+    """Run YOLO26s and return detections compatible with the QA pipeline."""
 
     def __init__(
         self,
@@ -305,8 +348,8 @@ class Yolo26mSignDetector:
         if model is None:
             if not self.model_path.is_file():
                 raise FileNotFoundError(
-                    f"YOLO26m checkpoint not found at {self.model_path}. "
-                    "Set SIGN_MODEL_PATH to the fine-tuned yolo26m_vtsdb100_best.pt file."
+                    f"YOLO26s checkpoint not found at {self.model_path}. "
+                    "Set SIGN_MODEL_PATH to the fine-tuned yolo26s_vtsdb100_best.pt file."
                 )
             from ultralytics import YOLO
 
@@ -346,7 +389,7 @@ class Yolo26mSignDetector:
                 "class_id": class_id,
                 "class_label": label,
                 **class_label_to_qcvn(label, confidence),
-                "source": "yolo26m_vtsdb100",
+                "source": "yolo26s_vtsdb100",
             })
         return detections
 

@@ -445,6 +445,99 @@
           "description": ""
         }
       ]
+    },
+    {
+      "rule_id": "LOCAL_001_PROHIBIT_THREE_WHEEL_VEHICLES_AND_XE_LAM",
+      "legal_basis": [
+        {
+          "document": "Project-defined sign interpretation (user supplied)",
+          "edition": "Project mapping",
+          "section_or_figure": "User description and attached sign image",
+          "source_url": null,
+          "accessed_at": "2026-10-21",
+          "verification_status": "unverified",
+          "source_type": "user_provided_not_law"
+        }
+      ],
+      "trigger_sign_codes": ["LOCAL.001"],
+      "actions": ["entering", "circulation"],
+      "actor_scope": ["motorized_tricycle", "non_motorized_tricycle"],
+      "outcome": "PROHIBITED",
+      "conditions": [],
+      "reason": "Theo định nghĩa riêng của dự án từ mô tả người dùng, biển LOCAL.001 cấm xe ba bánh có động cơ, xe ba bánh không động cơ và xe lam đi vào hoặc lưu thông. Đây không phải quy định hay mã biển chính thức của QCVN.",
+      "verification_status": "unverified",
+      "effects": [
+        {
+          "effect_type": "prohibit_action",
+          "action": "entering",
+          "scope": {
+            "actor_classes": ["motorized_tricycle", "non_motorized_tricycle"]
+          },
+          "description": "Project-defined prohibition; not an official QCVN rule."
+        },
+        {
+          "effect_type": "prohibit_action",
+          "action": "circulation",
+          "scope": {
+            "actor_classes": ["motorized_tricycle", "non_motorized_tricycle"]
+          },
+          "description": "Project-defined prohibition; not an official QCVN rule."
+        }
+      ]
+    },
+    {
+      "rule_id": "LOCAL_002_PROHIBIT_MOTORCYCLES_AND_THREE_WHEEL_VEHICLES",
+      "legal_basis": [
+        {
+          "document": "Project-defined sign interpretation (user supplied)",
+          "edition": "Project mapping",
+          "section_or_figure": "User description and attached sign image",
+          "source_url": null,
+          "accessed_at": "2026-10-21",
+          "verification_status": "unverified",
+          "source_type": "user_provided_not_law"
+        }
+      ],
+      "trigger_sign_codes": ["LOCAL.002"],
+      "actions": ["entering", "circulation"],
+      "actor_scope": [
+        "motorbike",
+        "motorcycle",
+        "motorized_tricycle",
+        "non_motorized_tricycle"
+      ],
+      "outcome": "PROHIBITED",
+      "conditions": [],
+      "reason": "Theo định nghĩa riêng của dự án từ mô tả người dùng, biển LOCAL.002 cấm xe mô tô và xe ba bánh có hoặc không có động cơ đi vào hoặc lưu thông. Đây không phải quy định hay mã biển chính thức của QCVN.",
+      "verification_status": "unverified",
+      "effects": [
+        {
+          "effect_type": "prohibit_action",
+          "action": "entering",
+          "scope": {
+            "actor_classes": [
+              "motorbike",
+              "motorcycle",
+              "motorized_tricycle",
+              "non_motorized_tricycle"
+            ]
+          },
+          "description": "Project-defined prohibition; not an official QCVN rule."
+        },
+        {
+          "effect_type": "prohibit_action",
+          "action": "circulation",
+          "scope": {
+            "actor_classes": [
+              "motorbike",
+              "motorcycle",
+              "motorized_tricycle",
+              "non_motorized_tricycle"
+            ]
+          },
+          "description": "Project-defined prohibition; not an official QCVN rule."
+        }
+      ]
     }
   ]
 }

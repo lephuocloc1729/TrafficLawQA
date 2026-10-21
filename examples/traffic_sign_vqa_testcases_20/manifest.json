@@ -3,7 +3,7 @@
   "source": "data/archive.zip → VTSDB100/annotations/instances_test.json",
   "random_seed": 20261020,
   "case_count": 20,
-  "usage": "Bộ test dùng chung cho các Git branch; mỗi case gồm ảnh và câu hỏi tiếng Việt. Nhãn tham chiếu chỉ dùng để kiểm tra thủ công.",
+  "usage": "Bộ test gồm 20 ảnh, câu hỏi, đáp án chuẩn tiếng Việt và nhãn/hộp tham chiếu. Chỉ cung cấp ảnh và câu hỏi cho pipeline; giữ gold_answer ở phía evaluator để chấm độ đúng.",
   "cases": [
     {
       "case_id": "TC01",
@@ -26,7 +26,8 @@
             16.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Phía trước có khu vực dành cho người đi bộ qua đường. Hãy giảm tốc độ, quan sát và nhường người đi bộ khi cần."
     },
     {
       "case_id": "TC02",
@@ -49,7 +50,8 @@
             26.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Phía trước có khúc cua nguy hiểm sang trái. Hãy giảm tốc độ và đi đúng phần đường."
     },
     {
       "case_id": "TC03",
@@ -72,7 +74,8 @@
             142.33
           ]
         }
-      ]
+      ],
+      "gold_answer": "Phía trước mặt đường bị thu hẹp. Hãy giảm tốc độ, chú ý xe đi ngược chiều và giữ khoảng cách an toàn."
     },
     {
       "case_id": "TC04",
@@ -95,7 +98,8 @@
             115.59
           ]
         }
-      ]
+      ],
+      "gold_answer": "Không. Biển báo hết cấm vượt cho biết lệnh cấm vượt trước đó kết thúc tại vị trí này; vẫn phải tuân thủ các hạn chế khác nếu có."
     },
     {
       "case_id": "TC05",
@@ -118,7 +122,8 @@
             41.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Không. Biển cấm xe đi thẳng tại vị trí này."
     },
     {
       "case_id": "TC06",
@@ -141,7 +146,8 @@
             20.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Không. Biển cấm xe quay đầu tại vị trí này."
     },
     {
       "case_id": "TC07",
@@ -164,7 +170,8 @@
             48.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Có đường nhánh không ưu tiên nối vào từ bên trái. Nếu bạn đang đi trên đường ưu tiên, xe từ nhánh bên trái phải nhường đường; hãy quan sát và xử lý theo tình hình thực tế tại nút giao."
     },
     {
       "case_id": "TC08",
@@ -187,7 +194,8 @@
             36.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Không. Biển báo đường cấm cho biết xe không được đi vào đoạn đường phía trước."
     },
     {
       "case_id": "TC09",
@@ -210,7 +218,8 @@
             18.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Biển cấm đỗ xe vào các ngày chẵn trong tháng."
     },
     {
       "case_id": "TC10",
@@ -233,7 +242,8 @@
             66.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Không. Biển báo hết cấm vượt cho biết lệnh cấm vượt trước đó kết thúc tại vị trí này; vẫn phải tuân thủ các hạn chế khác nếu có."
     },
     {
       "case_id": "TC11",
@@ -266,7 +276,8 @@
             36.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Tốc độ tối đa là 40 km/h. Biển phía dưới chỉ tốc độ tối thiểu 30 km/h, không làm thay đổi mức tối đa 40 km/h."
     },
     {
       "case_id": "TC12",
@@ -289,7 +300,8 @@
             32.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Phía trước có chỗ người đi bộ qua đường. Hãy giảm tốc độ, quan sát và nhường người đi bộ khi cần."
     },
     {
       "case_id": "TC13",
@@ -312,7 +324,8 @@
             26.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Biển báo cho biết xe đang đi vào khu đông dân cư. Hãy tuân thủ tốc độ và các quy định áp dụng trong khu vực này."
     },
     {
       "case_id": "TC14",
@@ -355,7 +368,8 @@
             54.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Không. Biển cấm xe mô tô đi vào tuyến đường này."
     },
     {
       "case_id": "TC15",
@@ -378,7 +392,8 @@
             36.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Phía trước là nút giao vòng xuyến. Khi đi qua, đi theo chiều mũi tên và tuân thủ biển báo, vạch kẻ đường tại nút giao."
     },
     {
       "case_id": "TC16",
@@ -411,7 +426,8 @@
             49.14
           ]
         }
-      ]
+      ],
+      "gold_answer": "Phần đường bị thu hẹp ở bên trái."
     },
     {
       "case_id": "TC17",
@@ -434,7 +450,8 @@
             16.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Biển báo điểm dừng xe buýt."
     },
     {
       "case_id": "TC18",
@@ -457,7 +474,8 @@
             48.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Biển báo cho biết xe đang đi vào khu đông dân cư. Hãy tuân thủ tốc độ và các quy định áp dụng trong khu vực này."
     },
     {
       "case_id": "TC19",
@@ -480,7 +498,8 @@
             52.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Phía trước là nút giao hình chữ T, nhánh đường nhập từ bên trái."
     },
     {
       "case_id": "TC20",
@@ -503,7 +522,15 @@
             79.0
           ]
         }
-      ]
+      ],
+      "gold_answer": "Không. Biển cấm ô tô đi vào tuyến đường này."
     }
-  ]
+  ],
+  "answer_reference": {
+    "field": "gold_answer",
+    "language": "vi",
+    "basis": "Reference answers are written from the annotated sign labels and the Vietnamese road-sign standard; accept semantically equivalent wording that preserves the key fact asked in each question.",
+    "standard": "QCVN 41:2024/BGTVT, issued with Circular 51/2024/TT-BGTVT.",
+    "source_url": "https://congbao.chinhphu.vn/van-ban/thong-tu-so-51-2024-tt-bgtvt-43387/53158.htm"
+  }
 }

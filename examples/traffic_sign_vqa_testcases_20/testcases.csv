@@ -1,21 +1,21 @@
-case_id,image,question,primary_reference_label,reference_labels,source_image
-TC01,images/01_675.png,Khu vực trong ảnh có lưu ý gì dành cho người đi bộ?,Pedestrian_crossing_zone,Pedestrian_crossing_zone,images/test/675.png
-TC02,images/02_31344.png,Phía trước có nguy cơ gì và người lái xe nên chú ý điều gì?,Dangerous_curve_left,Dangerous_curve_left,images/test/31344.png
-TC03,images/03_568frame_00011.png,Đoạn đường phía trước thay đổi như thế nào và người lái xe cần lưu ý gì?,Road_narrows,Road_narrows,images/test/568frame_00011.png
-TC04,images/04_34225_aug_181.png,"Từ vị trí có biển này, quy định cấm vượt còn tiếp tục áp dụng không?",End_no_overtaking,End_no_overtaking,images/test/34225_aug_181.png
-TC05,images/05_819.png,"Tại vị trí này, xe có được đi thẳng không?",No_straight_ahead,No_straight_ahead,images/test/819.png
-TC06,images/06_21377.png,"Tại vị trí này, xe có được quay đầu không?",No_U_turn,No_U_turn,images/test/21377.png
-TC07,images/07_17372_aug_150.png,"Khi đến nút giao phía trước, người lái xe cần nhường đường cho hướng nào?",Intersection_with_non_priority_road_left,Intersection_with_non_priority_road_left,images/test/17372_aug_150.png
-TC08,images/08_32453.png,Xe có được đi tiếp vào đoạn đường phía trước không?,Road_closed,Road_closed,images/test/32453.png
-TC09,images/09_11213.png,Biển báo trong ảnh hạn chế việc đỗ xe vào những ngày nào?,No_parking_even_days,No_parking_even_days,images/test/11213.png
-TC10,images/10_34219_aug_175.png,"Từ vị trí có biển này, quy định cấm vượt còn tiếp tục áp dụng không?",End_no_overtaking,End_no_overtaking,images/test/34219_aug_175.png
-TC11,images/11_9571_aug_300.png,Tốc độ tối đa được phép theo biển báo trong ảnh là bao nhiêu?,Speed_limit_40,Speed_limit_40; Min_speed_limit_30,images/test/9571_aug_300.png
-TC12,images/12_7208.png,Người lái xe cần chú ý gì khi đến khu vực phía trước?,Pedestrian_crossing,Pedestrian_crossing,images/test/7208.png
-TC13,images/13_32565.png,Biển báo cho biết xe đang đi vào khu vực nào?,Residential_area,Residential_area,images/test/32565.png
-TC14,images/14_11820_aug_95.png,Xe mô tô có được đi vào tuyến đường này không?,No_motorcycles,No_motorcycles; No_vehicles_carrying_dangerous_goods; No_pedestrians,images/test/11820_aug_95.png
-TC15,images/15_13754.png,"Khi gặp biển báo này, người lái xe cần đi theo dạng nút giao nào?",Roundabout,Roundabout,images/test/13754.png
-TC16,images/16_10563_aug_179.png,Phần đường bị thu hẹp ở phía nào?,Road_narrows_left,Road_narrows_left; Two_way_traffic,images/test/10563_aug_179.png
-TC17,images/17_21977.png,Địa điểm hoặc dịch vụ giao thông nào được báo hiệu trong ảnh?,Bus_stop,Bus_stop,images/test/21977.png
-TC18,images/18_32709.png,Biển báo cho biết xe đang đi vào khu vực nào?,Residential_area,Residential_area,images/test/32709.png
-TC19,images/19_1710.png,Phía trước là nút giao dạng nào và nhánh đường rẽ về phía nào?,T_junction_left,T_junction_left,images/test/1710.png
-TC20,images/20_11340.png,Ô tô có được đi vào tuyến đường này không?,No_cars,No_cars,images/test/11340.png
+case_id,image,question,gold_answer,primary_reference_label,reference_labels,source_image
+TC01,images/01_675.png,Khu vực trong ảnh có lưu ý gì dành cho người đi bộ?,"Phía trước có khu vực dành cho người đi bộ qua đường. Hãy giảm tốc độ, quan sát và nhường người đi bộ khi cần.",Pedestrian_crossing_zone,Pedestrian_crossing_zone,images/test/675.png
+TC02,images/02_31344.png,Phía trước có nguy cơ gì và người lái xe nên chú ý điều gì?,Phía trước có khúc cua nguy hiểm sang trái. Hãy giảm tốc độ và đi đúng phần đường.,Dangerous_curve_left,Dangerous_curve_left,images/test/31344.png
+TC03,images/03_568frame_00011.png,Đoạn đường phía trước thay đổi như thế nào và người lái xe cần lưu ý gì?,"Phía trước mặt đường bị thu hẹp. Hãy giảm tốc độ, chú ý xe đi ngược chiều và giữ khoảng cách an toàn.",Road_narrows,Road_narrows,images/test/568frame_00011.png
+TC04,images/04_34225_aug_181.png,"Từ vị trí có biển này, quy định cấm vượt còn tiếp tục áp dụng không?",Không. Biển báo hết cấm vượt cho biết lệnh cấm vượt trước đó kết thúc tại vị trí này; vẫn phải tuân thủ các hạn chế khác nếu có.,End_no_overtaking,End_no_overtaking,images/test/34225_aug_181.png
+TC05,images/05_819.png,"Tại vị trí này, xe có được đi thẳng không?",Không. Biển cấm xe đi thẳng tại vị trí này.,No_straight_ahead,No_straight_ahead,images/test/819.png
+TC06,images/06_21377.png,"Tại vị trí này, xe có được quay đầu không?",Không. Biển cấm xe quay đầu tại vị trí này.,No_U_turn,No_U_turn,images/test/21377.png
+TC07,images/07_17372_aug_150.png,"Khi đến nút giao phía trước, người lái xe cần nhường đường cho hướng nào?","Có đường nhánh không ưu tiên nối vào từ bên trái. Nếu bạn đang đi trên đường ưu tiên, xe từ nhánh bên trái phải nhường đường; hãy quan sát và xử lý theo tình hình thực tế tại nút giao.",Intersection_with_non_priority_road_left,Intersection_with_non_priority_road_left,images/test/17372_aug_150.png
+TC08,images/08_32453.png,Xe có được đi tiếp vào đoạn đường phía trước không?,Không. Biển báo đường cấm cho biết xe không được đi vào đoạn đường phía trước.,Road_closed,Road_closed,images/test/32453.png
+TC09,images/09_11213.png,Biển báo trong ảnh hạn chế việc đỗ xe vào những ngày nào?,Biển cấm đỗ xe vào các ngày chẵn trong tháng.,No_parking_even_days,No_parking_even_days,images/test/11213.png
+TC10,images/10_34219_aug_175.png,"Từ vị trí có biển này, quy định cấm vượt còn tiếp tục áp dụng không?",Không. Biển báo hết cấm vượt cho biết lệnh cấm vượt trước đó kết thúc tại vị trí này; vẫn phải tuân thủ các hạn chế khác nếu có.,End_no_overtaking,End_no_overtaking,images/test/34219_aug_175.png
+TC11,images/11_9571_aug_300.png,Tốc độ tối đa được phép theo biển báo trong ảnh là bao nhiêu?,"Tốc độ tối đa là 40 km/h. Biển phía dưới chỉ tốc độ tối thiểu 30 km/h, không làm thay đổi mức tối đa 40 km/h.",Speed_limit_40,Speed_limit_40; Min_speed_limit_30,images/test/9571_aug_300.png
+TC12,images/12_7208.png,Người lái xe cần chú ý gì khi đến khu vực phía trước?,"Phía trước có chỗ người đi bộ qua đường. Hãy giảm tốc độ, quan sát và nhường người đi bộ khi cần.",Pedestrian_crossing,Pedestrian_crossing,images/test/7208.png
+TC13,images/13_32565.png,Biển báo cho biết xe đang đi vào khu vực nào?,Biển báo cho biết xe đang đi vào khu đông dân cư. Hãy tuân thủ tốc độ và các quy định áp dụng trong khu vực này.,Residential_area,Residential_area,images/test/32565.png
+TC14,images/14_11820_aug_95.png,Xe mô tô có được đi vào tuyến đường này không?,Không. Biển cấm xe mô tô đi vào tuyến đường này.,No_motorcycles,No_motorcycles; No_vehicles_carrying_dangerous_goods; No_pedestrians,images/test/11820_aug_95.png
+TC15,images/15_13754.png,"Khi gặp biển báo này, người lái xe cần đi theo dạng nút giao nào?","Phía trước là nút giao vòng xuyến. Khi đi qua, đi theo chiều mũi tên và tuân thủ biển báo, vạch kẻ đường tại nút giao.",Roundabout,Roundabout,images/test/13754.png
+TC16,images/16_10563_aug_179.png,Phần đường bị thu hẹp ở phía nào?,Phần đường bị thu hẹp ở bên trái.,Road_narrows_left,Road_narrows_left; Two_way_traffic,images/test/10563_aug_179.png
+TC17,images/17_21977.png,Địa điểm hoặc dịch vụ giao thông nào được báo hiệu trong ảnh?,Biển báo điểm dừng xe buýt.,Bus_stop,Bus_stop,images/test/21977.png
+TC18,images/18_32709.png,Biển báo cho biết xe đang đi vào khu vực nào?,Biển báo cho biết xe đang đi vào khu đông dân cư. Hãy tuân thủ tốc độ và các quy định áp dụng trong khu vực này.,Residential_area,Residential_area,images/test/32709.png
+TC19,images/19_1710.png,Phía trước là nút giao dạng nào và nhánh đường rẽ về phía nào?,"Phía trước là nút giao hình chữ T, nhánh đường nhập từ bên trái.",T_junction_left,T_junction_left,images/test/1710.png
+TC20,images/20_11340.png,Ô tô có được đi vào tuyến đường này không?,Không. Biển cấm ô tô đi vào tuyến đường này.,No_cars,No_cars,images/test/11340.png

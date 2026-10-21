@@ -11,6 +11,33 @@ from src.core.symbolic.sign_schema import normalize_confidence
 
 
 _NUMERIC_SIGN_SPECS = {
+    "P.106b": {
+        "predicate": "payload_limit_t",
+        "unit": "t",
+        "pattern": re.compile(
+            r"\s*(\d{1,4}(?:[.,]\d{1,2})?)\s*(?:t|ton(?:ne)?s?|tấn)?\s*",
+            re.IGNORECASE,
+        ),
+        "numeric_kind": "float",
+    },
+    "P.115": {
+        "predicate": "total_weight_limit_t",
+        "unit": "t",
+        "pattern": re.compile(
+            r"\s*(\d{1,4}(?:[.,]\d{1,2})?)\s*(?:t|ton(?:ne)?s?|tấn)?\s*",
+            re.IGNORECASE,
+        ),
+        "numeric_kind": "float",
+    },
+    "P.116": {
+        "predicate": "axle_load_limit_t",
+        "unit": "t",
+        "pattern": re.compile(
+            r"\s*(\d{1,4}(?:[.,]\d{1,2})?)\s*(?:t|ton(?:ne)?s?|tấn)?\s*",
+            re.IGNORECASE,
+        ),
+        "numeric_kind": "float",
+    },
     "P.117": {
         "predicate": "height_limit_m",
         "unit": "m",

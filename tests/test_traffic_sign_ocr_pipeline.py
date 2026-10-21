@@ -34,7 +34,7 @@ class TrafficSignOCRPipelineTest(unittest.TestCase):
             },
         ]
         detections = [{
-            "source": "yolo26m_vtsdb100",
+            "source": "yolo26s_vtsdb100",
             "bbox": [10, 10, 100, 100],
         }]
 
@@ -57,7 +57,7 @@ class TrafficSignOCRPipelineTest(unittest.TestCase):
             sign_code="P.130",
             identity_status="identified",
             confidence="high",
-            source="yolo26m_vtsdb100",
+            source="yolo26s_vtsdb100",
             ocr_texts=[
                 {
                     "raw_text": "7:30-10:30",

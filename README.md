@@ -2,7 +2,7 @@
 
 Traffic Sign Legal QA is a multimodal question-answering project for Vietnamese
 traffic law and road signs. The system takes a road-scene image and a natural
-language question, detects and classifies traffic signs with a fine-tuned YOLO26m
+language question, detects and classifies traffic signs with a fine-tuned YOLO26s
 model, applies symbolic traffic rules, and generates a Vietnamese free-form
 answer with citations and visual evidence.
 
@@ -38,7 +38,7 @@ The project has two main stages.
 
 ### 2. Image QA
 
-1. Run fine-tuned YOLO26m on the uploaded road-scene image.
+1. Run fine-tuned YOLO26s on the uploaded road-scene image.
 2. Map detections into sign observations, preserving unresolved classes as
    ambiguous so the symbolic engine can fail closed.
 3. Evaluate the question against sign facts and traffic rules.
@@ -81,7 +81,7 @@ The project has two main stages.
 ## Requirements
 
 - Python `>=3.10`
-- GPU recommended for YOLO26m and local LLM inference
+- GPU recommended for YOLO26s and local LLM inference
 - OpenAI-compatible chat completion endpoint
 
 Recommended default components:
@@ -90,8 +90,8 @@ Recommended default components:
 - LLM endpoint: `http://localhost:18989/v1`
 - LLM model: `gemma3:12b` or another multimodal instruction model
 - LawDB sign extraction: `ImageProcessing`
-- Query sign detection: `Yolo26m`
-- Fine-tuned checkpoint: `models/yolo26m_vtsdb100_best.pt`
+- Query sign detection: `Yolo26s`
+- Fine-tuned checkpoint: `models/yolo26s_vtsdb100_best.pt`
 
 ## Installation
 
@@ -150,8 +150,8 @@ LLM_MODEL=gemma3:12b
 LLM_API_KEYS=local
 
 IMAGE_LAWDB_DETECTION_MODEL=ImageProcessing
-IMAGE_QUERY_DETECTION_MODEL=Yolo26m
-SIGN_MODEL_PATH=models/yolo26m_vtsdb100_best.pt
+IMAGE_QUERY_DETECTION_MODEL=Yolo26s
+SIGN_MODEL_PATH=models/yolo26s_vtsdb100_best.pt
 ENABLE_SIGN_RETRIEVAL_FALLBACK=false
 LLM_TEMPERATURE=0.0
 LLM_MAX_NEW_TOKENS=1200
@@ -166,8 +166,8 @@ Important variables:
 | `LLM_API_KEYS` | API key string; use `local` for local servers |
 | `IMAGE_LAWDB_DETECTION_MODEL` | Detector for clean LawDB images |
 | `IMAGE_QUERY_DETECTION_MODEL` | Detector for uploaded/query images |
-| `SIGN_MODEL_PATH` | Fine-tuned YOLO26m checkpoint |
-| `ENABLE_SIGN_RETRIEVAL_FALLBACK` | Optional legacy retrieval fallback; disabled for YOLO26m QA |
+| `SIGN_MODEL_PATH` | Fine-tuned YOLO26s checkpoint |
+| `ENABLE_SIGN_RETRIEVAL_FALLBACK` | Optional legacy retrieval fallback; disabled for YOLO26s QA |
 | `LLM_TEMPERATURE` | LLM sampling temperature |
 | `LLM_MAX_NEW_TOKENS` | Maximum generated tokens for JSON answers |
 
@@ -381,11 +381,27 @@ The demo supports:
 
 - image upload;
 - free-form Vietnamese question input;
-- selection between the RAG baseline, YOLO26m neuro-symbolic pipeline,
+- selection between the RAG baseline, YOLO26s neuro-symbolic pipeline,
   BM25 + LLM, and VLM-only;
 - optional choices for pipelines that use them;
 - pipeline-specific answers, citations, OCR/retrieval details, and visual
   evidence where those outputs apply.
+
+### Capture all four pipelines on the shared 20-image set
+
+Run:
+
+```bash
+make test-four-pipelines
+```
+
+The runner saves each case's question, pipeline name, answer, and per-case
+latency to `outputs/four_pipeline_test_results.json`. Pipeline setup time is
+excluded from latency. It does not calculate answer correctness or other
+evaluation scores; use the `gold_answer` values in
+[`examples/traffic_sign_vqa_testcases_20/manifest.json`](examples/traffic_sign_vqa_testcases_20/manifest.json)
+for a later independent ChatGPT review. Resume an interrupted capture with
+`python -m src.eval.four_pipeline_test --resume`.
 
 ## Compare YOLOv8m with Image Retrieval
 
@@ -401,8 +417,8 @@ YoloE → CLIP/Qdrant retrieval results. Each branch processes the uploaded imag
 independently; retrieval uses YoloE regions rather than YOLOv8m detections. The
 YoloE checkpoint is downloaded separately to `models/yoloe-v8l-seg.pt`.
 
-The QA pipeline uses the fine-tuned YOLO26m VTSDB100 checkpoint directly. Put
-`yolo26m_vtsdb100_best.pt` at `models/yolo26m_vtsdb100_best.pt` or set
+The QA pipeline uses the fine-tuned YOLO26s VTSDB100 checkpoint directly. Put
+`yolo26s_vtsdb100_best.pt` at `models/yolo26s_vtsdb100_best.pt` or set
 `SIGN_MODEL_PATH` to its location. Its detections use the same metadata fields
 as the existing detector adapter. The adapter maps classes with a clear QCVN
 correspondence; other classes remain unidentified/ambiguous and do not trigger

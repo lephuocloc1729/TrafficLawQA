@@ -31,7 +31,13 @@ def build_rule_coverage_report(
     coded_items = [
         item for item in catalog_payload.get("items", [])
         if normalize_official_sign_code(item.get("official_code"))
+        and item.get("code_namespace") != "project_defined_not_qcvn"
     ]
+    all_catalog_codes = {
+        normalize_official_sign_code(item.get("official_code"))
+        for item in catalog_payload.get("items", [])
+        if normalize_official_sign_code(item.get("official_code"))
+    }
     family_heading_codes = {
         normalize_official_sign_code(code)
         for code in catalog_payload.get("family_heading_codes", [])
@@ -78,7 +84,7 @@ def build_rule_coverage_report(
             "draft_rule_count": draft_count,
         })
 
-    unknown_rule_codes = sorted(set(rules_by_code) - catalog_codes)
+    unknown_rule_codes = sorted(set(rules_by_code) - all_catalog_codes)
     canonical_ids = [str(item.get("canonical_sign_id") or "") for item in coded_items]
     leaf_rows = [row for row in rows if row["catalog_entry_kind"] == "sign_or_variant"]
     family_rows = [row for row in rows if row["catalog_entry_kind"] == "family_heading"]

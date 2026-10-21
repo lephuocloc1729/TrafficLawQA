@@ -7,7 +7,10 @@ from src.core.symbolic.fact_schema import SignObservation
 from src.core.symbolic.sign_schema import normalize_confidence
 
 
-SIGN_CODE_RE = re.compile(r"\b([A-Z]{1,3}(?:\.[A-Z])?[,\.]?\d+[a-z]?)\b", re.IGNORECASE)
+SIGN_CODE_RE = re.compile(
+    r"\b((?:LOCAL[,\.]?\s*\d+)|(?:[A-Z]{1,3}(?:\.[A-Z])?[,\.]?\d+[a-z]?))\b",
+    re.IGNORECASE,
+)
 VARIANT_SUFFIX_RE = re.compile(r"([,.]?\d+)[a-z]$", re.IGNORECASE)
 
 
@@ -15,6 +18,9 @@ def normalize_sign_code(sign_code: str | None) -> str:
     raw = str(sign_code or "").strip().replace(",", ".")
     if not raw:
         return ""
+    local_code = re.fullmatch(r"LOCAL\.?\s*(\d+)", raw, re.IGNORECASE)
+    if local_code:
+        return f"LOCAL.{int(local_code.group(1)):03d}"
     match = re.fullmatch(r"([A-Za-z]{1,3}(?:\.[A-Za-z])?)[\.]?(\d+)([A-Za-z]?)", raw)
     if not match:
         return raw
@@ -132,6 +138,7 @@ def normalize_payload_to_observation(
             "speed_limit_kmh": "speed_limit_value",
             "min_speed_kmh": "minimum_speed_limit_kmh",
             "slope_percent": "slope_percent",
+            "payload_limit_t": "payload_limit_t",
         }
         for attribute, condition in attribute_to_condition.items():
             if attribute in class_attributes:
