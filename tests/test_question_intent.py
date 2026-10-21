@@ -41,7 +41,7 @@ class QueryIntentTest(unittest.TestCase):
             ),
             (
                 "Đi sai làn thì mức phạt là bao nhiêu?",
-                {"kind": "PENALTY"},
+                {"kind": "UNKNOWN"},
             ),
             (
                 "Thủ đô Nhật Bản là thành phố nào?",

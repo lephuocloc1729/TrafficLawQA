@@ -26,6 +26,7 @@ from src.core.article_context import (
 )
 from src.core.symbolic.reasoner import build_symbolic_reasoning_context
 from src.core.symbolic.fact_schema import SignObservation, TrafficFacts
+from src.core.symbolic.intent_schema import normalize_intent_kind
 from src.core.symbolic.sign_normalizer import normalize_detected_sign_to_observation, normalize_sign_code
 from src.core.symbolic.sign_relations import link_supplementary_signs
 from src.core.symbolic.traffic_sign_ocr import get_traffic_sign_ocr
@@ -234,18 +235,18 @@ def normalize_freeform_response(
     query_intent = symbolic_context.get("query_intent", {})
     intents = query_intent.get("intents", []) if isinstance(query_intent, dict) else []
     intent_kinds = {
-        str(item.get("kind") or "UNKNOWN").upper()
+        normalize_intent_kind(str(item.get("kind") or "UNKNOWN"))
         for item in intents
         if isinstance(item, dict)
     }
-    if intent_kinds and intent_kinds.issubset({"PENALTY", "UNKNOWN"}):
-        answer = "Hiện hệ thống chưa hỗ trợ câu hỏi về mức phạt hoặc chưa xác định được yêu cầu."
+    if intent_kinds and intent_kinds.issubset({"UNKNOWN"}):
+        answer = "Hiện hệ thống chưa xác định hoặc chưa hỗ trợ yêu cầu này."
         citations = []
         confidence = "low"
-        reasoning = "Intent thuộc nhóm PENALTY/UNKNOWN, hiện chưa được hệ thống hỗ trợ."
+        reasoning = "Intent UNKNOWN hiện chưa được hệ thống hỗ trợ."
     sign_permission_intent = any(
         isinstance(item, dict)
-        and str(item.get("kind") or "").upper() == "CHECK_PERMISSION"
+        and normalize_intent_kind(str(item.get("kind") or "")) == "CHECK_PERMISSION"
         for item in intents
     )
     traffic_facts = symbolic_context.get("facts", {})

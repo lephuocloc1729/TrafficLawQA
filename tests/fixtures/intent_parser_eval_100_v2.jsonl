@@ -58,26 +58,26 @@
 {"id": "intent2-058", "topic": "information", "question": "Khoảng thời gian hiệu lực của biển báo được ghi ra sao?", "expected_intent": "INFORMATION"}
 {"id": "intent2-059", "topic": "information", "question": "Hướng lưu thông nào phải tuân theo thông tin trên biển?", "expected_intent": "INFORMATION"}
 {"id": "intent2-060", "topic": "information", "question": "Xe có thể chạy tối đa bao nhiêu kilomet mỗi giờ ở đây?", "expected_intent": "INFORMATION"}
-{"id": "intent2-061", "topic": "penalty", "question": "Vượt đèn vàng trái quy định thì bị phạt thế nào?", "expected_intent": "PENALTY"}
-{"id": "intent2-062", "topic": "penalty", "question": "Lỗi chạy xe vào làn dành riêng phải nộp bao nhiêu?", "expected_intent": "PENALTY"}
-{"id": "intent2-063", "topic": "penalty", "question": "Nếu đỗ xe chắn lối ra vào thì chịu mức phạt nào?", "expected_intent": "PENALTY"}
-{"id": "intent2-064", "topic": "penalty", "question": "Đi xe máy không bật đèn ban đêm bị xử lý ra sao?", "expected_intent": "PENALTY"}
-{"id": "intent2-065", "topic": "penalty", "question": "Người điều khiển sẽ phải đóng bao nhiêu tiền khi mắc lỗi này?", "expected_intent": "PENALTY"}
-{"id": "intent2-066", "topic": "penalty", "question": "Vi phạm quy tắc giao thông này phải chịu chế tài gì?", "expected_intent": "PENALTY"}
-{"id": "intent2-067", "topic": "penalty", "question": "Chạy ngược chiều trên đường một chiều bị phạt mức nào?", "expected_intent": "PENALTY"}
-{"id": "intent2-068", "topic": "penalty", "question": "Không tuân theo chỉ dẫn của cảnh sát giao thông thì bị phạt ra sao?", "expected_intent": "PENALTY"}
-{"id": "intent2-069", "topic": "penalty", "question": "Lỗi chở quá số người quy định sẽ bị phạt bao nhiêu đồng?", "expected_intent": "PENALTY"}
-{"id": "intent2-070", "topic": "penalty", "question": "Nếu tài xế không nhường người đi bộ thì sẽ bị gì?", "expected_intent": "PENALTY"}
-{"id": "intent2-071", "topic": "penalty", "question": "Vượt qua vạch dừng khi đèn đỏ bị phạt bao nhiêu?", "expected_intent": "PENALTY"}
-{"id": "intent2-072", "topic": "penalty", "question": "Mức xử lý đối với hành vi bấm còi sai quy định là gì?", "expected_intent": "PENALTY"}
-{"id": "intent2-073", "topic": "penalty", "question": "Điều khiển xe khi chưa đủ tuổi thì chịu hình phạt ra sao?", "expected_intent": "PENALTY"}
-{"id": "intent2-074", "topic": "penalty", "question": "Không mang giấy phép lái xe sẽ bị phạt bao nhiêu?", "expected_intent": "PENALTY"}
-{"id": "intent2-075", "topic": "penalty", "question": "Xe máy chở hàng cồng kềnh bị phạt tiền thế nào?", "expected_intent": "PENALTY"}
-{"id": "intent2-076", "topic": "penalty", "question": "Việc không chấp hành biển cấm dẫn đến hậu quả xử phạt gì?", "expected_intent": "PENALTY"}
-{"id": "intent2-077", "topic": "penalty", "question": "Tài xế có thể bị phạt bao nhiêu vì dừng trên cầu?", "expected_intent": "PENALTY"}
-{"id": "intent2-078", "topic": "penalty", "question": "Lỗi đi vào đường cao tốc bằng xe máy bị xử phạt mức nào?", "expected_intent": "PENALTY"}
-{"id": "intent2-079", "topic": "penalty", "question": "Vi phạm này bị lập biên bản và xử lý như thế nào?", "expected_intent": "PENALTY"}
-{"id": "intent2-080", "topic": "penalty", "question": "Không bật xi nhan khi chuyển hướng thì tiền phạt là bao nhiêu?", "expected_intent": "PENALTY"}
+{"id": "intent2-061", "topic": "penalty", "question": "Vượt đèn vàng trái quy định thì bị phạt thế nào?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-062", "topic": "penalty", "question": "Lỗi chạy xe vào làn dành riêng phải nộp bao nhiêu?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-063", "topic": "penalty", "question": "Nếu đỗ xe chắn lối ra vào thì chịu mức phạt nào?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-064", "topic": "penalty", "question": "Đi xe máy không bật đèn ban đêm bị xử lý ra sao?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-065", "topic": "penalty", "question": "Người điều khiển sẽ phải đóng bao nhiêu tiền khi mắc lỗi này?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-066", "topic": "penalty", "question": "Vi phạm quy tắc giao thông này phải chịu chế tài gì?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-067", "topic": "penalty", "question": "Chạy ngược chiều trên đường một chiều bị phạt mức nào?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-068", "topic": "penalty", "question": "Không tuân theo chỉ dẫn của cảnh sát giao thông thì bị phạt ra sao?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-069", "topic": "penalty", "question": "Lỗi chở quá số người quy định sẽ bị phạt bao nhiêu đồng?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-070", "topic": "penalty", "question": "Nếu tài xế không nhường người đi bộ thì sẽ bị gì?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-071", "topic": "penalty", "question": "Vượt qua vạch dừng khi đèn đỏ bị phạt bao nhiêu?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-072", "topic": "penalty", "question": "Mức xử lý đối với hành vi bấm còi sai quy định là gì?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-073", "topic": "penalty", "question": "Điều khiển xe khi chưa đủ tuổi thì chịu hình phạt ra sao?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-074", "topic": "penalty", "question": "Không mang giấy phép lái xe sẽ bị phạt bao nhiêu?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-075", "topic": "penalty", "question": "Xe máy chở hàng cồng kềnh bị phạt tiền thế nào?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-076", "topic": "penalty", "question": "Việc không chấp hành biển cấm dẫn đến hậu quả xử phạt gì?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-077", "topic": "penalty", "question": "Tài xế có thể bị phạt bao nhiêu vì dừng trên cầu?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-078", "topic": "penalty", "question": "Lỗi đi vào đường cao tốc bằng xe máy bị xử phạt mức nào?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-079", "topic": "penalty", "question": "Vi phạm này bị lập biên bản và xử lý như thế nào?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-080", "topic": "penalty", "question": "Không bật xi nhan khi chuyển hướng thì tiền phạt là bao nhiêu?", "expected_intent": "UNKNOWN"}
 {"id": "intent2-081", "topic": "unknown", "question": "Thủ đô của Nhật Bản là thành phố nào?", "expected_intent": "UNKNOWN"}
 {"id": "intent2-082", "topic": "unknown", "question": "Hãy giúp tôi viết một lời chúc sinh nhật ngắn.", "expected_intent": "UNKNOWN"}
 {"id": "intent2-083", "topic": "unknown", "question": "Nhiệt độ hiện tại ở Đà Nẵng là bao nhiêu?", "expected_intent": "UNKNOWN"}

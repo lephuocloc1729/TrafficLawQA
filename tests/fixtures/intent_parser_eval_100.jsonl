@@ -52,24 +52,24 @@
 {"id": "intent-052", "topic": "distance", "question": "Biển báo có hiệu lực trong phạm vi bao xa?", "expected_intents": ["INFORMATION"]}
 {"id": "intent-053", "topic": "distance", "question": "Khoảng cách áp dụng của biển này là bao nhiêu mét?", "expected_intents": ["INFORMATION"]}
 {"id": "intent-054", "topic": "distance", "question": "Khu vực hạn chế kéo dài bao xa?", "expected_intents": ["INFORMATION"]}
-{"id": "intent-055", "topic": "penalty", "question": "Vượt đèn đỏ thì mức phạt là bao nhiêu?", "expected_intents": ["PENALTY"]}
-{"id": "intent-056", "topic": "penalty", "question": "Đi sai làn sẽ bị phạt bao nhiêu tiền?", "expected_intents": ["PENALTY"]}
-{"id": "intent-057", "topic": "penalty", "question": "Tiền phạt cho lỗi đỗ xe sai quy định là bao nhiêu?", "expected_intents": ["PENALTY"]}
-{"id": "intent-058", "topic": "penalty", "question": "Không chấp hành biển báo thì bị xử phạt thế nào?", "expected_intents": ["PENALTY"]}
-{"id": "intent-059", "topic": "penalty", "question": "Xe máy vi phạm quy định này bị phạt bao nhiêu?", "expected_intents": ["PENALTY"]}
-{"id": "intent-060", "topic": "penalty", "question": "Mức phạt khi đi ngược chiều là bao nhiêu?", "expected_intents": ["PENALTY"]}
-{"id": "intent-061", "topic": "penalty", "question": "Ô tô chạy quá tốc độ bị phạt bao nhiêu tiền?", "expected_intents": ["PENALTY"]}
-{"id": "intent-062", "topic": "penalty", "question": "Nếu vi phạm biển cấm thì sẽ bị gì?", "expected_intents": ["PENALTY"]}
-{"id": "intent-063", "topic": "penalty", "question": "Lỗi không nhường đường có mức phạt bao nhiêu?", "expected_intents": ["PENALTY"]}
-{"id": "intent-064", "topic": "penalty", "question": "Đi vào đường cấm bị xử phạt ra sao?", "expected_intents": ["PENALTY"]}
-{"id": "intent-065", "topic": "penalty", "question": "Cho hỏi tiền phạt lỗi quay đầu sai nơi quy định.", "expected_intents": ["PENALTY"]}
-{"id": "intent-066", "topic": "penalty", "question": "Mức phạt cho hành vi dừng xe ở nơi cấm dừng là bao nhiêu?", "expected_intents": ["PENALTY"]}
-{"id": "intent-067", "topic": "penalty", "question": "Xe tải chở quá tải thì bị phạt bao nhiêu?", "expected_intents": ["PENALTY"]}
-{"id": "intent-068", "topic": "penalty", "question": "Không đội mũ bảo hiểm thì phạt thế nào?", "expected_intents": ["PENALTY"]}
-{"id": "intent-069", "topic": "penalty", "question": "Vượt quá tốc độ 10 km/h thì tiền phạt là bao nhiêu?", "expected_intents": ["PENALTY"]}
-{"id": "intent-070", "topic": "penalty", "question": "Vi phạm quy định trên biển này bị xử phạt bao nhiêu?", "expected_intents": ["PENALTY"]}
-{"id": "intent-071", "topic": "penalty", "question": "Lỗi đi vào làn khẩn cấp bị phạt bao nhiêu tiền?", "expected_intents": ["PENALTY"]}
-{"id": "intent-072", "topic": "penalty", "question": "Không tuân thủ biển chỉ dẫn thì mức phạt thế nào?", "expected_intents": ["PENALTY"]}
+{"id": "intent-055", "topic": "penalty", "question": "Vượt đèn đỏ thì mức phạt là bao nhiêu?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-056", "topic": "penalty", "question": "Đi sai làn sẽ bị phạt bao nhiêu tiền?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-057", "topic": "penalty", "question": "Tiền phạt cho lỗi đỗ xe sai quy định là bao nhiêu?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-058", "topic": "penalty", "question": "Không chấp hành biển báo thì bị xử phạt thế nào?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-059", "topic": "penalty", "question": "Xe máy vi phạm quy định này bị phạt bao nhiêu?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-060", "topic": "penalty", "question": "Mức phạt khi đi ngược chiều là bao nhiêu?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-061", "topic": "penalty", "question": "Ô tô chạy quá tốc độ bị phạt bao nhiêu tiền?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-062", "topic": "penalty", "question": "Nếu vi phạm biển cấm thì sẽ bị gì?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-063", "topic": "penalty", "question": "Lỗi không nhường đường có mức phạt bao nhiêu?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-064", "topic": "penalty", "question": "Đi vào đường cấm bị xử phạt ra sao?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-065", "topic": "penalty", "question": "Cho hỏi tiền phạt lỗi quay đầu sai nơi quy định.", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-066", "topic": "penalty", "question": "Mức phạt cho hành vi dừng xe ở nơi cấm dừng là bao nhiêu?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-067", "topic": "penalty", "question": "Xe tải chở quá tải thì bị phạt bao nhiêu?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-068", "topic": "penalty", "question": "Không đội mũ bảo hiểm thì phạt thế nào?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-069", "topic": "penalty", "question": "Vượt quá tốc độ 10 km/h thì tiền phạt là bao nhiêu?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-070", "topic": "penalty", "question": "Vi phạm quy định trên biển này bị xử phạt bao nhiêu?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-071", "topic": "penalty", "question": "Lỗi đi vào làn khẩn cấp bị phạt bao nhiêu tiền?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-072", "topic": "penalty", "question": "Không tuân thủ biển chỉ dẫn thì mức phạt thế nào?", "expected_intents": ["UNKNOWN"]}
 {"id": "intent-073", "topic": "unknown", "question": "Xin chào, bạn có thể giúp tôi không?", "expected_intents": ["UNKNOWN"]}
 {"id": "intent-074", "topic": "unknown", "question": "Cảm ơn bạn rất nhiều.", "expected_intents": ["UNKNOWN"]}
 {"id": "intent-075", "topic": "unknown", "question": "Hôm nay trời có mưa không?", "expected_intents": ["UNKNOWN"]}
@@ -94,7 +94,7 @@
 {"id": "intent-094", "topic": "query_sign", "question": "Biển báo xuất hiện ở phía trước là biển nào?", "expected_intents": ["QUERY_SIGN"]}
 {"id": "intent-095", "topic": "information", "question": "Biển báo này áp dụng cho loại phương tiện nào?", "expected_intents": ["INFORMATION"]}
 {"id": "intent-096", "topic": "information", "question": "Biển giới hạn tốc độ cho xe chạy tối đa bao nhiêu km/h?", "expected_intents": ["INFORMATION"]}
-{"id": "intent-097", "topic": "penalty", "question": "Chạy xe máy vào đường cấm thì mức phạt bao nhiêu?", "expected_intents": ["PENALTY"]}
-{"id": "intent-098", "topic": "penalty", "question": "Không chấp hành hiệu lệnh của biển báo sẽ bị phạt thế nào?", "expected_intents": ["PENALTY"]}
+{"id": "intent-097", "topic": "penalty", "question": "Chạy xe máy vào đường cấm thì mức phạt bao nhiêu?", "expected_intents": ["UNKNOWN"]}
+{"id": "intent-098", "topic": "penalty", "question": "Không chấp hành hiệu lệnh của biển báo sẽ bị phạt thế nào?", "expected_intents": ["UNKNOWN"]}
 {"id": "intent-099", "topic": "unknown", "question": "Bạn hãy cho biết chiếc xe này có màu gì?", "expected_intents": ["UNKNOWN"]}
 {"id": "intent-100", "topic": "unknown", "question": "Trong ảnh có những tòa nhà nào?", "expected_intents": ["UNKNOWN"]}

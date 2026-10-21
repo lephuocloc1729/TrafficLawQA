@@ -78,7 +78,7 @@ def classify_intent_actor(question: str, detailed_actor: str | None = None) -> s
     return normalize_intent_actor(detailed_actor or extract_vehicle(question))
 
 INTENT_PATTERNS = (
-    ("PENALTY", (
+    ("UNKNOWN", (
         "muc phat", "phat bao nhieu", "bi phat bao nhieu", "bao nhieu tien", "tien phat",
         "xu phat", "vi pham se bi gi", "phat the nao", "bi phat the nao",
     )),
@@ -624,8 +624,8 @@ def _context_facts(question: str, intent_kinds: list[str], now: datetime | None,
 def _intent_kinds(question: str, action: str) -> list[str]:
     text = normalize_question_text(question)
     found = [kind for kind, phrases in INTENT_PATTERNS if any(_contains(text, p) for p in phrases)]
-    if "PENALTY" not in found and re.search(r"\bvi pham\b.*\bbi gi\b", text):
-        found.append("PENALTY")
+    if "UNKNOWN" not in found and re.search(r"\bvi pham\b.*\bbi gi\b", text):
+        found.append("UNKNOWN")
     asks_for_scope_information = any(_contains(text, p) for p in INFORMATION_SCOPE_PHRASES)
     asks_yes_no_permission = (
         "duoc khong" in text
@@ -634,7 +634,13 @@ def _intent_kinds(question: str, action: str) -> list[str]:
         or "bi cam khong" in text
     )
     asks_for_mandatory_action = any(_contains(text, p) for p in MANDATORY_ACTION_TERMS)
-    asks_for_penalty = "PENALTY" in found
+    asks_for_penalty = any(
+        _contains(text, phrase)
+        for phrase in (
+            "muc phat", "phat bao nhieu", "bi phat bao nhieu", "bao nhieu tien", "tien phat",
+            "xu phat", "vi pham se bi gi", "phat the nao", "bi phat the nao",
+        )
+    ) or bool(re.search(r"\bvi pham\b.*\bbi gi\b", text))
     if (
         action != "unknown"
         and any(_contains(text, p) for p in PERMISSION_TERMS)
@@ -677,7 +683,6 @@ def _answer_spec(kind: str) -> dict[str, Any]:
         "CHECK_PERMISSION": "decision_with_explanation",
         "QUERY_SIGN": "sign_information",
         "INFORMATION": "traffic_sign_information",
-        "PENALTY": "unsupported_penalty_query",
     }
     return {"kind": answer_types.get(kind, "clarification"), "include_legal_basis": True}
 
@@ -865,16 +870,15 @@ def parse_query_intent_with_llm(
         "- INFORMATION: hỏi một thông tin cụ thể thể hiện bởi biển/dữ liệu nhận diện, như đối tượng xe, "
         "thời gian hiệu lực, hướng, tốc độ, khoảng cách đến địa điểm, mã/tên đường cao tốc hoặc phạm vi áp dụng. Nếu câu hỏi nhắm vào một thuộc tính cụ thể, "
         "chọn INFORMATION thay vì QUERY_SIGN.\n"
-        "- PENALTY: hỏi tiền phạt, mức xử phạt hoặc chế tài cho vi phạm. Nhãn này không có nghĩa là hệ thống "
-        "được phép tự đưa ra mức phạt.\n"
-        "- UNKNOWN: câu hỏi ngoài phạm vi giao thông/biển báo hoặc không thể xác định ý định. Câu hỏi lạ cách "
+        "- UNKNOWN: bao gồm câu hỏi ngoài phạm vi giao thông/biển báo, không thể xác định ý định, hoặc hỏi tiền phạt, "
+        "mức xử phạt hay chế tài cho vi phạm. Câu hỏi lạ cách "
         "diễn đạt nhưng vẫn rõ nghĩa không được gán UNKNOWN chỉ vì không khớp từ khóa.\n"
         "Chỉ thêm trường liên quan đến kind: CHECK_PERMISSION dùng action, actor; INFORMATION dùng "
         "information_type; target chỉ thêm khi câu hỏi nhắm tới biển/cảnh cụ thể. "
         "Với cách gọi chung 'xe máy', dùng actor=motorcycle_or_moped, không tự chọn mô tô hay xe gắn máy.\n"
         "Intent mô tả điều người dùng muốn biết; không suy đoán dữ kiện từ ảnh. Dữ kiện thời gian/vị trí "
         "được nêu rõ đưa vào context_facts với source=user_query. Trả về JSON hợp lệ, không thêm văn xuôi.\n"
-        'Schema: {"schema_version":"3.0","intents":[{"kind":"CHECK_PERMISSION|QUERY_SIGN|INFORMATION|PENALTY|UNKNOWN",'
+        'Schema: {"schema_version":"3.0","intents":[{"kind":"CHECK_PERMISSION|QUERY_SIGN|INFORMATION|UNKNOWN",'
         '"target":"scene|sign_observation|sign_code|unresolved",'
         '"action":"parking|stopping|yielding|turn_left|turn_right|u_turn|going_straight|entering|exiting|speed|reduce_speed|circulation|crossing|overtaking|reversing|lane_change|using_horn|following_distance|passing_obstacle|roundabout_circulation|unknown",'
         '"actor":"'

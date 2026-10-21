@@ -167,7 +167,6 @@ P131B = {
     - `CHECK_PERMISSION`
     - `QUERY_SIGN`
     - `INFORMATION`
-    - `PENALTY`
     - `UNKNOWN`
 
 - [x] Extract action.
