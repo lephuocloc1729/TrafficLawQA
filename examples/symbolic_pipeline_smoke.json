@@ -1,0 +1,46 @@
+{
+  "description": "Small deterministic facts/intents for checking the symbolic sign-rule pipeline.",
+  "fixed_now": "2026-10-05T08:30:00+07:00",
+  "cases": [
+    {
+      "id": "p130_car_parking",
+      "question": "Xe ô tô có được phép đỗ tại đây không?",
+      "observations": [{"sign_code": "P.130", "image_name": "p130.jpg", "confidence": "high"}],
+      "complete_sign_inventory": true,
+      "expected_intent": {"kind": "CHECK_PERMISSION", "action": "parking", "actor": "automobile"},
+      "expected_rule_ids": ["P130_NO_STOPPING_NO_PARKING"],
+      "expected_decision": "PROHIBITED",
+      "note": "Rule should match and execute because it has a recorded legal basis."
+    },
+    {
+      "id": "p131b_explicit_time_today",
+      "question": "Xe ô tô có được đỗ lúc 7 giờ hôm nay không?",
+      "observations": [{"sign_code": "P.131b", "image_name": "p131b.jpg", "confidence": "high"}],
+      "complete_sign_inventory": true,
+      "expected_intent": {"kind": "CHECK_PERMISSION", "action": "parking", "actor": "automobile"},
+      "expected_rule_ids": ["P131B_ODD_DAY_NO_PARKING"],
+      "expected_decision": "PROHIBITED",
+      "note": "The explicit time is resolved on the fixed odd date, so the P.131b rule applies."
+    },
+    {
+      "id": "r122_car_stop",
+      "question": "Xe ô tô có phải dừng trước biển không?",
+      "observations": [{"sign_code": "R.122", "image_name": "r122.jpg", "confidence": "high"}],
+      "complete_sign_inventory": true,
+      "expected_intent": {"kind": "CHECK_PERMISSION", "action": "stopping", "actor": "automobile"},
+      "expected_rule_ids": ["R122_REQUIRE_STOP_BEFORE_SIGN_OR_LINE"],
+      "expected_decision": "CONDITIONAL",
+      "note": "Confirms that the stop action selects the R.122 stop rule."
+    },
+    {
+      "id": "sign_action_mismatch",
+      "question": "Xe ô tô có được đỗ tại đây không?",
+      "observations": [{"sign_code": "R.122", "image_name": "r122.jpg", "confidence": "high"}],
+      "complete_sign_inventory": true,
+      "expected_intent": {"kind": "CHECK_PERMISSION", "action": "parking", "actor": "automobile"},
+      "expected_rule_ids": ["COVERAGE_GAP_r122.jpg"],
+      "expected_decision": "UNKNOWN",
+      "note": "R.122 must not be selected for a parking question."
+    }
+  ]
+}

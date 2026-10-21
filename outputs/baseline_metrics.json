@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "baseline_name": "train-40-59-gemma3-yoloe-clip-limit5",
+  "status": "complete",
+  "config_path": "configs/baseline_eval.json",
+  "config_sha256": "0afbda055ac06d0ce9cc9ff3c4f2bc1fe45ca097bde54809e61fab27e2fd221e",
+  "run": {
+    "completed_at": "2026-07-28T19:41:21+07:00",
+    "git_revision": "f3eb048",
+    "git_revision_note": "Best available association from artifact and commit timestamps; the legacy artifact did not record a revision."
+  },
+  "provenance": {
+    "source_artifact": "outputs/freeform_qa_metrics_reverted_previous_begin39_20_judge_20260728.json",
+    "source_artifact_sha256": "90cc577028bf5480e8221dc36a3f420bad71e47e2d26de94fef2aeee76103ded",
+    "kind": "promoted_existing_evaluation"
+  },
+  "dataset": {
+    "path": "data/raw/train_data/vlsp_2025_train.json",
+    "sha256": "49d28bcef00906ebf3da4331306d08158150da237d0106ddb28fa9b6a1bf9d03",
+    "lawdb_path": "data/raw/law_db/vlsp2025_law_new.json",
+    "lawdb_sha256": "3f9de121bda1374352e082663a3e941e13829a887c3cac86c3e06ae9b90fb859",
+    "sample_ids": [
+      "train_40",
+      "train_41",
+      "train_42",
+      "train_43",
+      "train_44",
+      "train_45",
+      "train_46",
+      "train_47",
+      "train_48",
+      "train_49",
+      "train_50",
+      "train_51",
+      "train_52",
+      "train_53",
+      "train_54",
+      "train_55",
+      "train_56",
+      "train_57",
+      "train_58",
+      "train_59"
+    ]
+  },
+  "pipeline": {
+    "llm_model": "gemma-3-12b-it",
+    "limit": 5,
+    "query_detector": "YoloE",
+    "lawdb_detector": "ImageProcessing",
+    "embedding_model": "CLIP-GmP-ViT-L-14",
+    "collection_name": "lawdb_processed_by_imageprocessing_and_clip-gmp-vit-l-14",
+    "use_vlm_filter": true,
+    "judge": true,
+    "temperature": 0.0,
+    "max_new_tokens": 5000
+  },
+  "metrics": {
+    "num_samples": 20,
+    "answer_correctness": 0.8,
+    "citation_accuracy": 0.65,
+    "citation_precision": 0.65,
+    "citation_recall": 0.5,
+    "evidence_faithfulness": 1.0,
+    "evidence_faithfulness_proxy": 1.0,
+    "visual_grounding_accuracy_proxy": 0.575,
+    "retrieval_recall_at_1": 0.475,
+    "retrieval_recall_at_3": 0.525,
+    "retrieval_recall_at_5": 0.55,
+    "json_validity": 1.0,
+    "hallucination": 0.0,
+    "latency": 17.197
+  }
+}

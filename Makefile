@@ -1,7 +1,7 @@
 # VLSP2025 Legal Q&A System Makefile
 # This Makefile provides convenient commands for common project tasks
 
-.PHONY: help install setup venv venv-create venv-activate venv-remove lawdb task1 task2 clean docker-up docker-down test baseline-vlm-only format lint ui-freeform-demo
+.PHONY: help install setup venv venv-create venv-activate venv-remove lawdb task1 task2 clean docker-up docker-down test baseline neuro-symbolic baseline-compare baseline-vlm-only format lint ui-freeform-demo
 
 # Default target
 help:
@@ -28,6 +28,8 @@ help:
 	@echo "  task2-private Run Task 2 on private test data"
 	@echo ""
 	@echo "Development:"
+	@echo "  test        Run the complete unit test suite"
+	@echo "  baseline    Run the locked 20-sample baseline evaluation"
 	@echo "  format      Format code with black"
 	@echo "  clean       Clean temporary files and caches"
 	@echo ""
@@ -55,7 +57,7 @@ venv-remove:
 
 # Installation and setup
 install:
-	uv pip install -e .
+	uv pip install -e ".[dev]"
 
 setup: venv-create install docker-up
 	@echo "Project setup complete!"
@@ -116,6 +118,20 @@ pipeline-public-test: lawdb task1-public-test task2-public-test
 
 pipeline-private-test: lawdb task1-private-test task2-private-test
 	@echo "Complete pipeline on private test data finished!"
+
+test:
+	pytest -q
+
+baseline:
+	python -m src.eval.freeform_qa_metrics --config configs/baseline_eval.json
+
+neuro-symbolic:
+	python -m src.eval.freeform_qa_metrics --config configs/neuro_symbolic_eval.json
+
+baseline-compare:
+	@test -n "$(CANDIDATE)" || (echo "Usage: make baseline-compare CANDIDATE=outputs/candidate_metrics.json" && exit 2)
+	python -m src.eval.compare_baseline --candidate "$(CANDIDATE)"
+
 
 lint:
 	@echo "Running linting checks..."

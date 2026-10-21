@@ -6,8 +6,10 @@ from src.core.baseline1_bm25_llm import (
     BM25Index,
     LegalUnit,
     answer_image_question,
+    create_resources,
     load_legal_units,
 )
+from src.settings import settings
 
 
 def test_load_lawdb_keeps_article_clause_and_point_ids(tmp_path):
@@ -55,6 +57,31 @@ def test_bm25_ranks_matching_vietnamese_unit_and_preserves_citation():
     assert results[0]["article_id"] == "1"
     assert results[0]["score"] > 0
     assert len(results) == 1  # Zero-score passages are excluded from context.
+
+
+def test_bm25_detector_is_independent_of_shared_pipeline_settings(monkeypatch):
+    import src.core.baseline1_bm25_llm as baseline
+    import src.deps.detection as detection
+
+    detector_names = []
+
+    class Detector:
+        def __init__(self, detector, device):
+            detector_names.append(detector)
+
+    monkeypatch.setattr(detection, "SignExtractor", Detector)
+    monkeypatch.setattr(baseline, "LLMClient", lambda *args, **kwargs: object())
+    monkeypatch.setattr(
+        baseline,
+        "load_legal_units",
+        lambda path: [LegalUnit("L1", "1", "Tốc độ", "Giới hạn tốc độ tối đa.")],
+    )
+    monkeypatch.setattr(settings, "llm_api_keys", "test-key")
+    monkeypatch.setattr(settings, "image_query_detection_model", "YoloV8m")
+
+    create_resources(lawdb_path="unused.json")
+
+    assert detector_names == ["YoloE"]
 
 
 def test_answer_only_returns_retrieved_citations_and_uses_text_only(tmp_path):

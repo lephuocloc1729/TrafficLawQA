@@ -1,0 +1,450 @@
+{
+  "rulebook_version": "qcvn41_sign_rules_draft_1",
+  "scope": "sign_and_supplementary_sign_permission_and_limit_rules",
+  "status": "draft_unreviewed",
+  "source_document": "QCVN 41:2024/BGTVT",
+  "rules": [
+    {
+      "rule_id": "P130_NO_STOPPING_NO_PARKING",
+      "legal_basis": [
+        {
+          "law_id": "QCVN 41:2024/BGTVT",
+          "document": "Quy chuẩn kỹ thuật quốc gia về báo hiệu đường bộ",
+          "edition": "2024",
+          "article_id": "B.30",
+          "section_or_figure": "Phụ lục B.30",
+          "pdf_pages": [
+            93,
+            94
+          ],
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "accessed_at": "2026-10-04",
+          "verification_status": "unverified"
+        }
+      ],
+      "trigger_sign_codes": [
+        "P.130"
+      ],
+      "actions": [
+        "parking",
+        "stopping"
+      ],
+      "actor_scope": [
+        "motor_vehicle"
+      ],
+      "outcome": "PROHIBITED",
+      "conditions": [],
+      "reason": "Biển P.130 cấm dừng xe và đỗ xe trong phạm vi hiệu lực của biển.",
+      "verification_status": "unverified",
+      "effects": [
+        {
+          "effect_type": "prohibit_action",
+          "action": "parking",
+          "value": null,
+          "unit": null,
+          "value_predicate": null,
+          "scope": {
+            "actor_class": "motor_vehicle"
+          },
+          "description": ""
+        },
+        {
+          "effect_type": "prohibit_action",
+          "action": "stopping",
+          "value": null,
+          "unit": null,
+          "value_predicate": null,
+          "scope": {
+            "actor_class": "motor_vehicle"
+          },
+          "description": ""
+        }
+      ]
+    },
+    {
+      "rule_id": "P131A_NO_PARKING",
+      "legal_basis": [
+        {
+          "law_id": "QCVN 41:2024/BGTVT",
+          "document": "Quy chuẩn kỹ thuật quốc gia về báo hiệu đường bộ",
+          "edition": "2024",
+          "article_id": "B.31",
+          "section_or_figure": "Phụ lục B.31",
+          "pdf_pages": [
+            94
+          ],
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "accessed_at": "2026-10-04",
+          "verification_status": "unverified"
+        },
+        {
+          "law_id": "QCVN 41:2024/BGTVT",
+          "document": "Quy chuẩn kỹ thuật quốc gia về báo hiệu đường bộ",
+          "edition": "2024",
+          "article_id": "B.30",
+          "section_or_figure": "Phụ lục B.30",
+          "pdf_pages": [
+            93,
+            94
+          ],
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "accessed_at": "2026-10-04",
+          "verification_status": "unverified"
+        }
+      ],
+      "trigger_sign_codes": [
+        "P.131a"
+      ],
+      "actions": [
+        "parking"
+      ],
+      "actor_scope": [
+        "motor_vehicle"
+      ],
+      "outcome": "PROHIBITED",
+      "conditions": [],
+      "reason": "Biển P.131a cấm đỗ xe trong phạm vi hiệu lực của biển.",
+      "verification_status": "unverified",
+      "effects": [
+        {
+          "effect_type": "prohibit_action",
+          "action": "parking",
+          "value": null,
+          "unit": null,
+          "value_predicate": null,
+          "scope": {
+            "actor_class": "motor_vehicle"
+          },
+          "description": ""
+        }
+      ]
+    },
+    {
+      "rule_id": "P131B_ODD_DAY_NO_PARKING",
+      "legal_basis": [
+        {
+          "law_id": "QCVN 41:2024/BGTVT",
+          "document": "Quy chuẩn kỹ thuật quốc gia về báo hiệu đường bộ",
+          "edition": "2024",
+          "article_id": "B.31",
+          "section_or_figure": "Phụ lục B.31",
+          "pdf_pages": [
+            94
+          ],
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "accessed_at": "2026-10-04",
+          "verification_status": "unverified"
+        },
+        {
+          "law_id": "QCVN 41:2024/BGTVT",
+          "document": "Quy chuẩn kỹ thuật quốc gia về báo hiệu đường bộ",
+          "edition": "2024",
+          "article_id": "B.30",
+          "section_or_figure": "Phụ lục B.30",
+          "pdf_pages": [
+            93,
+            94
+          ],
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "accessed_at": "2026-10-04",
+          "verification_status": "unverified"
+        }
+      ],
+      "trigger_sign_codes": [
+        "P.131b"
+      ],
+      "actions": [
+        "parking"
+      ],
+      "actor_scope": [
+        "motor_vehicle"
+      ],
+      "outcome": "PROHIBITED",
+      "conditions": [
+        {
+          "predicate": "calendar_parity",
+          "operator": "equals",
+          "expected_value": "odd_days",
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        }
+      ],
+      "reason": "Biển P.131b cấm đỗ xe vào ngày lẻ.",
+      "verification_status": "unverified",
+      "effects": [
+        {
+          "effect_type": "prohibit_action",
+          "action": "parking",
+          "value": null,
+          "unit": null,
+          "value_predicate": null,
+          "scope": {
+            "actor_class": "motor_vehicle",
+            "calendar_parity": "odd_days"
+          },
+          "description": ""
+        }
+      ]
+    },
+    {
+      "rule_id": "P131C_EVEN_DAY_NO_PARKING",
+      "legal_basis": [
+        {
+          "law_id": "QCVN 41:2024/BGTVT",
+          "document": "Quy chuẩn kỹ thuật quốc gia về báo hiệu đường bộ",
+          "edition": "2024",
+          "article_id": "B.31",
+          "section_or_figure": "Phụ lục B.31",
+          "pdf_pages": [
+            94
+          ],
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "accessed_at": "2026-10-04",
+          "verification_status": "unverified"
+        },
+        {
+          "law_id": "QCVN 41:2024/BGTVT",
+          "document": "Quy chuẩn kỹ thuật quốc gia về báo hiệu đường bộ",
+          "edition": "2024",
+          "article_id": "B.30",
+          "section_or_figure": "Phụ lục B.30",
+          "pdf_pages": [
+            93,
+            94
+          ],
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "accessed_at": "2026-10-04",
+          "verification_status": "unverified"
+        }
+      ],
+      "trigger_sign_codes": [
+        "P.131c"
+      ],
+      "actions": [
+        "parking"
+      ],
+      "actor_scope": [
+        "motor_vehicle"
+      ],
+      "outcome": "PROHIBITED",
+      "conditions": [
+        {
+          "predicate": "calendar_parity",
+          "operator": "equals",
+          "expected_value": "even_days",
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        }
+      ],
+      "reason": "Biển P.131c cấm đỗ xe vào ngày chẵn.",
+      "verification_status": "unverified",
+      "effects": [
+        {
+          "effect_type": "prohibit_action",
+          "action": "parking",
+          "value": null,
+          "unit": null,
+          "value_predicate": null,
+          "scope": {
+            "actor_class": "motor_vehicle",
+            "calendar_parity": "even_days"
+          },
+          "description": ""
+        }
+      ]
+    },
+    {
+      "rule_id": "P123A_NO_LEFT_TURN",
+      "legal_basis": [
+        {
+          "law_id": "QCVN 41:2024/BGTVT",
+          "document": "Quy chuẩn kỹ thuật quốc gia về báo hiệu đường bộ",
+          "edition": "2024",
+          "article_id": "B.23",
+          "section_or_figure": "Phụ lục B.23",
+          "pdf_pages": [
+            87
+          ],
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "accessed_at": "2026-10-04",
+          "verification_status": "unverified"
+        }
+      ],
+      "trigger_sign_codes": [
+        "P.123a"
+      ],
+      "actions": [
+        "turn_left"
+      ],
+      "actor_scope": [
+        "vehicle"
+      ],
+      "outcome": "PROHIBITED",
+      "conditions": [],
+      "reason": "Biển P.123a cấm rẽ trái trong phạm vi hiệu lực của biển.",
+      "verification_status": "unverified",
+      "effects": [
+        {
+          "effect_type": "prohibit_action",
+          "action": "turn_left",
+          "value": null,
+          "unit": null,
+          "value_predicate": null,
+          "scope": {
+            "actor_class": "vehicle"
+          },
+          "description": ""
+        }
+      ]
+    },
+    {
+      "rule_id": "P123B_NO_RIGHT_TURN",
+      "legal_basis": [
+        {
+          "law_id": "QCVN 41:2024/BGTVT",
+          "document": "Quy chuẩn kỹ thuật quốc gia về báo hiệu đường bộ",
+          "edition": "2024",
+          "article_id": "B.23",
+          "section_or_figure": "Phụ lục B.23",
+          "pdf_pages": [
+            87
+          ],
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "accessed_at": "2026-10-04",
+          "verification_status": "unverified"
+        }
+      ],
+      "trigger_sign_codes": [
+        "P.123b"
+      ],
+      "actions": [
+        "turn_right"
+      ],
+      "actor_scope": [
+        "vehicle"
+      ],
+      "outcome": "PROHIBITED",
+      "conditions": [],
+      "reason": "Biển P.123b cấm rẽ phải trong phạm vi hiệu lực của biển.",
+      "verification_status": "unverified",
+      "effects": [
+        {
+          "effect_type": "prohibit_action",
+          "action": "turn_right",
+          "value": null,
+          "unit": null,
+          "value_predicate": null,
+          "scope": {
+            "actor_class": "vehicle"
+          },
+          "description": ""
+        }
+      ]
+    },
+    {
+      "rule_id": "P102_NO_ENTRY",
+      "legal_basis": [
+        {
+          "law_id": "QCVN 41:2024/BGTVT",
+          "document": "Quy chuẩn kỹ thuật quốc gia về báo hiệu đường bộ",
+          "edition": "2024",
+          "article_id": "B.2",
+          "section_or_figure": "Phụ lục B.2",
+          "pdf_pages": [
+            80
+          ],
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "accessed_at": "2026-10-04",
+          "verification_status": "unverified"
+        }
+      ],
+      "trigger_sign_codes": [
+        "P.102"
+      ],
+      "actions": [
+        "entering",
+        "circulation"
+      ],
+      "actor_scope": [
+        "vehicle"
+      ],
+      "excluded_actor_scope": [
+        "priority_vehicle"
+      ],
+      "outcome": "PROHIBITED",
+      "conditions": [],
+      "reason": "B.2 cấm xe cơ giới và xe thô sơ đi vào theo chiều đặt biển, trừ xe được ưu tiên theo quy định; người đi bộ được phép đi trên vỉa hè hoặc lề đường.",
+      "verification_status": "unverified",
+      "effects": [
+        {
+          "effect_type": "prohibit_action",
+          "action": "entering",
+          "value": null,
+          "unit": null,
+          "value_predicate": null,
+          "scope": {
+            "actor_class": "vehicle",
+            "direction": "sign_facing_direction"
+          },
+          "description": ""
+        }
+      ]
+    },
+    {
+      "rule_id": "P127_SPEED_LIMIT",
+      "legal_basis": [
+        {
+          "law_id": "QCVN 41:2024/BGTVT",
+          "document": "Quy chuẩn kỹ thuật quốc gia về báo hiệu đường bộ",
+          "edition": "2024",
+          "article_id": "B.27",
+          "section_or_figure": "Phụ lục B.27",
+          "pdf_pages": [
+            89,
+            90
+          ],
+          "source_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2024/11/51-bgtvt-kem.pdf",
+          "accessed_at": "2026-10-04",
+          "verification_status": "unverified"
+        }
+      ],
+      "trigger_sign_codes": [
+        "P.127"
+      ],
+      "actions": [
+        "speed"
+      ],
+      "actor_scope": [
+        "motor_vehicle"
+      ],
+      "outcome": "CONDITIONAL",
+      "conditions": [
+        {
+          "predicate": "speed_limit_value",
+          "operator": "exists",
+          "expected_value": null,
+          "required": true,
+          "on_missing": "CONDITIONAL",
+          "on_mismatch": "NOT_APPLICABLE"
+        }
+      ],
+      "reason": "Biển P.127 quy định tốc độ tối đa; cần đọc trị số trên biển hoặc biển phụ.",
+      "verification_status": "unverified",
+      "effects": [
+        {
+          "effect_type": "maximum",
+          "action": "speed",
+          "value": null,
+          "unit": "km/h",
+          "value_predicate": "speed_limit_value",
+          "scope": {
+            "actor_class": "motor_vehicle"
+          },
+          "description": ""
+        }
+      ]
+    }
+  ]
+}

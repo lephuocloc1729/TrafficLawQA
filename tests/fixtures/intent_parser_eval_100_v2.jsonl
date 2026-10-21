@@ -1,0 +1,100 @@
+{"id": "intent2-001", "topic": "check_permission", "question": "Xe mô tô được phép quay đầu tại nút giao này chứ?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-002", "topic": "check_permission", "question": "Có thể đậu ô tô bên lề đường này không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-003", "topic": "check_permission", "question": "Xe buýt được dừng đón khách tại trạm này không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-004", "topic": "check_permission", "question": "Xe điện có thể rẽ phải ở giao lộ này được không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-005", "topic": "check_permission", "question": "Tại đoạn này, ô tô có bị cấm quay đầu không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-006", "topic": "check_permission", "question": "Người đi bộ có được băng qua đường tại vạch này không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-007", "topic": "check_permission", "question": "Xe tải được chạy vào khu vực nội đô trong giờ này chứ?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-008", "topic": "check_permission", "question": "Mình có được lùi xe ở đoạn đường hẹp này không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-009", "topic": "check_permission", "question": "Xe máy có thể chạy qua đường hầm này không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-010", "topic": "check_permission", "question": "Ô tô có bị cấm vượt ở khúc cua này không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-011", "topic": "check_permission", "question": "Ở nơi có biển này, xe con được chuyển sang làn bên trái chứ?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-012", "topic": "check_permission", "question": "Xe đạp có thể lưu thông trên cầu này không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-013", "topic": "check_permission", "question": "Tôi được dừng xe đón người trước cổng không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-014", "topic": "check_permission", "question": "Xe khách có được phép đi vào tuyến phố này không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-015", "topic": "check_permission", "question": "Trong tình huống này xe máy cần nhường đường phải không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-016", "topic": "check_permission", "question": "Xe cứu thương có được đi ngược chiều vào đoạn này không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-017", "topic": "check_permission", "question": "Có được bấm còi khi đi qua khu dân cư vào ban đêm không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-018", "topic": "check_permission", "question": "Xe đầu kéo có được kéo rơ moóc qua đoạn đường này không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-019", "topic": "check_permission", "question": "Người lái xe có bắt buộc phải giảm tốc độ khi đến đây không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-020", "topic": "check_permission", "question": "Xe con có được đi vòng qua vật cản ở phía phải không?", "expected_intent": "CHECK_PERMISSION"}
+{"id": "intent2-021", "topic": "query_sign", "question": "Bạn đọc giúp tôi biển tròn viền đỏ này báo điều gì.", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-022", "topic": "query_sign", "question": "Cho hỏi ký hiệu trên tấm biển kia đại diện cho gì?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-023", "topic": "query_sign", "question": "Tấm bảng bên đường đang truyền đạt thông điệp nào?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-024", "topic": "query_sign", "question": "Biển tam giác trong ảnh cảnh báo nội dung gì?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-025", "topic": "query_sign", "question": "Biển chỉ dẫn màu xanh này thuộc loại nào?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-026", "topic": "query_sign", "question": "Hãy giải thích biểu tượng xuất hiện trên biển.", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-027", "topic": "query_sign", "question": "Có thể cho biết mã hiệu của biển trong hình không?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-028", "topic": "query_sign", "question": "Tấm biển ở góc phải hình là biển báo gì?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-029", "topic": "query_sign", "question": "Biển có hình mũi tên này dùng để làm gì?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-030", "topic": "query_sign", "question": "Dòng chữ trên biển giao thông nói gì?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-031", "topic": "query_sign", "question": "Biển nền vàng này đang cảnh báo điều gì?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-032", "topic": "query_sign", "question": "Tôi muốn biết số hiệu biển báo trong ảnh.", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-033", "topic": "query_sign", "question": "Biển cấm hình tròn này quy định điều gì?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-034", "topic": "query_sign", "question": "Đây là biển báo thuộc nhóm chỉ dẫn hay cảnh báo?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-035", "topic": "query_sign", "question": "Biển báo này được gọi bằng tên nào?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-036", "topic": "query_sign", "question": "Ký hiệu R.301 thể hiện thông tin gì?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-037", "topic": "query_sign", "question": "Nhìn hình này thì biển báo cụ thể là loại gì?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-038", "topic": "query_sign", "question": "Biển vuông màu xanh trước mặt biểu thị gì?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-039", "topic": "query_sign", "question": "Ý nghĩa của ký hiệu đặt trên biển này là gì?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-040", "topic": "query_sign", "question": "Biển báo ở bên trái đang thông báo chuyện gì?", "expected_intent": "QUERY_SIGN"}
+{"id": "intent2-041", "topic": "information", "question": "Nhóm phương tiện nào thuộc diện bị hạn chế bởi biển?", "expected_intent": "INFORMATION"}
+{"id": "intent2-042", "topic": "information", "question": "Đối tượng tham gia giao thông nào không được phép đi tiếp?", "expected_intent": "INFORMATION"}
+{"id": "intent2-043", "topic": "information", "question": "Xe thuộc loại nào nằm trong danh sách cấm?", "expected_intent": "INFORMATION"}
+{"id": "intent2-044", "topic": "information", "question": "Quy định trên biển có hiệu lực từ mấy giờ đến mấy giờ?", "expected_intent": "INFORMATION"}
+{"id": "intent2-045", "topic": "information", "question": "Khung giờ nào áp dụng nội dung của biển phụ?", "expected_intent": "INFORMATION"}
+{"id": "intent2-046", "topic": "information", "question": "Lệnh cấm bắt đầu có tác dụng vào lúc nào?", "expected_intent": "INFORMATION"}
+{"id": "intent2-047", "topic": "information", "question": "Biển có tác dụng đối với chiều xe chạy nào?", "expected_intent": "INFORMATION"}
+{"id": "intent2-048", "topic": "information", "question": "Phạm vi hiệu lực tính cho làn bên nào?", "expected_intent": "INFORMATION"}
+{"id": "intent2-049", "topic": "information", "question": "Các phương tiện cần di chuyển theo hướng nào?", "expected_intent": "INFORMATION"}
+{"id": "intent2-050", "topic": "information", "question": "Tốc độ giới hạn trên đoạn này được ghi là mấy kilomet một giờ?", "expected_intent": "INFORMATION"}
+{"id": "intent2-051", "topic": "information", "question": "Xe phải giữ vận tốc không vượt quá bao nhiêu?", "expected_intent": "INFORMATION"}
+{"id": "intent2-052", "topic": "information", "question": "Con số tốc độ trên biển quy đổi ra km/h là bao nhiêu?", "expected_intent": "INFORMATION"}
+{"id": "intent2-053", "topic": "information", "question": "Lệnh cấm áp dụng cho những xe nào trong số các xe đang thấy?", "expected_intent": "INFORMATION"}
+{"id": "intent2-054", "topic": "information", "question": "Biển phụ giới hạn lưu thông vào buổi nào?", "expected_intent": "INFORMATION"}
+{"id": "intent2-055", "topic": "information", "question": "Biển này chỉ áp dụng khi đi theo chiều ngược lại hay chiều hiện tại?", "expected_intent": "INFORMATION"}
+{"id": "intent2-056", "topic": "information", "question": "Mức vận tốc tối đa được nêu trên biển là bao nhiêu km/giờ?", "expected_intent": "INFORMATION"}
+{"id": "intent2-057", "topic": "information", "question": "Những loại phương tiện nào bị ảnh hưởng bởi chỉ dẫn này?", "expected_intent": "INFORMATION"}
+{"id": "intent2-058", "topic": "information", "question": "Khoảng thời gian hiệu lực của biển báo được ghi ra sao?", "expected_intent": "INFORMATION"}
+{"id": "intent2-059", "topic": "information", "question": "Hướng lưu thông nào phải tuân theo thông tin trên biển?", "expected_intent": "INFORMATION"}
+{"id": "intent2-060", "topic": "information", "question": "Xe có thể chạy tối đa bao nhiêu kilomet mỗi giờ ở đây?", "expected_intent": "INFORMATION"}
+{"id": "intent2-061", "topic": "penalty", "question": "Vượt đèn vàng trái quy định thì bị phạt thế nào?", "expected_intent": "PENALTY"}
+{"id": "intent2-062", "topic": "penalty", "question": "Lỗi chạy xe vào làn dành riêng phải nộp bao nhiêu?", "expected_intent": "PENALTY"}
+{"id": "intent2-063", "topic": "penalty", "question": "Nếu đỗ xe chắn lối ra vào thì chịu mức phạt nào?", "expected_intent": "PENALTY"}
+{"id": "intent2-064", "topic": "penalty", "question": "Đi xe máy không bật đèn ban đêm bị xử lý ra sao?", "expected_intent": "PENALTY"}
+{"id": "intent2-065", "topic": "penalty", "question": "Người điều khiển sẽ phải đóng bao nhiêu tiền khi mắc lỗi này?", "expected_intent": "PENALTY"}
+{"id": "intent2-066", "topic": "penalty", "question": "Vi phạm quy tắc giao thông này phải chịu chế tài gì?", "expected_intent": "PENALTY"}
+{"id": "intent2-067", "topic": "penalty", "question": "Chạy ngược chiều trên đường một chiều bị phạt mức nào?", "expected_intent": "PENALTY"}
+{"id": "intent2-068", "topic": "penalty", "question": "Không tuân theo chỉ dẫn của cảnh sát giao thông thì bị phạt ra sao?", "expected_intent": "PENALTY"}
+{"id": "intent2-069", "topic": "penalty", "question": "Lỗi chở quá số người quy định sẽ bị phạt bao nhiêu đồng?", "expected_intent": "PENALTY"}
+{"id": "intent2-070", "topic": "penalty", "question": "Nếu tài xế không nhường người đi bộ thì sẽ bị gì?", "expected_intent": "PENALTY"}
+{"id": "intent2-071", "topic": "penalty", "question": "Vượt qua vạch dừng khi đèn đỏ bị phạt bao nhiêu?", "expected_intent": "PENALTY"}
+{"id": "intent2-072", "topic": "penalty", "question": "Mức xử lý đối với hành vi bấm còi sai quy định là gì?", "expected_intent": "PENALTY"}
+{"id": "intent2-073", "topic": "penalty", "question": "Điều khiển xe khi chưa đủ tuổi thì chịu hình phạt ra sao?", "expected_intent": "PENALTY"}
+{"id": "intent2-074", "topic": "penalty", "question": "Không mang giấy phép lái xe sẽ bị phạt bao nhiêu?", "expected_intent": "PENALTY"}
+{"id": "intent2-075", "topic": "penalty", "question": "Xe máy chở hàng cồng kềnh bị phạt tiền thế nào?", "expected_intent": "PENALTY"}
+{"id": "intent2-076", "topic": "penalty", "question": "Việc không chấp hành biển cấm dẫn đến hậu quả xử phạt gì?", "expected_intent": "PENALTY"}
+{"id": "intent2-077", "topic": "penalty", "question": "Tài xế có thể bị phạt bao nhiêu vì dừng trên cầu?", "expected_intent": "PENALTY"}
+{"id": "intent2-078", "topic": "penalty", "question": "Lỗi đi vào đường cao tốc bằng xe máy bị xử phạt mức nào?", "expected_intent": "PENALTY"}
+{"id": "intent2-079", "topic": "penalty", "question": "Vi phạm này bị lập biên bản và xử lý như thế nào?", "expected_intent": "PENALTY"}
+{"id": "intent2-080", "topic": "penalty", "question": "Không bật xi nhan khi chuyển hướng thì tiền phạt là bao nhiêu?", "expected_intent": "PENALTY"}
+{"id": "intent2-081", "topic": "unknown", "question": "Thủ đô của Nhật Bản là thành phố nào?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-082", "topic": "unknown", "question": "Hãy giúp tôi viết một lời chúc sinh nhật ngắn.", "expected_intent": "UNKNOWN"}
+{"id": "intent2-083", "topic": "unknown", "question": "Nhiệt độ hiện tại ở Đà Nẵng là bao nhiêu?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-084", "topic": "unknown", "question": "Tôi nên mua laptop hãng nào để học thiết kế?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-085", "topic": "unknown", "question": "Bộ phim này được phát hành vào năm nào?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-086", "topic": "unknown", "question": "Dịch đoạn hội thoại trong ảnh sang tiếng Anh.", "expected_intent": "UNKNOWN"}
+{"id": "intent2-087", "topic": "unknown", "question": "Con vật đứng gần hàng rào là con gì?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-088", "topic": "unknown", "question": "Bạn hãy tính giúp 125 nhân với 48.", "expected_intent": "UNKNOWN"}
+{"id": "intent2-089", "topic": "unknown", "question": "Làm món phở bò cần những nguyên liệu nào?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-090", "topic": "unknown", "question": "Tác giả của cuốn Truyện Kiều là ai?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-091", "topic": "unknown", "question": "Hãy viết đoạn giới thiệu cho cửa hàng cà phê của tôi.", "expected_intent": "UNKNOWN"}
+{"id": "intent2-092", "topic": "unknown", "question": "Bức ảnh này được chụp vào mùa nào?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-093", "topic": "unknown", "question": "Máy tính của tôi không kết nối được Wi-Fi, sửa thế nào?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-094", "topic": "unknown", "question": "Cho tôi công thức làm bánh chuối hấp.", "expected_intent": "UNKNOWN"}
+{"id": "intent2-095", "topic": "unknown", "question": "Có bao nhiêu chiếc ghế trong căn phòng?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-096", "topic": "unknown", "question": "Thời tiết cuối tuần này ở Hà Nội ra sao?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-097", "topic": "unknown", "question": "Bạn có thể giải thích định lý Pythagoras không?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-098", "topic": "unknown", "question": "Hãy chuyển câu này thành văn phong trang trọng hơn.", "expected_intent": "UNKNOWN"}
+{"id": "intent2-099", "topic": "unknown", "question": "Ai đã đạo diễn bộ phim Inception?", "expected_intent": "UNKNOWN"}
+{"id": "intent2-100", "topic": "unknown", "question": "Tôi muốn lên kế hoạch du lịch Đà Lạt ba ngày.", "expected_intent": "UNKNOWN"}

@@ -1,78 +1,173 @@
-from PIL import Image
-from pathlib import Path
-from typing import Callable
+from __future__ import annotations
 
-from src.deps.qdrant import QdrantVectorStore
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Callable, Iterable
+
+from PIL import Image
+
+from src.core.article_context import (
+    article_candidate_from_payload,
+    merge_article_candidates,
+)
 from src.constants import DEFAULT_ARTICLES
 
+if TYPE_CHECKING:
+    from src.deps.qdrant import QdrantVectorStore
 
-default_article = {"law_id": "QCVN 41:2024/BGTVT", "article_id": "22"}
+
+DEFAULT_ARTICLE = {"law_id": "QCVN 41:2024/BGTVT", "article_id": "22"}
+
+
+def retrieved_article_references(
+    payload_groups: Iterable[Iterable[dict[str, Any]]],
+) -> list[dict[str, Any]]:
+    candidates: list[dict[str, Any]] = []
+    for payloads in payload_groups:
+        for rank, payload in enumerate(payloads, start=1):
+            candidate = article_candidate_from_payload(
+                payload,
+                retrieval_rank=rank,
+                context_source="retrieval",
+            )
+            if candidate:
+                candidates.append(candidate)
+
+    primary_candidates = merge_article_candidates(candidates)
+    references: list[dict[str, Any]] = []
+    for candidate in primary_candidates:
+        references.append(
+            {
+                "law_id": candidate["law_id"],
+                "article_id": candidate["article_id"],
+                "source": "retrieval",
+                "reason": "Retrieved from a selected traffic-sign embedding.",
+                "retrieval_rank": candidate["retrieval_rank"],
+                "related_sign_codes": candidate["related_sign_codes"],
+            }
+        )
+
+    primary_keys = {
+        (candidate["law_id"], candidate["article_id"])
+        for candidate in primary_candidates
+    }
+    related_candidates: list[dict[str, Any]] = []
+    for candidate in primary_candidates:
+        article_id = candidate["article_id"]
+        mapping = next(
+            (
+                (prefix, related_article)
+                for prefix, related_article in DEFAULT_ARTICLES.items()
+                if article_id.startswith(prefix)
+            ),
+            None,
+        )
+        if mapping is None:
+            continue
+        prefix, related_article = mapping
+        key = (
+            str(related_article.get("law_id") or "").strip(),
+            str(related_article.get("article_id") or "").strip(),
+        )
+        if not key[0] or not key[1] or key in primary_keys:
+            continue
+        related_candidates.append(
+            {
+                **related_article,
+                "context_source": "rule",
+                "source": "rule",
+                "reason": (
+                    f"DEFAULT_ARTICLES maps retrieved {prefix} article "
+                    "to this related article."
+                ),
+                "retrieval_rank": None,
+                "related_sign_codes": candidate["related_sign_codes"],
+            }
+        )
+    for candidate in merge_article_candidates(related_candidates):
+        references.append(
+            {
+                "law_id": candidate["law_id"],
+                "article_id": candidate["article_id"],
+                "source": "rule",
+                "reason": candidate["reason"],
+                "retrieval_rank": None,
+                "related_sign_codes": candidate["related_sign_codes"],
+            }
+        )
+    return references
+
+
+def fallback_article_reference() -> dict[str, Any]:
+    return {
+        **DEFAULT_ARTICLE,
+        "source": "fallback_default_article",
+        "reason": "No valid article was returned by sign retrieval.",
+        "retrieval_rank": None,
+        "related_sign_codes": [],
+    }
 
 
 def query_relevant_signs(
-    sample: dict[str, any],
+    sample: dict[str, Any],
     sign_dir: Path,
     embedding_model: Callable,
     vector_store: QdrantVectorStore,
     collection_name: str,
     limit: int = 1,
     set_name: str = "train",
-):
-    predicted_articles = []
-    for sign_info in sample["detected_signs"]:
-        if sign_info["is_chosen"]:
-            image_path = sign_dir / sign_info["image_name"]
-            image = Image.open(image_path)
-            embedding = embedding_model.embed_image(image)
-            retrieved_results = vector_store.query(
-                collection_name,
-                embedding,
-                top_k=limit,
-            )
+    unknown_only: bool = False,
+) -> dict[str, Any]:
+    payload_groups: list[list[dict[str, Any]]] = []
+    for sign_info in sample.get("detected_signs", []):
+        if not sign_info.get("is_chosen"):
+            continue
+        if unknown_only and sign_info.get("identity_status") == "identified" and sign_info.get("sign_code"):
+            continue
+        sign_info["retrieval_attempted"] = True
 
-            sign_info["image_lawdb_path"] = retrieved_results[0].payload["image_path"]
-            sign_info["sign_name"] = retrieved_results[0].payload["sign_name"]
-            sign_info["retrieved_payloads"] = [
-                dict(retrieved_result.payload or {})
-                for retrieved_result in retrieved_results
-            ]
+        image_path = sign_dir / sign_info["image_name"]
+        with Image.open(image_path) as source_image:
+            image = source_image.convert("RGB")
+        embedding = embedding_model.embed_image(image)
+        retrieved_results = vector_store.query(
+            collection_name,
+            embedding,
+            top_k=limit,
+        )
 
-            for retrieved_result in retrieved_results:
-                payload = retrieved_result.payload
-                article = {
-                    "law_id": payload["law_id"],
-                    "article_id": payload["article_id"],
-                }
+        payloads: list[dict[str, Any]] = []
+        for rank, retrieved_result in enumerate(retrieved_results, start=1):
+            payload = dict(retrieved_result.payload or {})
+            payload["retrieval_rank"] = rank
+            payload["source"] = "retrieval"
+            score = getattr(retrieved_result, "score", None)
+            if score is not None:
+                payload["score"] = score
+            payloads.append(payload)
 
-                if article not in predicted_articles:
-                    predicted_articles.append(article)
+        sign_info["retrieved_payloads"] = payloads
+        payload_groups.append(payloads)
+        if payloads:
+            primary_payload = payloads[0]
+            sign_info["image_lawdb_path"] = primary_payload.get("image_path", "")
+            sign_info["sign_name"] = primary_payload.get("sign_name", "")
 
-    final_relevant_articles = []
-    has_specical_signs = False
-    for relevant_article in predicted_articles:
-        article_id = relevant_article["article_id"]
+    articles = retrieved_article_references(payload_groups)
+    queried_any = any(
+        sign.get("is_chosen")
+        and not (unknown_only and sign.get("identity_status") == "identified" and sign.get("sign_code"))
+        for sign in sample.get("detected_signs", [])
+    )
+    if not articles and queried_any:
+        articles = [fallback_article_reference()]
 
-        final_relevant_articles.append(relevant_article)
-
-        # Rule 2
-        for first_char, article in DEFAULT_ARTICLES.items():
-            if article_id.startswith(first_char):
-                if article not in final_relevant_articles:
-                    final_relevant_articles.append(article)
-                    has_specical_signs = True
-                break
-
-    # Rule 3
-    if not has_specical_signs:
-        final_relevant_articles.append(default_article)
-
-    # Rule 1
-    if not len(final_relevant_articles):
-        final_relevant_articles = [default_article]
-
+    if not queried_any:
+        return sample
     if set_name == "train":
-        sample["predicted_articles"] = final_relevant_articles
-    elif set_name in ["public_test", "private_test"]:
-        sample["relevant_articles"] = final_relevant_articles
+        sample["predicted_articles"] = articles
+    elif set_name in {"public_test", "private_test"}:
+        sample["relevant_articles"] = articles
+    else:
+        raise ValueError(f"Unsupported set_name: {set_name}")
 
     return sample

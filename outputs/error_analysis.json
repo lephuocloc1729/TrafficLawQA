@@ -1,0 +1,616 @@
+{
+  "schema_version": 1,
+  "threshold": 0.2,
+  "summary": {
+    "num_samples": 20,
+    "error_counts": {
+      "NO_DETECTION": 0,
+      "WRONG_SIGN_VARIANT": 0,
+      "WRONG_ARTICLE": 5,
+      "RIGHT_ARTICLE_LOW_RANK": 3,
+      "WRONG_SYMBOLIC_RULE": 0,
+      "WRONG_CITATION": 13,
+      "WRONG_FINAL_ANSWER": 4,
+      "INVALID_JSON": 0
+    },
+    "error_rates": {
+      "NO_DETECTION": 0.0,
+      "WRONG_SIGN_VARIANT": 0.0,
+      "WRONG_ARTICLE": 0.25,
+      "RIGHT_ARTICLE_LOW_RANK": 0.15,
+      "WRONG_SYMBOLIC_RULE": 0.0,
+      "WRONG_CITATION": 0.65,
+      "WRONG_FINAL_ANSWER": 0.2,
+      "INVALID_JSON": 0.0
+    },
+    "trace_coverage": {
+      "detection_trace_samples": 0,
+      "retrieval_payload_trace_samples": 0,
+      "retrieval_trace_rate": 0.0
+    },
+    "recommendations": [
+      {
+        "signal": "RIGHT_ARTICLE_LOW_RANK",
+        "count": 3,
+        "rate": 0.15,
+        "triggered": false,
+        "recommendation": "Prioritize reranking or hybrid retrieval; gold articles are retrieved but not near the top."
+      },
+      {
+        "signal": "WRONG_SIGN_VARIANT",
+        "count": 0,
+        "rate": 0.0,
+        "triggered": false,
+        "recommendation": "Improve sign-code extraction and variant resolution before changing article retrieval."
+      },
+      {
+        "signal": "WRONG_ARTICLE",
+        "count": 5,
+        "rate": 0.25,
+        "triggered": true,
+        "recommendation": "Audit detection, embeddings and LawDB coverage; the relevant article is absent from observed top-5 results."
+      },
+      {
+        "signal": "RETRIEVAL_CORRECT_BUT_ANSWER_WRONG",
+        "count": 4,
+        "rate": 0.2,
+        "triggered": true,
+        "recommendation": "For these specific cases, focus on symbolic reasoning or the answer prompt rather than retrieval."
+      }
+    ]
+  },
+  "provenance": {
+    "baseline_name": "train-40-59-gemma3-yoloe-clip-limit5",
+    "config_sha256": "0afbda055ac06d0ce9cc9ff3c4f2bc1fe45ca097bde54809e61fab27e2fd221e",
+    "detail_level": "legacy_evaluator_output",
+    "provenance": {
+      "source_artifact": "outputs/freeform_qa_metrics_reverted_previous_begin39_20_judge_20260728.json",
+      "source_git_revision": "f3eb048",
+      "source_git_revision_note": "Best available association from artifact and commit timestamps; the legacy artifact did not record a revision.",
+      "limitations": "The legacy evaluator retained the generated answer and per-sample metrics, but not citations, retrieved payloads, or raw model responses. New runs retain the full pipeline output."
+    }
+  },
+  "limitations": [
+    "Unavailable retrieval or detection details are null; they are not treated as empty results.",
+    "WRONG_SIGN_VARIANT requires gold_sign_code(s) in the input sample.",
+    "WRONG_SYMBOLIC_RULE requires gold_symbolic_decision in the input sample.",
+    "When only aggregate per-sample recall is available, low-rank and wrong-article labels are inferred from those metrics; exact article lists remain unavailable."
+  ],
+  "rows": [
+    {
+      "id": "train_40",
+      "question": "Trong khoảng thời gian từ 6:00 đến 9:00 và từ 16:30 đến 19:30, xe nào không được phép lưu thông trên đoạn đường này khi gặp biển hình tròn có hình xe máy?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#11",
+        "QCVN 41:2024/BGTVT#B.3"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Trong khoảng thời gian từ 6:00 đến 9:00 và từ 16:30 đến 19:30, xe gắn máy không được phép lưu thông trên đoạn đường này.",
+      "error_type": [
+        "WRONG_ARTICLE",
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.0,
+        "retrieval_recall_at_3": 0.0,
+        "retrieval_recall_at_5": 0.0,
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_41",
+      "question": "Biển báo \"10t\" có ý nghĩa gì và loại xe nào bị hạn chế lưu thông trên đoạn đường này?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#11",
+        "QCVN 41:2024/BGTVT#B.16"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Biển báo \"10t\" có nghĩa là hạn chế trọng tải toàn bộ xe. Theo đó, các phương tiện có tổng trọng tải vượt quá 10 tấn không được phép lưu thông trên đoạn đường này.",
+      "error_type": [
+        "RIGHT_ARTICLE_LOW_RANK",
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.0,
+        "retrieval_recall_at_3": 0.0,
+        "retrieval_recall_at_5": 0.5,
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_42",
+      "question": "Biển báo \"10t\" yêu cầu phương tiện nào không được phép lưu thông trên đoạn đường này?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#11",
+        "QCVN 41:2024/BGTVT#B.15"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Biển báo \"10t\" (P.115) yêu cầu hạn chế trọng tải toàn bộ xe, tức là các phương tiện có tổng trọng tải vượt quá 10 tấn không được phép lưu thông trên đoạn đường này.",
+      "error_type": [
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.5,
+        "retrieval_recall_at_3": 0.5,
+        "retrieval_recall_at_5": 0.5,
+        "citation_precision": 1.0,
+        "citation_recall": 0.5,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_43",
+      "question": "Biển báo \"người tham gia giao thông không được phép đi bộ\" yêu cầu gì?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#11",
+        "QCVN 41:2024/BGTVT#B.12"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Biển báo \"Cấm người đi bộ\" (P.112) yêu cầu người đi bộ không được phép đi trên đoạn đường có biển báo.",
+      "error_type": [
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.5,
+        "retrieval_recall_at_3": 0.5,
+        "retrieval_recall_at_5": 0.5,
+        "citation_precision": 1.0,
+        "citation_recall": 0.5,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_44",
+      "question": "Biển báo \"Cấm xe đạp\" yêu cầu cấm phương tiện nào lưu thông trên đoạn đường này?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#11",
+        "QCVN 41:2024/BGTVT#B.10"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Biển báo \"Cấm xe đạp\" (P.110a) cấm xe đạp lưu thông trên đoạn đường.",
+      "error_type": [
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.5,
+        "retrieval_recall_at_3": 0.5,
+        "retrieval_recall_at_5": 0.5,
+        "citation_precision": 1.0,
+        "citation_recall": 0.5,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_45",
+      "question": "Biển báo có số 3.3m. Câu nào đúng nói về biển báo này?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#11",
+        "QCVN 41:2024/BGTVT#B.18"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Biển báo P.117 \"Hạn chế chiều cao\" có trị số ghi là 3,5m. Theo QCVN 41:2024/BGTVT B.17(c), trị số trên biển là khoảng cách từ điểm cao nhất của mặt đường đến điểm thấp nhất của chướng ngại vật vượt trên đường (chiều cao tĩnh không) trừ đi 0,5 m. Do đó, xe có chiều cao lớn hơn 3,5m - 0,5m = 3m sẽ bị cấm.",
+      "error_type": [
+        "RIGHT_ARTICLE_LOW_RANK",
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.0,
+        "retrieval_recall_at_3": 0.5,
+        "retrieval_recall_at_5": 0.5,
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_46",
+      "question": "Biển báo có hình xe 3 bánh và xe khách yêu cầu phương tiện nào không được phép lưu thông trên đoạn đường này?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#11",
+        "QCVN 41:2024/BGTVT#B.7"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Biển báo này cấm xe ô tô khách và xe ô tô tải.",
+      "error_type": [
+        "WRONG_ARTICLE",
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.0,
+        "retrieval_recall_at_3": 0.0,
+        "retrieval_recall_at_5": 0.0,
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_47",
+      "question": "Xe máy có được phép lưu thông trên đoạn đường này vào các khung giờ từ 6:00 đến 9:00 và từ 16:30 đến 19:30 đúng hay sai?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#11",
+        "QCVN 41:2024/BGTVT#B.11"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Không, xe máy không được phép lưu thông trên đoạn đường này vào các khung giờ từ 6:00 đến 9:00 và từ 16:30 đến 19:30. Biển báo P.111a cấm xe gắn máy đi qua khu vực.",
+      "error_type": [
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.5,
+        "retrieval_recall_at_3": 0.5,
+        "retrieval_recall_at_5": 0.5,
+        "citation_precision": 1.0,
+        "citation_recall": 0.5,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_48",
+      "question": "Biển báo có hình người đi bộ này yêu cầu người đi bộ không được phép lưu thông trên đoạn đường này. Câu này đúng hay sai?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#11",
+        "QCVN 41:2024/BGTVT#B.12"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Đúng. Biển báo P.112 \"Cấm người đi bộ\" có nghĩa là người đi bộ không được phép lưu thông trên đoạn đường này.",
+      "error_type": [
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.5,
+        "retrieval_recall_at_3": 0.5,
+        "retrieval_recall_at_5": 0.5,
+        "citation_precision": 1.0,
+        "citation_recall": 0.5,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_49",
+      "question": "Biển báo này yêu cầu các phương tiện giao thông có chiều cao vượt quá 3,3m không được phép lưu thông. Câu này đúng hay sai?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#11",
+        "QCVN 41:2024/BGTVT#B.18"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Câu nói này đúng. Biển P.117 \"Hạn chế chiều cao\" báo hiệu các xe có chiều cao vượt quá trị số ghi trên biển (3,5m) không được phép lưu thông.",
+      "error_type": [
+        "RIGHT_ARTICLE_LOW_RANK",
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.0,
+        "retrieval_recall_at_3": 0.5,
+        "retrieval_recall_at_5": 0.5,
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_50",
+      "question": "Biển báo \"cấm đi ngược chiều\" yêu cầu phương tiện nào không được phép lưu thông trên đoạn đường này?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#11",
+        "QCVN 41:2024/BGTVT#B.1"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Biển \"cấm đi ngược chiều\" (P.102) cấm các loại xe cơ giới và thô sơ đi vào theo chiều đặt biển, trừ các xe được ưu tiên.",
+      "error_type": [
+        "WRONG_ARTICLE",
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.0,
+        "retrieval_recall_at_3": 0.0,
+        "retrieval_recall_at_5": 0.0,
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_51",
+      "question": "Biển báo này chỉ dẫn đường đi đến những điểm nào?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#E.14"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Biển báo này chỉ dẫn đường đi đến Sân bay Trà Nóc (12km), Trung tâm TP. Cần Thơ (2km) và Sóc Trăng (67km).",
+      "error_type": [],
+      "metrics": {
+        "retrieval_recall_at_1": 1.0,
+        "retrieval_recall_at_3": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_52",
+      "question": "Biển báo này chỉ dẫn các điểm đến nào và theo hướng nào?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#E.14"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Biển báo chỉ dẫn đến Hải Dương, Mỹ Hào và Hưng Yên theo các hướng khác nhau.",
+      "error_type": [],
+      "metrics": {
+        "retrieval_recall_at_1": 1.0,
+        "retrieval_recall_at_3": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_53",
+      "question": "Biển báo này chỉ dẫn điều gì về khu vực phía trước?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#D.17"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Biển báo này chỉ dẫn rằng khu vực phía trước là bắt đầu khu đông dân cư.",
+      "error_type": [],
+      "metrics": {
+        "retrieval_recall_at_1": 1.0,
+        "retrieval_recall_at_3": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_54",
+      "question": "Khi gặp biển báo này, giới hạn tốc độ cho ô tô là bao nhiêu khi có dải phân cách?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#D.17"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Khi gặp biển báo \"Bắt đầu khu đông dân cư\" (R.420), tốc độ tối đa cho phép phụ thuộc vào các biển báo hiệu lệnh khác đặt trong phạm vi khu vực này.",
+      "error_type": [
+        "WRONG_FINAL_ANSWER"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 1.0,
+        "retrieval_recall_at_3": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "answer_correctness": 0.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_55",
+      "question": "Khi gặp biển báo này, giới hạn tốc độ cho ô tô là bao nhiêu khi không có dải phân cách?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#D.17"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Khi gặp biển báo \"Bắt đầu khu đông dân cư\" (R.420), tốc độ tối đa cho phép sẽ được quy định bởi các biển báo hiệu tốc độ trong khu vực đó.",
+      "error_type": [
+        "WRONG_FINAL_ANSWER"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 1.0,
+        "retrieval_recall_at_3": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "answer_correctness": 0.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_56",
+      "question": "Khi gặp biển báo này, giới hạn tốc độ cho xe máy là bao nhiêu khi có dải phân cách ?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#D.17"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Khi gặp biển báo \"Bắt đầu khu đông dân cư\" (R.420), tốc độ tối đa cho phép sẽ được quy định bởi biển số P.127.",
+      "error_type": [
+        "WRONG_FINAL_ANSWER"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 1.0,
+        "retrieval_recall_at_3": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "answer_correctness": 0.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_57",
+      "question": "Biển báo này yêu cầu giới hạn tốc độ cho ô tô là 100 km/h khi có dải phân cách và 80 km/h khi không có dải phân cách. Câu này đúng hay sai?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#22",
+        "QCVN 41:2024/BGTVT#D.18"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Không đủ thông tin để xác định giới hạn tốc độ cụ thể cho ô tô dựa trên hình ảnh và các điều luật được cung cấp.",
+      "error_type": [
+        "WRONG_ARTICLE",
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.0,
+        "retrieval_recall_at_3": 0.0,
+        "retrieval_recall_at_5": 0.0,
+        "citation_precision": 1.0,
+        "citation_recall": 0.5,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_58",
+      "question": "Khi gặp biển báo này, giới hạn tốc độ cho xe máy là bao nhiêu khi không có dải phân cách?",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#D.17"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Khi gặp biển báo \"Bắt đầu khu đông dân cư\", tốc độ tối đa cho phép sẽ được quy định bởi biển số P.127 (biển báo hiệu tốc độ tối đa cho phép).",
+      "error_type": [
+        "WRONG_FINAL_ANSWER"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 1.0,
+        "retrieval_recall_at_3": 1.0,
+        "retrieval_recall_at_5": 1.0,
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "answer_correctness": 0.0,
+        "json_validity": 1.0
+      }
+    },
+    {
+      "id": "train_59",
+      "question": "Biển báo này chỉ dẫn đường đi đến các điểm nào \n",
+      "gold_articles": [
+        "QCVN 41:2024/BGTVT#46",
+        "QCVN 41:2024/BGTVT#P.17"
+      ],
+      "retrieved_top1": null,
+      "retrieved_top3": null,
+      "retrieved_top5": null,
+      "detected_signs": null,
+      "sign_code": null,
+      "symbolic_decision": null,
+      "final_answer": "Biển báo chỉ dẫn đường đi đến Hà Nội cách 145km, Vĩnh Yên cách 91km, Việt Trì cách 75km và TX Phú Thọ cách 53km.",
+      "error_type": [
+        "WRONG_ARTICLE",
+        "WRONG_CITATION"
+      ],
+      "metrics": {
+        "retrieval_recall_at_1": 0.0,
+        "retrieval_recall_at_3": 0.0,
+        "retrieval_recall_at_5": 0.0,
+        "citation_precision": 0.0,
+        "citation_recall": 0.0,
+        "answer_correctness": 1.0,
+        "json_validity": 1.0
+      }
+    }
+  ]
+}

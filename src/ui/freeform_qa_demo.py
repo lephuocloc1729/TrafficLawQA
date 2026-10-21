@@ -1,26 +1,134 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
 import streamlit as st
+from openai import OpenAI
+import torch
 
+from src.core.baseline1_bm25_llm import answer_image_question as answer_bm25_question
+from src.core.baseline1_bm25_llm import create_resources as create_bm25_resources
 from src.core.freeform_qa import answer_image_question, create_freeform_qa_resources
+from src.eval.baseline_config import load_baseline_config
+from src.eval.freeform_qa_metrics import apply_baseline_config
+from src.eval.vlm_only import answer_one as answer_vlm_question
+from src.eval.vlm_only import load_config as load_vlm_config
+from src.settings import settings
 
 
 ALLOWED_IMAGE_TYPES = ["jpg", "jpeg", "png"]
 DEMO_CONTENT_MAX_WIDTH = 920
 DEMO_IMAGE_WIDTH = 520
+RAG_PIPELINE = "RAG baseline"
+NEURO_SYMBOLIC_PIPELINE = "Neuro-symbolic (YOLO26m)"
+BM25_PIPELINE = "BM25 + LLM"
+VLM_PIPELINE = "VLM-only"
+PIPELINE_NAMES = (
+    RAG_PIPELINE,
+    NEURO_SYMBOLIC_PIPELINE,
+    BM25_PIPELINE,
+    VLM_PIPELINE,
+)
 
 
 st.set_page_config(page_title="Traffic Sign QA", layout="wide")
 
 
-@st.cache_resource(show_spinner="Loading detector and embedding model...")
-def load_resources():
+@st.cache_resource(show_spinner="Loading pipeline resources...")
+def load_resources(pipeline_name: str):
+    if pipeline_name == BM25_PIPELINE:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        return create_bm25_resources(device=device)
     return create_freeform_qa_resources()
+
+
+@st.cache_resource(show_spinner=False)
+def load_vlm_client(base_url: str, api_key: str) -> OpenAI:
+    return OpenAI(base_url=base_url, api_key=api_key)
+
+
+def configure_pipeline(pipeline_name: str) -> dict[str, Any] | None:
+    """Apply the selected profile before loading or using cached resources."""
+    if pipeline_name == RAG_PIPELINE:
+        config = load_baseline_config("configs/baseline_eval.json")
+        apply_baseline_config(config)
+        return config
+    if pipeline_name == NEURO_SYMBOLIC_PIPELINE:
+        config = load_baseline_config("configs/neuro_symbolic_eval.json")
+        apply_baseline_config(config)
+        return config
+    if pipeline_name == BM25_PIPELINE:
+        config = load_baseline_config("configs/baseline_eval.json")
+        apply_baseline_config(config)
+        settings.image_query_detection_model = "YoloE"
+        settings.enable_sign_retrieval_fallback = False
+        settings.enable_symbolic_reasoning = False
+        return config
+    return None
+
+
+def run_selected_pipeline(
+    pipeline_name: str,
+    image_path: Path,
+    question: str,
+    choices: str,
+    use_vlm_filter: bool,
+    resources: Any | None = None,
+) -> dict[str, Any]:
+    if pipeline_name in {RAG_PIPELINE, NEURO_SYMBOLIC_PIPELINE}:
+        resources = resources or load_resources(pipeline_name)
+        return answer_image_question(
+            image_path=image_path,
+            question=question,
+            choices=choices or None,
+            resources=resources,
+            use_vlm_filter=use_vlm_filter,
+        )
+
+    if pipeline_name == BM25_PIPELINE:
+        resources = resources or load_resources(pipeline_name)
+        started = time.perf_counter()
+        result = answer_bm25_question(
+            image_path=image_path,
+            question=question,
+            choices=choices.splitlines() if choices.strip() else None,
+            resources=resources,
+        )
+        result["latency_seconds"] = round(time.perf_counter() - started, 5)
+        return result
+
+    vlm_config = load_vlm_config(Path("configs/baseline2_vlm_only.json"))
+    model = vlm_config["model"]
+    base_url = os.environ.get(model.get("base_url_env", "LLM_BASE_URL")) or settings.llm_base_url
+    configured_keys = (
+        os.environ.get(model.get("api_key_env", "LLM_API_KEYS"))
+        or settings.llm_api_keys
+        or ""
+    )
+    api_keys = [key.strip() for key in configured_keys.split(",") if key.strip()]
+    if not base_url or not api_keys:
+        raise ValueError("Set LLM_BASE_URL and LLM_API_KEYS before using VLM-only.")
+    client = load_vlm_client(base_url, api_keys[0])
+    prediction = answer_vlm_question(
+        client,
+        model,
+        {"question": question},
+        image_path,
+    )
+    return {
+        "freeform_answer": prediction["answer"],
+        "confidence": "not scored",
+        "performance": {"total": round(prediction["latency_seconds"], 5)},
+        "raw_answer_response": prediction["answer"],
+        "citations": [],
+        "visual_evidence": [],
+        "vlm_usage": prediction,
+    }
 
 
 def inject_demo_styles() -> None:
@@ -213,6 +321,15 @@ def render_debug(result: dict[str, Any]) -> None:
         "performance": result.get("performance"),
         "relevant_articles": result.get("relevant_articles"),
         "article_contexts": result.get("article_contexts"),
+        "query_intent": result.get("query_intent"),
+        "query_context_facts": result.get("query_context_facts"),
+        "symbolic_decision": result.get("symbolic_decision"),
+        "rules_fired": result.get("rules_fired"),
+        "traffic_facts": result.get("traffic_facts"),
+        "intent_evaluations": result.get("intent_evaluations"),
+        "rule_evaluations": result.get("rule_evaluations"),
+        "sign_meaning_evaluations": result.get("sign_meaning_evaluations"),
+        "reasoning_trace": result.get("reasoning_trace"),
         "detected_signs": result.get("detected_signs"),
         "answer_prompt_parts": result.get("answer_prompt_parts"),
     }
@@ -225,15 +342,29 @@ def main() -> None:
 
     with st.sidebar:
         st.header("Settings")
-        st.caption(
-            "The demo detects signs, retrieves LawDB evidence from Qdrant, "
-            "and generates a cited free-form answer."
+        pipeline_name = st.selectbox("Pipeline", PIPELINE_NAMES)
+        configure_pipeline(pipeline_name)
+        pipeline_descriptions = {
+            RAG_PIPELINE: "Sign detection + LawDB vector retrieval + answer generation.",
+            NEURO_SYMBOLIC_PIPELINE: "YOLO26m sign recognition + symbolic traffic rules + answer generation.",
+            BM25_PIPELINE: "YoloE crops + optional OCR + BM25 legal text retrieval + answer generation.",
+            VLM_PIPELINE: "Original image + question sent directly to one multimodal model.",
+        }
+        st.caption(pipeline_descriptions[pipeline_name])
+        debug = (
+            st.checkbox("Debug", value=False)
+            if pipeline_name in {RAG_PIPELINE, NEURO_SYMBOLIC_PIPELINE}
+            else False
         )
-        debug = st.checkbox("Debug", value=False)
-        use_vlm_filter = st.checkbox("Use VLM sign filter", value=True)
+        if pipeline_name == RAG_PIPELINE:
+            use_vlm_filter = st.checkbox("Use VLM sign filter", value=True)
+        else:
+            use_vlm_filter = False
+            if pipeline_name == NEURO_SYMBOLIC_PIPELINE:
+                st.caption("All YOLO26m detections are sent to symbolic reasoning.")
         with st.expander("Optional reference choices", expanded=False):
             choices = st.text_area(
-                "Choices",
+                "Choices (ignored by VLM-only)",
                 height=140,
                 placeholder="Paste A/B/C/D choices if the sample has them.",
                 label_visibility="collapsed",
@@ -272,29 +403,62 @@ def main() -> None:
 
     try:
         with st.spinner(
-            "Detecting signs, retrieving legal evidence, and preparing answer..."
+            f"Running {pipeline_name}..."
         ):
-            resources = load_resources()
-            result = answer_image_question(
+            resources = (
+                load_resources(pipeline_name)
+                if pipeline_name != VLM_PIPELINE
+                else None
+            )
+            result = run_selected_pipeline(
+                pipeline_name=pipeline_name,
                 image_path=image_path,
                 question=question.strip(),
-                choices=choices.strip() or None,
-                debug=debug,
-                resources=resources,
+                choices=choices.strip(),
                 use_vlm_filter=use_vlm_filter,
+                resources=resources,
             )
     except Exception as exc:
-        st.error("Free-form demo run failed.")
+        st.error(f"{pipeline_name} run failed.")
         st.caption(f"{type(exc).__name__}: {exc}")
         return
 
     st.divider()
-    render_answer(result)
-    render_detected_signs(result)
-    render_citations(result)
-    render_visual_evidence(result)
-    if debug:
-        render_debug(result)
+    st.subheader(pipeline_name)
+    if pipeline_name == BM25_PIPELINE:
+        render_answer(
+            {
+                "freeform_answer": result.get("answer"),
+                "confidence": "not scored",
+                "performance": {"total": result.get("latency_seconds")},
+                "reasoning": result.get("recognition_limit"),
+            }
+        )
+        render_citations(result)
+        st.subheader("BM25 Evidence")
+        st.json(
+            {
+                "retrieved_units": result.get("retrieved_units"),
+                "ocr_texts": result.get("ocr_texts"),
+                "ocr_status": result.get("ocr_status"),
+                "query": result.get("query"),
+            }
+        )
+    elif pipeline_name == VLM_PIPELINE:
+        render_answer(result)
+        st.info("VLM-only does not produce legal citations or detected-sign evidence.")
+        usage = result.get("vlm_usage") or {}
+        st.caption(
+            f"Tokens: {usage.get('input_tokens') or '—'} input · "
+            f"{usage.get('output_tokens') or '—'} output"
+        )
+    else:
+        render_answer(result)
+        render_detected_signs(result)
+        render_citations(result)
+        render_visual_evidence(result)
+        if debug:
+            render_debug(result)
 
 
 if __name__ == "__main__":

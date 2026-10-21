@@ -19,6 +19,17 @@ from src.deps.qdrant import QdrantVectorStore
 from src.core.utils import load_json, save_json, pil_to_base64_png
 from src.deps.embeddings import get_embedding_model
 from src.core.lawdb.article_lookup import LawDBArticleLookup
+from src.core.article_context import (
+    article_candidate_from_payload,
+    build_article_contexts,
+    rule_article_candidates,
+)
+from src.core.symbolic.reasoner import build_symbolic_reasoning_context
+from src.core.symbolic.fact_schema import SignObservation, TrafficFacts
+from src.core.symbolic.sign_normalizer import normalize_detected_sign_to_observation, normalize_sign_code
+from src.core.symbolic.sign_relations import link_supplementary_signs
+from src.core.symbolic.traffic_sign_ocr import get_traffic_sign_ocr
+from src.core.symbolic.sign_information_facts import extract_nearby_highway_profile_facts
 from src.prompts.answer_prompt import (
     SYSTEM_PROMPT_FREEFORM_CITED_QA,
     SYSTEM_PROMPT_SIGN_VARIANT_DISAMBIGUATION,
@@ -88,9 +99,11 @@ def _citation_evidence(article: dict[str, str]) -> str:
 
 def normalize_freeform_response(
     response_content: str,
-    article_contexts: list[dict[str, str]],
-    visual_evidence: list[dict[str, str]],
+    article_contexts: list[dict[str, Any]],
+    visual_evidence: list[dict[str, Any]],
+    symbolic_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    symbolic_context = symbolic_context or {}
     allowed_articles = {
         (article["law_id"], article["article_id"]): article
         for article in article_contexts
@@ -214,6 +227,63 @@ def normalize_freeform_response(
         answer = "Chưa đủ thông tin trong context được cung cấp để trả lời chắc chắn."
         confidence = "low"
 
+    # Do not let the free-form model turn an uncovered or incomplete sign rule
+    # into a permission claim. For sign permission intents, the
+    # symbolic outcome is the authority; the LLM may explain it, but it cannot
+    # promote UNKNOWN/CONDITIONAL to ALLOWED (or PROHIBITED).
+    query_intent = symbolic_context.get("query_intent", {})
+    intents = query_intent.get("intents", []) if isinstance(query_intent, dict) else []
+    intent_kinds = {
+        str(item.get("kind") or "UNKNOWN").upper()
+        for item in intents
+        if isinstance(item, dict)
+    }
+    if intent_kinds and intent_kinds.issubset({"PENALTY", "UNKNOWN"}):
+        answer = "Hiện hệ thống chưa hỗ trợ câu hỏi về mức phạt hoặc chưa xác định được yêu cầu."
+        citations = []
+        confidence = "low"
+        reasoning = "Intent thuộc nhóm PENALTY/UNKNOWN, hiện chưa được hệ thống hỗ trợ."
+    sign_permission_intent = any(
+        isinstance(item, dict)
+        and str(item.get("kind") or "").upper() == "CHECK_PERMISSION"
+        for item in intents
+    )
+    traffic_facts = symbolic_context.get("facts", {})
+    observations = traffic_facts.get("sign_observations", []) if isinstance(traffic_facts, dict) else []
+    # An ambiguous/unidentified observation is still a sign-focused request;
+    # it must not fall through to a free-form permission inference.
+    target_has_sign = isinstance(observations, list) and bool(observations)
+    if not target_has_sign:
+        for item in intents:
+            target = item.get("target") if isinstance(item, dict) else None
+            if isinstance(target, str) and target in {"scene", "sign_observation", "sign_code"}:
+                target_has_sign = True
+                break
+            if isinstance(target, dict) and (
+                target.get("sign_codes") or target.get("kind") == "sign_observation"
+            ):
+                target_has_sign = True
+                break
+    symbolic_decision = symbolic_context.get("symbolic_decision", {})
+    outcome = (
+        str(symbolic_decision.get("decision") or "UNKNOWN").upper()
+        if isinstance(symbolic_decision, dict)
+        else "UNKNOWN"
+    )
+    if sign_permission_intent and target_has_sign and outcome in {"UNKNOWN", "CONDITIONAL"}:
+        conclusion = (
+            str(symbolic_decision.get("conclusion") or symbolic_decision.get("reason") or "").strip()
+            if isinstance(symbolic_decision, dict)
+            else ""
+        )
+        answer = (
+            f"Chưa thể kết luận được phép hay bị cấm (kết quả {outcome})."
+            + (f" {conclusion}" if conclusion else "")
+        )
+        reasoning = "Kết quả được giữ ở trạng thái fail-closed từ rule engine; câu trả lời tự do không được nâng thành kết luận pháp lý."
+        citations = []
+        confidence = "low"
+
     return {
         "freeform_answer": answer,
         "citations": citations,
@@ -221,30 +291,22 @@ def normalize_freeform_response(
         "reasoning": reasoning,
         "confidence": confidence,
         "raw_answer_response": response_content,
+        "symbolic_decision": symbolic_context.get("symbolic_decision", {}),
+        "rules_fired": symbolic_context.get("rules_fired", []),
+        "traffic_facts": symbolic_context.get("facts", {}),
+        "query_intent": symbolic_context.get("query_intent", {}),
+        "query_context_facts": symbolic_context.get("query_context_facts", []),
+        "intent_evaluations": symbolic_context.get("intent_evaluations", []),
+        "rule_evaluations": symbolic_context.get("rule_evaluations", []),
+        "sign_meaning_evaluations": symbolic_context.get("sign_meaning_evaluations", []),
+        "reasoning_trace": symbolic_context.get("reasoning_trace", {}),
     }
-
-
-def _article_ref(article: dict[str, Any]) -> dict[str, str]:
-    return {
-        "law_id": str(article.get("law_id") or "").strip(),
-        "article_id": str(article.get("article_id") or "").strip(),
-    }
-
-
-def _dedupe_articles(articles: list[dict[str, Any]]) -> list[dict[str, str]]:
-    seen: set[tuple[str, str]] = set()
-    deduped: list[dict[str, str]] = []
-    for article in articles:
-        article_ref = _article_ref(article)
-        key = (article_ref["law_id"], article_ref["article_id"])
-        if not key[0] or not key[1] or key in seen:
-            continue
-        seen.add(key)
-        deduped.append(article_ref)
-    return deduped
 
 
 def _sign_code(payload: dict[str, Any]) -> str:
+    direct = normalize_sign_code(str(payload.get("sign_code") or ""))
+    if direct:
+        return direct
     text = " ".join(
         str(payload.get(key) or "")
         for key in ("sign_name", "sign_description", "name", "description")
@@ -257,14 +319,24 @@ def _sign_family(sign_code: str) -> str:
     return re.sub(r"([,\.]\d+)[a-z]$", r"\1", sign_code)
 
 
-def _has_ambiguous_variants(payloads: list[dict[str, Any]]) -> bool:
-    families: dict[str, set[str]] = {}
+def _has_multiple_candidate_identities(payloads: list[dict[str, Any]]) -> bool:
+    identities = set()
     for payload in payloads:
         code = _sign_code(payload)
-        if not code or not re.search(r"[a-z]$", code):
-            continue
-        families.setdefault(_sign_family(code), set()).add(code)
-    return any(len(codes) > 1 for codes in families.values())
+        attributes = payload.get("attributes") or {}
+        conditions = payload.get("normalized_conditions") or {}
+        if code:
+            identities.add((
+                code,
+                json.dumps(attributes, ensure_ascii=False, sort_keys=True, default=str),
+                json.dumps(conditions, ensure_ascii=False, sort_keys=True, default=str),
+            ))
+        else:
+            identities.add((
+                str(payload.get("sign_name") or payload.get("name") or "").strip().casefold(),
+                str(payload.get("sign_description") or payload.get("description") or "").strip().casefold(),
+            ))
+    return len(identities) > 1
 
 
 def _variant_hint_from_question(
@@ -302,19 +374,19 @@ def _parse_selected_index(
         parsed = extract_json_object(response_content)
     except Exception as exc:
         return {
-            "selected_index": 0,
+            "selected_index": None,
             "confidence": "low",
-            "reason": f"Fallback to top-1 because variant JSON parse failed: {exc}",
+            "reason": f"Candidate selection abstained because response JSON was invalid: {exc}",
             "raw_response": response_content,
         }
 
-    selected_index = parsed.get("selected_index", 0)
+    selected_index = parsed.get("selected_index")
     if (
         not isinstance(selected_index, int)
         or selected_index < 0
         or selected_index >= len(payloads)
     ):
-        selected_index = 0
+        selected_index = None
 
     confidence = str(parsed.get("confidence") or "low").lower().strip()
     if confidence not in {"high", "medium", "low"}:
@@ -349,24 +421,50 @@ def disambiguate_sign_payloads(
         return reordered, {
             "selected_index": hint_index,
             "confidence": "medium",
+            "identity_confirmed": True,
             "reason": "Selected from explicit question hint.",
             "method": "question_hint",
         }
 
     if (
-        not llm_client
-        or len(sign_payloads) < 2
-        or not _has_ambiguous_variants(sign_payloads)
+        len(sign_payloads) < 2
     ):
-        return sign_payloads, {"selected_index": 0, "method": "top1"}
+        return sign_payloads, {
+            "selected_index": None,
+            "confidence": "low",
+            "identity_confirmed": False,
+            "reason": "No LLM choice was made because fewer than two retrieved candidates were available.",
+            "method": "retrieval_candidates_insufficient",
+        }
+
+    if not _has_multiple_candidate_identities(sign_payloads):
+        return [sign_payloads[0], *sign_payloads[1:]], {
+            "selected_index": 0,
+            "confidence": "medium",
+            "identity_confirmed": True,
+            "reason": "Retrieved candidates agree on the same sign identity and attributes.",
+            "method": "retrieval_candidate_consensus",
+        }
+
+    if not llm_client:
+        return sign_payloads, {
+            "selected_index": None,
+            "confidence": "low",
+            "identity_confirmed": False,
+            "reason": "Candidate identities differ but no LLM client is available to resolve them.",
+            "method": "retrieval_candidates_unresolved",
+        }
 
     candidates = [
         {
             "index": index,
+            "sign_code": _sign_code(payload),
+            "retrieval_rank": payload.get("retrieval_rank", index + 1),
+            "retrieval_score": payload.get("score"),
             "sign_name": payload.get("sign_name", ""),
             "description": payload.get("sign_description", ""),
-            "law_id": payload.get("law_id", ""),
-            "article_id": payload.get("article_id", ""),
+            "attributes": payload.get("attributes", {}),
+            "normalized_conditions": payload.get("normalized_conditions", {}),
         }
         for index, payload in enumerate(sign_payloads)
     ]
@@ -386,7 +484,7 @@ def disambiguate_sign_payloads(
                             "text": (
                                 "QUESTION\n"
                                 f"{sample.get('question', '')}\n\n"
-                                "CANDIDATES\n"
+                                "RETRIEVED SIGN CANDIDATES (choose only by index)\n"
                                 f"{json.dumps(candidates, ensure_ascii=False)}"
                             ),
                         },
@@ -403,36 +501,51 @@ def disambiguate_sign_payloads(
         decision = _parse_selected_index(response_content, sign_payloads)
     except Exception as exc:
         decision = {
-            "selected_index": 0,
+            "selected_index": None,
             "confidence": "low",
-            "reason": f"Fallback to top-1 because variant disambiguation failed: {exc}",
+            "identity_confirmed": False,
+            "reason": f"Candidate selection abstained because the LLM call failed: {exc}",
             "method": "vlm_variant_disambiguation",
         }
     selected_index = decision["selected_index"]
-    reordered = [
-        sign_payloads[selected_index],
-        *sign_payloads[:selected_index],
-        *sign_payloads[selected_index + 1 :],
-    ]
-    decision["method"] = "vlm_variant_disambiguation"
+    decision["identity_confirmed"] = (
+        selected_index is not None and decision.get("confidence") == "high"
+    )
+    reordered = sign_payloads
+    if selected_index is not None:
+        reordered = [
+            sign_payloads[selected_index],
+            *sign_payloads[:selected_index],
+            *sign_payloads[selected_index + 1 :],
+        ]
+    decision["method"] = "llm_top10_sign_selection"
     return reordered, decision
 
 
 def collect_retrieved_context(
     sample: dict[str, Any],
     sign_dir: Path,
-    embedding_model: Callable,
-    vector_store: QdrantVectorStore,
+    embedding_model: Callable | None,
+    vector_store: QdrantVectorStore | None,
     collection_name: str,
     article_lookup: LawDBArticleLookup,
     llm_client: LLMClient | None = None,
     limit: int = 1,
     temperature: float = 0.0,
     max_tokens: int = 500,
-) -> tuple[list[dict[str, str]], list[dict[str, str]], list[dict[str, Any]]]:
-    article_refs: list[dict[str, Any]] = []
-    visual_evidence: list[dict[str, str]] = []
+    allow_sign_retrieval: bool = True,
+) -> tuple[
+    list[dict[str, Any]],
+    list[dict[str, str]],
+    list[dict[str, Any]],
+    TrafficFacts,
+]:
+    article_candidates: list[dict[str, Any]] = []
+    visual_evidence: list[dict[str, Any]] = []
     sign_prompt_parts: list[dict[str, Any]] = []
+    traffic_sign_observations: list[SignObservation] = []
+    ocr_engine = None
+    ocr_unavailable = False
 
     for sign in sample.get("detected_signs", []):
         if not sign.get("is_chosen"):
@@ -440,28 +553,79 @@ def collect_retrieved_context(
 
         sign_image_path = sign_dir / sign["image_name"]
         sign_image = Image.open(sign_image_path).convert("RGB")
-        sign_b64, sign_mime = pil_to_base64_png(sign_image)
 
         sign_payloads = [
             dict(payload)
             for payload in sign.get("retrieved_payloads", [])
             if isinstance(payload, dict)
         ]
-        if not sign_payloads:
+        if not allow_sign_retrieval:
+            sign_payloads = []
+        can_query_fallback = (
+            allow_sign_retrieval
+            and
+            not sign_payloads
+            and not sign.get("retrieval_attempted")
+            and settings.enable_sign_retrieval_fallback
+            and embedding_model is not None
+            and vector_store is not None
+            and not (
+                sign.get("identity_status") == "identified" and sign.get("sign_code")
+            )
+        )
+        if can_query_fallback:
             embedding = embedding_model.embed_image(sign_image)
             retrieved_results = vector_store.query(collection_name, embedding, top_k=limit)
-            sign_payloads = [
-                dict(retrieved_result.payload or {})
-                for retrieved_result in retrieved_results
-            ]
+            sign_payloads = []
+            for rank, retrieved_result in enumerate(retrieved_results, start=1):
+                payload = dict(retrieved_result.payload or {})
+                payload["retrieval_rank"] = rank
+                payload["source"] = "retrieval"
+                score = getattr(retrieved_result, "score", None)
+                if score is not None:
+                    payload["score"] = score
+                sign_payloads.append(payload)
 
-        sign_payloads, variant_decision = disambiguate_sign_payloads(
-            llm_client=llm_client,
-            sample=sample,
-            sign_image=sign_image,
-            sign_payloads=sign_payloads,
-            temperature=temperature,
-            max_tokens=max_tokens,
+        if sign_payloads:
+            sign_payloads, variant_decision = disambiguate_sign_payloads(
+                llm_client=llm_client,
+                sample=sample,
+                sign_image=sign_image,
+                sign_payloads=sign_payloads,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+        elif isinstance(sign.get("variant_decision"), dict):
+            # Direct-class detectors such as YOLO26m already resolve the class;
+            # preserve their confidence and mapping status without re-ranking.
+            variant_decision = dict(sign["variant_decision"])
+        else:
+            detector_confidence = float(sign.get("confidence") or 0.0)
+            variant_decision = {
+                "selected_index": None,
+                "confidence": (
+                    "high" if detector_confidence >= 0.8 else
+                    "medium" if detector_confidence >= 0.6 else "low"
+                ),
+                "reason": (
+                    "Canonical identity came directly from the YOLOv8m QCVN crosswalk."
+                    if sign.get("sign_code")
+                    else f"YOLOv8m mapped the sign to family {sign.get('sign_family')}; exact variant remains unresolved."
+                    if sign.get("sign_family")
+                    else "No retrieval fallback was run; sign identity remains unresolved."
+                ),
+                "method": (
+                    "yolov8m_qcvn_crosswalk"
+                    if sign.get("sign_code") or sign.get("sign_family")
+                    else "retrieval_disabled"
+                ),
+            }
+        selection_confirmed = (
+            variant_decision.get(
+                "identity_confirmed",
+                variant_decision.get("selected_index") is not None
+                and variant_decision.get("confidence") in {"high", "medium"},
+            ) is True
         )
         primary_payload = sign_payloads[0] if sign_payloads else {}
         sign["variant_decision"] = variant_decision
@@ -471,80 +635,207 @@ def collect_retrieved_context(
 
         sign_visual_evidence: list[dict[str, Any]] = []
         for rank, payload in enumerate(sign_payloads, start=1):
-            article_ref = {
-                "law_id": payload.get("law_id", ""),
-                "article_id": payload.get("article_id", ""),
-            }
-            article_refs.append(article_ref)
+            if selection_confirmed and rank == 1:
+                article_candidate = article_candidate_from_payload(
+                    payload,
+                    retrieval_rank=payload.get("retrieval_rank", rank),
+                    context_source="retrieval",
+                )
+                if article_candidate:
+                    article_candidates.append(article_candidate)
 
             evidence_item = {
+                "sign_code": _sign_code(payload),
+                "sign_family": str(payload.get("sign_family") or ""),
                 "sign_name": str(payload.get("sign_name") or ""),
                 "description": str(payload.get("sign_description") or ""),
+                "legal_conditions": payload.get("legal_conditions", {}),
                 "image_name": str(sign.get("image_name") or ""),
-                "retrieval_rank": rank,
-                "is_primary": rank == 1,
+                "retrieval_rank": payload.get("retrieval_rank", rank),
+                "retrieval_score": payload.get("score"),
+                "is_primary": selection_confirmed and rank == 1,
+                "is_candidate": True,
             }
             sign_visual_evidence.append(evidence_item)
             visual_evidence.append(evidence_item)
 
-        sign["retrieved_payloads"] = sign_payloads
-        sign_prompt_parts.extend(
-            [
-                {
-                    "type": "text",
-                    "text": (
-                        "DETECTED/RETRIEVED SIGN CONTEXT\n"
-                        f"image_name: {sign.get('image_name')}\n"
-                        f"primary_visual_evidence: {json.dumps(sign_visual_evidence[:1], ensure_ascii=False)}\n"
-                        f"variant_decision: {json.dumps(variant_decision, ensure_ascii=False)}\n"
-                        f"retrieved_payloads: {json.dumps(sign_payloads, ensure_ascii=False)}"
-                    ),
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:{sign_mime};base64,{sign_b64}"},
-                },
-            ]
-        )
+        if not sign_payloads and (
+            sign.get("sign_code")
+            or sign.get("sign_family")
+            or sign.get("class_label")
+        ):
+            direct_evidence = {
+                "sign_code": sign.get("sign_code") or "",
+                "sign_family": sign.get("sign_family") or "",
+                "sign_name": sign.get("sign_name") or sign.get("class_label") or "",
+                "description": sign.get("sign_description") or "",
+                "legal_conditions": sign.get("normalized_conditions") or {},
+                "image_name": str(sign.get("image_name") or ""),
+                "retrieval_rank": None,
+                "is_primary": bool(
+                    sign.get("identity_status") == "identified"
+                    and sign.get("sign_code")
+                ),
+                "is_candidate": False,
+            }
+            sign_visual_evidence.append(direct_evidence)
+            visual_evidence.append(direct_evidence)
 
-    article_refs.extend(sample.get("relevant_articles", []))
-    article_refs.extend(sample.get("predicted_articles", []))
-    article_contexts = article_lookup.get_many(_dedupe_articles(article_refs))
-    return article_contexts, visual_evidence, sign_prompt_parts
+            direct_article = article_candidate_from_payload(
+                sign,
+                context_source="detector",
+            )
+            if direct_article and selection_confirmed and sign.get("sign_code"):
+                article_candidates.append(direct_article)
+
+        sign["retrieved_payloads"] = sign_payloads
+        observation_source = str(sign.get("source") or "retrieval")
+        sign_observation = normalize_detected_sign_to_observation(
+            sign=sign,
+            payloads=sign_payloads,
+            visual_evidence=sign_visual_evidence,
+            source=observation_source,
+        )
+        if (
+            settings.traffic_sign_ocr_enabled
+            and not ocr_unavailable
+            and not sign_observation.ocr_texts
+            and not sign.get("ocr_status")
+        ):
+            try:
+                if ocr_engine is None:
+                    ocr_engine = get_traffic_sign_ocr(
+                        device=settings.traffic_sign_ocr_device,
+                        language=settings.traffic_sign_ocr_language,
+                    )
+                sign_observation.ocr_texts = ocr_engine.recognize(sign_image_path)
+                sign["ocr_status"] = "read" if sign_observation.ocr_texts else "no_text"
+            except Exception as exc:
+                ocr_unavailable = True
+                sign["ocr_status"] = "unavailable"
+                logging.getLogger(__name__).warning(
+                    "Traffic-sign OCR unavailable for this sample: %s", exc
+                )
+        if sign_observation.ocr_texts:
+            sign["ocr_texts"] = sign_observation.ocr_texts
+            sign.setdefault("ocr_status", "read")
+        sign["sign_observation"] = sign_observation.to_dict()
+        traffic_sign_observations.append(sign_observation)
+        sign_prompt_parts.append({
+            "type": "text",
+            "text": (
+                f"DETECTED SIGN CROP: {sign.get('image_name')}\n"
+                "VARIANT RESOLUTION: "
+                f"{json.dumps(variant_decision, ensure_ascii=False)}"
+            ),
+        })
+
+    predicted_article_refs = sample.get("predicted_articles") or []
+    sample_article_refs = predicted_article_refs or sample.get("relevant_articles", [])
+    for article_ref in sample_article_refs:
+        if not isinstance(article_ref, dict):
+            continue
+        if (
+            article_candidates
+            and not article_ref.get("source")
+            and not predicted_article_refs
+        ):
+            continue
+        candidate = article_candidate_from_payload(article_ref)
+        if candidate:
+            article_candidates.append(candidate)
+
+    article_contexts = build_article_contexts(
+        article_candidates,
+        article_lookup=article_lookup,
+        max_articles=MAX_ARTICLES_IN_PROMPT,
+    )
+    traffic_facts = TrafficFacts(
+        schema_version="2.0",
+        scene_id=str(sample.get("image_id") or "scene-unknown"),
+        sign_observations=traffic_sign_observations,
+        context_facts=extract_nearby_highway_profile_facts(traffic_sign_observations),
+        sign_relations=link_supplementary_signs(traffic_sign_observations),
+        sign_inventory_status="partial",
+    )
+    return article_contexts, visual_evidence, sign_prompt_parts, traffic_facts
 
 
 def build_freeform_prompt_parts(
     sample: dict[str, Any],
     image_dir: Path,
-    article_contexts: list[dict[str, str]],
-    visual_evidence: list[dict[str, str]],
+    article_contexts: list[dict[str, Any]],
+    visual_evidence: list[dict[str, Any]],
     sign_prompt_parts: list[dict[str, Any]],
+    symbolic_context: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
-    image_path = image_dir / f"{sample['image_id']}.jpg"
-    image = Image.open(image_path).convert("RGB")
-    org_b64, org_mime = pil_to_base64_png(image)
-
+    symbolic_context = symbolic_context or {}
     choices = sample.get("choices")
     user_context = {
         "question": sample.get("question", ""),
         "choices_optional_reference": choices if choices else None,
-        "visual_evidence_available": visual_evidence,
+        "query_intent": symbolic_context.get("query_intent", {}),
+        "symbolic_decision": symbolic_context.get("symbolic_decision", {}),
+        "rules_fired": symbolic_context.get("rules_fired", []),
     }
 
-    article_lines: list[str] = []
-    for index, article in enumerate(article_contexts[:MAX_ARTICLES_IN_PROMPT], start=1):
-        article_lines.append(
-            "\n".join(
-                [
-                    f"ARTICLE {index}",
-                    f"law_id: {article['law_id']}",
-                    f"article_id: {article['article_id']}",
-                    f"title: {article.get('title', '')}",
-                    f"text: {truncate_text(article.get('text', ''))}",
-                ]
+    def format_article_section(
+        heading: str,
+        articles: list[dict[str, Any]],
+    ) -> str:
+        article_lines: list[str] = []
+        for index, article in enumerate(articles, start=1):
+            article_lines.append(
+                "\n".join(
+                    [
+                        f"ARTICLE {index}",
+                        f"law_id: {article['law_id']}",
+                        f"article_id: {article['article_id']}",
+                        f"title: {article.get('title', '')}",
+                        f"context_source: {article.get('context_source', '')}",
+                        f"retrieval_rank: {article.get('retrieval_rank')}",
+                        "related_sign_codes: "
+                        f"{json.dumps(article.get('related_sign_codes', []), ensure_ascii=False)}",
+                        f"text: {truncate_text(article.get('text', ''))}",
+                    ]
+                )
             )
-        )
-    legal_context = "\n\n".join(article_lines) or "No legal article context available."
+        content = "\n\n".join(article_lines) or "None"
+        return f"{heading}\n{content}"
+
+    primary_articles = [
+        article
+        for article in article_contexts
+        if article.get("context_source") in {"retrieval", "detector"}
+    ]
+    related_articles = [
+        article
+        for article in article_contexts
+        if article.get("context_source") not in {"retrieval", "detector"}
+    ]
+    legal_context = "\n\n".join(
+        [
+            format_article_section("PRIMARY ARTICLE", primary_articles),
+            format_article_section("RELATED ARTICLE", related_articles),
+        ]
+    )
+    sign_evidence = [
+        {
+            "sign_code": item.get("sign_code", ""),
+            "sign_family": item.get("sign_family", ""),
+            "sign_name": item.get("sign_name", ""),
+            "description": truncate_text(
+                str(item.get("description") or ""), max_chars=700
+            ),
+            "legal_conditions": item.get("legal_conditions", {}),
+            "image_name": item.get("image_name", ""),
+            "retrieval_rank": item.get("retrieval_rank"),
+        }
+        for item in _primary_evidence_by_sign(visual_evidence)
+    ]
+    sign_specific_context = (
+        json.dumps(sign_evidence, ensure_ascii=False) if sign_evidence else "None"
+    )
 
     return [
         {"type": "text", "text": SYSTEM_PROMPT_FREEFORM_CITED_QA},
@@ -553,17 +844,29 @@ def build_freeform_prompt_parts(
             "text": (
                 "USER QUESTION CONTEXT\n"
                 f"{json.dumps(user_context, ensure_ascii=False)}\n\n"
+                "SYMBOLIC REASONING CONTEXT\n"
+                f"{json.dumps(symbolic_context, ensure_ascii=False)}\n\n"
                 "LEGAL ARTICLE CONTEXT\n"
-                f"{legal_context}"
+                f"{legal_context}\n\n"
+                "SIGN-SPECIFIC EVIDENCE\n"
+                f"{sign_specific_context}"
             ),
-        },
-        {"type": "text", "text": "INPUT IMAGE"},
-        {
-            "type": "image_url",
-            "image_url": {"url": f"data:{org_mime};base64,{org_b64}"},
         },
         *sign_prompt_parts,
     ]
+
+
+def _primary_evidence_by_sign(
+    visual_evidence: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    primary_by_image: dict[str, dict[str, Any]] = {}
+    for item in visual_evidence:
+        image_name = str(item.get("image_name") or "")
+        if not image_name:
+            continue
+        if image_name not in primary_by_image or item.get("is_primary"):
+            primary_by_image[image_name] = item
+    return list(primary_by_image.values())[:MAX_ARTICLES_IN_PROMPT]
 
 
 def get_freeform_answer(
@@ -571,27 +874,52 @@ def get_freeform_answer(
     sample: dict[str, Any],
     image_dir: Path,
     sign_dir: Path,
-    embedding_model: Callable,
-    vector_store: QdrantVectorStore,
+    embedding_model: Callable | None,
+    vector_store: QdrantVectorStore | None,
     collection_name: str,
     article_lookup: LawDBArticleLookup,
     limit: int = 1,
     temperature: float = 0.0,
     max_tokens: int = 5000,
+    allow_sign_retrieval: bool = True,
 ) -> dict[str, Any]:
     t1 = time.time()
     try:
-        article_contexts, visual_evidence, sign_prompt_parts = collect_retrieved_context(
+        (
+            article_contexts,
+            visual_evidence,
+            sign_prompt_parts,
+            traffic_sign_observations,
+        ) = collect_retrieved_context(
             sample=sample,
             sign_dir=sign_dir,
             embedding_model=embedding_model,
             vector_store=vector_store,
             collection_name=collection_name,
             article_lookup=article_lookup,
+            # The LLM only explains system-produced facts; it does not inspect
+            # legal conclusions. It may select a sign identity from retrieved
+            # candidates before the symbolic pipeline evaluates any rule.
             llm_client=llm_client,
-            limit=limit,
+            limit=settings.sign_recognition_candidate_limit,
             temperature=temperature,
             max_tokens=min(max_tokens, 500),
+            allow_sign_retrieval=allow_sign_retrieval,
+        )
+        symbolic_context = {}
+        if settings.enable_symbolic_reasoning:
+            symbolic_context = build_symbolic_reasoning_context(
+                traffic_facts=traffic_sign_observations,
+                question=str(sample.get("question") or ""),
+                llm_client=llm_client,
+                use_llm=True,
+                temperature=temperature,
+                max_tokens=min(max_tokens, 300),
+            )
+        article_contexts = build_article_contexts(
+            [*article_contexts, *rule_article_candidates(symbolic_context)],
+            article_lookup=article_lookup,
+            max_articles=MAX_ARTICLES_IN_PROMPT,
         )
 
         parts = build_freeform_prompt_parts(
@@ -600,6 +928,7 @@ def get_freeform_answer(
             article_contexts=article_contexts,
             visual_evidence=visual_evidence,
             sign_prompt_parts=sign_prompt_parts,
+            symbolic_context=symbolic_context,
         )
 
         response_content: str = llm_client.generate_content(
@@ -611,6 +940,7 @@ def get_freeform_answer(
             response_content=response_content,
             article_contexts=article_contexts,
             visual_evidence=visual_evidence,
+            symbolic_context=symbolic_context,
         )
         return {
             **sample,
@@ -632,6 +962,15 @@ def get_freeform_answer(
             "time_second": round(time.time() - t1, 5),
             "answer_prompt_parts": [],
             "article_contexts": [],
+            "symbolic_decision": {},
+            "rules_fired": [],
+            "traffic_facts": {},
+            "query_intent": {},
+            "query_context_facts": [],
+            "intent_evaluations": [],
+            "rule_evaluations": [],
+            "sign_meaning_evaluations": [],
+            "reasoning_trace": {},
         }
 
 
@@ -721,7 +1060,7 @@ def main() -> None:
             vector_store=vector_store,
             collection_name=settings.collection_name,
             article_lookup=article_lookup,
-            limit=settings.limit,
+            limit=settings.sign_recognition_candidate_limit,
             temperature=settings.llm_temperature,
             max_tokens=settings.llm_max_new_tokens,
         )
@@ -735,6 +1074,15 @@ def main() -> None:
             "raw_answer_response",
             "time_second",
             "article_contexts",
+            "symbolic_decision",
+            "rules_fired",
+            "traffic_facts",
+            "query_intent",
+            "query_context_facts",
+            "intent_evaluations",
+            "rule_evaluations",
+            "sign_meaning_evaluations",
+            "reasoning_trace",
         ):
             sample[field] = response[field]
 
@@ -759,6 +1107,15 @@ def main() -> None:
                     "visual_evidence": sample.get("visual_evidence", []),
                     "reasoning": sample.get("reasoning", ""),
                     "confidence": sample.get("confidence", "low"),
+                    "symbolic_decision": sample.get("symbolic_decision", {}),
+                    "rules_fired": sample.get("rules_fired", []),
+                    "traffic_facts": sample.get("traffic_facts", {}),
+                    "query_intent": sample.get("query_intent", {}),
+                    "query_context_facts": sample.get("query_context_facts", []),
+                    "intent_evaluations": sample.get("intent_evaluations", []),
+                    "rule_evaluations": sample.get("rule_evaluations", []),
+                    "sign_meaning_evaluations": sample.get("sign_meaning_evaluations", []),
+                    "reasoning_trace": sample.get("reasoning_trace", {}),
                 }
             )
 

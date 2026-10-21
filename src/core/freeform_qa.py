@@ -26,9 +26,9 @@ from src.core.sub_task_2 import get_freeform_answer, sanitize_prompt_parts
 @dataclass
 class FreeformQAResources:
     llm_client: LLMClient
-    embedder: Any
+    embedder: Any | None
     sign_extractor: SignExtractor
-    vector_store: QdrantVectorStore
+    vector_store: QdrantVectorStore | None
     article_lookup: LawDBArticleLookup
     device: str
 
@@ -40,12 +40,18 @@ def create_freeform_qa_resources(device: str | None = None) -> FreeformQAResourc
         api_keys=[api_key for api_key in settings.llm_api_keys.split(",")],
         model_id=settings.llm_model,
     )
-    embedder, _ = get_embedding_model(settings.embedding_name, device=device)
+    embedder = None
+    vector_store = None
+    direct_class_detector = settings.image_query_detection_model == "Yolo26m"
+    if settings.enable_sign_retrieval_fallback and not direct_class_detector:
+        embedder, _ = get_embedding_model(settings.embedding_name, device=device)
+        vector_store = QdrantVectorStore(uri=settings.qdrant_uri)
     sign_extractor = SignExtractor(
         detector=settings.image_query_detection_model,
         device=device,
+        model_path=settings.sign_model_path,
+        confidence_threshold=settings.sign_detection_confidence_threshold,
     )
-    vector_store = QdrantVectorStore(uri=settings.qdrant_uri)
     article_lookup = LawDBArticleLookup()
     return FreeformQAResources(
         llm_client=llm_client,
@@ -108,8 +114,14 @@ def answer_image_question(
     )
     timings["detect_signs"] = round(time.perf_counter() - t0, 5)
 
+    direct_class_detector = settings.image_query_detection_model == "Yolo26m"
     t0 = time.perf_counter()
-    if use_vlm_filter:
+    if direct_class_detector:
+        # YOLO26m supplies the sign identities directly. Keep all detections;
+        # no relevance-filtering VLM call is needed.
+        for sign in sample.get("detected_signs", []):
+            sign["is_chosen"] = True
+    elif use_vlm_filter:
         sample = filter_relevant_signs(
             llm_client=resources.llm_client,
             sample=sample,
@@ -123,19 +135,30 @@ def answer_image_question(
         for sign in sample.get("detected_signs", []):
             sign["is_chosen"] = True
             sign["relevance_reason"] = "Selected by fast mode without VLM filtering."
-    timings["filter_relevant_signs"] = round(time.perf_counter() - t0, 5)
+    timings["filter_relevant_signs"] = (
+        0.0 if direct_class_detector else round(time.perf_counter() - t0, 5)
+    )
 
     t0 = time.perf_counter()
-    sample = query_relevant_signs(
-        embedding_model=resources.embedder,
-        vector_store=resources.vector_store,
-        sample=sample,
-        sign_dir=sign_dir,
-        collection_name=settings.collection_name,
-        limit=settings.limit,
-        set_name="public_test",
+    if (
+        not direct_class_detector
+        and settings.enable_sign_retrieval_fallback
+        and resources.embedder is not None
+        and resources.vector_store is not None
+    ):
+        sample = query_relevant_signs(
+            embedding_model=resources.embedder,
+            vector_store=resources.vector_store,
+            sample=sample,
+            sign_dir=sign_dir,
+            collection_name=settings.collection_name,
+            limit=settings.sign_recognition_candidate_limit,
+            set_name="public_test",
+            unknown_only=True,
+        )
+    timings["retrieve_lawdb"] = (
+        0.0 if direct_class_detector else round(time.perf_counter() - t0, 5)
     )
-    timings["retrieve_lawdb"] = round(time.perf_counter() - t0, 5)
 
     t0 = time.perf_counter()
     result = get_freeform_answer(
@@ -147,9 +170,10 @@ def answer_image_question(
         vector_store=resources.vector_store,
         collection_name=settings.collection_name,
         article_lookup=resources.article_lookup,
-        limit=settings.limit,
+        limit=settings.sign_recognition_candidate_limit,
         temperature=settings.llm_temperature,
         max_tokens=settings.llm_max_new_tokens,
+        allow_sign_retrieval=not direct_class_detector,
     )
     timings["answer_generation"] = round(time.perf_counter() - t0, 5)
     timings["total"] = round(time.perf_counter() - total_start, 5)

@@ -2,9 +2,9 @@
 
 Traffic Sign Legal QA is a multimodal question-answering project for Vietnamese
 traffic law and road signs. The system takes a road-scene image and a natural
-language question, detects relevant traffic signs, retrieves legal evidence from
-a local LawDB index, and generates a Vietnamese free-form answer with citations
-and visual evidence.
+language question, detects and classifies traffic signs with a fine-tuned YOLO26m
+model, applies symbolic traffic rules, and generates a Vietnamese free-form
+answer with citations and visual evidence.
 
 The current QA pipeline returns structured JSON instead of forcing the model to
 choose only `A/B/C/D` or `Đúng/Sai`.
@@ -12,12 +12,13 @@ choose only `A/B/C/D` or `Đúng/Sai`.
 ## Features
 
 - Detect traffic signs from uploaded road-scene images.
-- Filter detected signs according to the user question.
-- Retrieve top-k matching traffic-sign entries from Qdrant.
+- Classify detected signs directly into the application's traffic-fact schema.
+- Keep every detector result for symbolic reasoning; the default QA path does not
+  call a VLM relevance filter or retrieve sign identities from Qdrant.
 - Load full legal article context by `law_id` and `article_id`.
 - Generate Vietnamese free-form answers with legal citations.
-- Attach evidence from legal articles and detected/retrieved signs.
-- Disambiguate similar sign variants such as `P.131a`, `P.131b`, and `P.131c`.
+- Attach evidence from legal articles and directly detected signs.
+- Distinguish trained sign variants such as `P.131a`, `P.131b`, and `P.131c`.
 - Run an interactive Streamlit demo locally or on a rented GPU.
 - Use local GPU LLMs through an OpenAI-compatible endpoint.
 - Evaluate correctness, citation quality, evidence faithfulness, grounding,
@@ -37,12 +38,12 @@ The project has two main stages.
 
 ### 2. Image QA
 
-1. Detect signs in the uploaded road-scene image.
-2. Use a VLM to select signs relevant to the question.
-3. Retrieve similar LawDB signs from Qdrant.
-4. Resolve ambiguous variants among top-k retrieved signs.
-5. Load legal article text from LawDB.
-6. Ask the LLM to produce strict JSON with answer, citations, evidence,
+1. Run fine-tuned YOLO26m on the uploaded road-scene image.
+2. Map detections into sign observations, preserving unresolved classes as
+   ambiguous so the symbolic engine can fail closed.
+3. Evaluate the question against sign facts and traffic rules.
+4. Load legal article text from LawDB using the direct sign/rule references.
+5. Ask the LLM to produce strict JSON with answer, citations, evidence,
    reasoning, and confidence.
 
 ## Project Structure
@@ -80,8 +81,7 @@ The project has two main stages.
 ## Requirements
 
 - Python `>=3.10`
-- Docker or another Qdrant runtime
-- GPU recommended for sign detection, embeddings, and local VLM/LLM inference
+- GPU recommended for YOLO26m and local LLM inference
 - OpenAI-compatible chat completion endpoint
 
 Recommended default components:
@@ -90,9 +90,8 @@ Recommended default components:
 - LLM endpoint: `http://localhost:18989/v1`
 - LLM model: `gemma3:12b` or another multimodal instruction model
 - LawDB sign extraction: `ImageProcessing`
-- Query sign detection: `YoloE`
-- Embedding model: `CLIP-GmP-ViT-L-14`
-- Retrieval limit: `5`
+- Query sign detection: `Yolo26m`
+- Fine-tuned checkpoint: `models/yolo26m_vtsdb100_best.pt`
 
 ## Installation
 
@@ -104,15 +103,39 @@ python -m venv .venv
 source .venv/bin/activate
 
 pip install --upgrade pip
-pip install -e .
+pip install -e ".[dev]"
 ```
+
+Enable traffic-sign text recognition (time ranges, distances, and numeric
+limits) with PaddleOCR:
+
+```bash
+pip install -e ".[dev,ocr]"
+```
+
+PaddleOCR uses the GPU when the installed PaddlePaddle build supports the
+machine's CUDA version; otherwise it selects CPU automatically. For GPU use,
+install the matching CUDA build of PaddlePaddle using the
+[official PaddlePaddle installation guide](https://www.paddlepaddle.org.cn/install/quick).
+OCR runs once on the full source image immediately after YOLO26. Its text
+polygons are associated with detected signs by overlap or close alignment
+below a sign, so text on an attached supplementary panel can be linked to the
+sign above. The symbolic layer extracts every visible time window, below-sign
+distance, expressway route code/name, and destination-plus-distance pair. The
+highway profile also collects nearby YOLO maximum/minimum speed-limit signs.
+These observations support `INFORMATION` questions; they do not by themselves
+decide whether a restriction is legally active. Unclear distances retain an
+unresolved S.501/S.502 meaning.
+Configure it with `TRAFFIC_SIGN_OCR_ENABLED`,
+`TRAFFIC_SIGN_OCR_DEVICE` (`auto`, `gpu`, or `cpu`), and
+`TRAFFIC_SIGN_OCR_LANGUAGE` (default `vi`).
 
 With `uv`:
 
 ```bash
 uv venv
 source .venv/bin/activate
-uv pip install -e .
+uv pip install -e ".[dev]"
 ```
 
 ## Configuration
@@ -127,11 +150,9 @@ LLM_MODEL=gemma3:12b
 LLM_API_KEYS=local
 
 IMAGE_LAWDB_DETECTION_MODEL=ImageProcessing
-IMAGE_QUERY_DETECTION_MODEL=YoloE
-EMBEDDING_NAME=CLIP-GmP-ViT-L-14
-
-QDRANT_URI=http://localhost:6333
-LIMIT=5
+IMAGE_QUERY_DETECTION_MODEL=Yolo26m
+SIGN_MODEL_PATH=models/yolo26m_vtsdb100_best.pt
+ENABLE_SIGN_RETRIEVAL_FALLBACK=false
 LLM_TEMPERATURE=0.0
 LLM_MAX_NEW_TOKENS=1200
 ```
@@ -143,11 +164,10 @@ Important variables:
 | `LLM_BASE_URL` | OpenAI-compatible endpoint |
 | `LLM_MODEL` | Model id served by the endpoint |
 | `LLM_API_KEYS` | API key string; use `local` for local servers |
-| `QDRANT_URI` | Qdrant URL |
-| `EMBEDDING_NAME` | Vision embedding model |
 | `IMAGE_LAWDB_DETECTION_MODEL` | Detector for clean LawDB images |
 | `IMAGE_QUERY_DETECTION_MODEL` | Detector for uploaded/query images |
-| `LIMIT` | Top-k retrieval candidates |
+| `SIGN_MODEL_PATH` | Fine-tuned YOLO26m checkpoint |
+| `ENABLE_SIGN_RETRIEVAL_FALLBACK` | Optional legacy retrieval fallback; disabled for YOLO26m QA |
 | `LLM_TEMPERATURE` | LLM sampling temperature |
 | `LLM_MAX_NEW_TOKENS` | Maximum generated tokens for JSON answers |
 
@@ -361,13 +381,34 @@ The demo supports:
 
 - image upload;
 - free-form Vietnamese question input;
-- optional choices/reference text;
-- detected sign crops;
-- selected relevant signs;
-- free-form answer;
-- citations and legal evidence;
-- visual evidence;
-- raw JSON/debug information.
+- selection between the RAG baseline, YOLO26m neuro-symbolic pipeline,
+  BM25 + LLM, and VLM-only;
+- optional choices for pipelines that use them;
+- pipeline-specific answers, citations, OCR/retrieval details, and visual
+  evidence where those outputs apply.
+
+## Compare YOLOv8m with Image Retrieval
+
+Start Qdrant and make sure the configured LawDB image collection has been
+ingested. Then run:
+
+```bash
+PYTHONPATH=. streamlit run src/ui/model_comparison.py
+```
+
+Upload an image to view YOLOv8m's boxes and class labels beside the original
+YoloE → CLIP/Qdrant retrieval results. Each branch processes the uploaded image
+independently; retrieval uses YoloE regions rather than YOLOv8m detections. The
+YoloE checkpoint is downloaded separately to `models/yoloe-v8l-seg.pt`.
+
+The QA pipeline uses the fine-tuned YOLO26m VTSDB100 checkpoint directly. Put
+`yolo26m_vtsdb100_best.pt` at `models/yolo26m_vtsdb100_best.pt` or set
+`SIGN_MODEL_PATH` to its location. Its detections use the same metadata fields
+as the existing detector adapter. The adapter maps classes with a clear QCVN
+correspondence; other classes remain unidentified/ambiguous and do not trigger
+retrieval or an LLM identity-selection call, so the symbolic pipeline fails
+closed for those signs. The checkpoint training and download steps are in
+[`docs/yolo26_vtsdb100_gpu_runbook.md`](docs/yolo26_vtsdb100_gpu_runbook.md).
 
 ## Run Demo on a GPU Machine
 
@@ -395,101 +436,113 @@ Required services on the GPU machine:
 
 ## Evaluation
 
+The baseline is locked by `configs/baseline_eval.json`. It fixes the 20 train
+sample ids, dataset paths, LLM model, retrieval `LIMIT`, detectors, embedding
+model, Qdrant collection, judge, temperature, and token limit. Run it with:
+
+```bash
+make baseline
+```
+
+The evaluator writes aggregate metrics and detailed per-sample inputs, outputs,
+and metrics separately:
+
+```text
+outputs/baseline_metrics.json
+outputs/baseline_rows.json
+```
+
+Interrupted runs can continue without recomputing completed samples:
+
+```bash
+python -m src.eval.freeform_qa_metrics \
+  --config configs/baseline_eval.json \
+  --resume
+```
+
+The locked legacy RAG baseline keeps its historical config fingerprint. The
+evaluator runs it with retrieval enabled and symbolic reasoning disabled.
+The neuro-symbolic pipeline uses a separate config and output files:
+
+```bash
+make neuro-symbolic
+python -m src.eval.freeform_qa_metrics --config configs/neuro_symbolic_eval.json --resume
+```
+
+Both use the same locked 20 sample IDs. Neuro-symbolic metrics and rows are
+written to `outputs/neuro_symbolic_metrics.json` and
+`outputs/neuro_symbolic_rows.json`.
+
+To compare a later run against the baseline:
+
+```bash
+make baseline-compare CANDIDATE=outputs/candidate_metrics.json
+```
+
+The required baseline metrics are:
+
+- `answer_correctness`
+- `citation_precision`
+- `citation_recall`
+- `evidence_faithfulness`
+- `retrieval_recall_at_1`
+- `retrieval_recall_at_3`
+- `retrieval_recall_at_5`
+- `json_validity`
+- `latency`
+
+The committed baseline was promoted from the existing judged sign-centric run
+associated with repository baseline `f3eb048`. Its provenance and source hash
+are recorded in the output files. That legacy evaluator retained generated
+answers and per-row metrics but not the full retrieval/citation payload; every
+new run produced by the current evaluator retains the full pipeline output.
+
+Committed baseline metrics:
+
+| Metric | Value |
+|---|---:|
+| Answer correctness | 0.80 |
+| Citation precision | 0.65 |
+| Citation recall | 0.50 |
+| Evidence faithfulness | 1.00 |
+| Retrieval Recall@1 | 0.475 |
+| Retrieval Recall@3 | 0.525 |
+| Retrieval Recall@5 | 0.55 |
+| JSON validity | 1.00 |
+| Average latency | 17.197s |
+
+The first-20 slice contains many general legal questions, so citation and
+retrieval scores are less representative for sign retrieval. The sign-centric
+slice is more useful for judging visual grounding and LawDB sign retrieval.
+
 ### Baseline 2: VLM-only
 
-This baseline sends only the original image and natural-language question
-directly to one fixed multimodal model in a single request. It does not
-initialize or call a detector, OCR, LawDB, BM25/vector retrieval, or symbolic reasoner. The
-locked run uses the same `train_40`–`train_59` sample IDs as the other baseline.
+This baseline sends the original image and natural-language question directly
+to one multimodal model in a single request. It does not run sign detection,
+OCR, LawDB lookup, BM25 or vector retrieval, or symbolic reasoning. It uses the
+same locked `train_40`–`train_59` sample IDs as the other baseline.
 
-The model is `gemma-3-12b-it` (Gemma 3 12B IT), served through the repository's
-Google Gemini OpenAI-compatible API endpoint configured by `LLM_BASE_URL`; the
-API key comes from `LLM_API_KEYS`. The provider exposes a model ID rather than
-an immutable weight revision, so the config records that limitation. The
-request uses temperature 0, top-p 0.1, and a 1000-token output cap. The prompt
-is fixed in `src/eval/vlm_only.py` and asks for a concise, natural Vietnamese
-answer and an explicit uncertainty statement when the image/question do not
-provide enough evidence. The model returns a free-form answer and is not asked
-to select an answer key. Dataset choices are kept out of the model request and
-used only to derive the reference answer for evaluation. The prompt does not
-request legal citations. Any law mentioned is treated as model-generated text,
-not verified authority.
+The evaluator uses `gemma-3-12b-it` through the OpenAI-compatible endpoint set
+by `LLM_BASE_URL`, with credentials from `LLM_API_KEYS`. It asks for a concise
+Vietnamese answer and an uncertainty statement when the evidence is
+insufficient. It does not request legal citations; any law mentioned is
+model-generated and unverified.
 
-Run with the usual `.env` endpoint settings:
+Run it independently with:
 
 ```bash
 make baseline-vlm-only
 ```
 
-Use `--resume` to continue a partial run:
+To resume an interrupted run:
 
 ```bash
 python -m src.eval.vlm_only --config configs/baseline2_vlm_only.json --resume
 ```
 
-Outputs are `outputs/baseline2_vlm_only_metrics.json` and
-`outputs/baseline2_vlm_only_rows.json`. Answer correctness uses a documented
-token-overlap heuristic between the free-form answer and gold answer text, so
-it is an approximate score rather than human or model-judge evaluation.
-Citation metrics are `null` and labeled `not_applicable`, so citation absence is not scored as
-an error. The evaluator records mean/median latency and token usage. It
-reports estimated USD cost only when input and output per-token rates are
-configured in the model config; they are unset by default because endpoint
-pricing depends on the serving account/provider.
-
-Run a small free-form QA evaluation:
-
-```bash
-PYTHONPATH=. python -m src.eval.freeform_qa_metrics \
-  --num-samples 20 \
-  --judge \
-  --output outputs/freeform_qa_metrics_20_judge.json
-```
-
-Run a sign-centric slice:
-
-```bash
-PYTHONPATH=. python -m src.eval.freeform_qa_metrics \
-  --begin-idx 39 \
-  --num-samples 20 \
-  --judge \
-  --output outputs/freeform_qa_metrics_signcentric_20_judge.json
-```
-
-Metrics:
-
-- `answer_correctness`
-- `citation_accuracy`
-- `citation_precision`
-- `citation_recall`
-- `evidence_faithfulness`
-- `evidence_faithfulness_proxy`
-- `visual_grounding_accuracy_proxy`
-- `retrieval_recall_at_1`
-- `retrieval_recall_at_3`
-- `retrieval_recall_at_5`
-- `json_validity`
-- `hallucination`
-- `latency`
-
-Recent smoke-test metrics:
-
-| Metric | First 20 train | Sign-centric 20 |
-|---|---:|---:|
-| Answer correctness | 0.85 | 0.75 |
-| Citation accuracy | 0.00 | 0.60 |
-| Evidence faithfulness | 1.00 | 1.00 |
-| Visual grounding accuracy proxy | 0.00 | 0.55 |
-| Retrieval Recall@1 | 0.00 | 0.45 |
-| Retrieval Recall@3 | 0.00 | 0.525 |
-| Retrieval Recall@5 | 0.00 | 0.55 |
-| JSON validity | 1.00 | 1.00 |
-| Hallucination | 0.15 | 0.05 |
-| Average latency | 14.15s | 14.48s |
-
-The first-20 slice contains many general legal questions, so citation and
-retrieval scores are less representative for sign retrieval. The sign-centric
-slice is more useful for judging visual grounding and LawDB sign retrieval.
+The evaluator writes `outputs/baseline2_vlm_only_metrics.json` and
+`outputs/baseline2_vlm_only_rows.json`. Answer correctness uses a token-overlap
+heuristic; citation metrics are not applicable.
 
 ## Debug and Utility UIs
 

@@ -1,0 +1,2092 @@
+{
+  "description": "100 additional deterministic end-to-end regression scenarios focused on common traffic signs. Fixed clock: 2026-10-05 08:30 Asia/Ho_Chi_Minh.",
+  "fixed_now": "2026-10-05T08:30:00+07:00",
+  "cases": [
+    {
+      "id": "popular_01_1",
+      "question": "Xe ô tô có được đi vào đường này không?",
+      "observations": [
+        {
+          "sign_code": "P.103a",
+          "image_name": "popular_01_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "entering",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P103A_NO_ENTRY_MOTOR_VEHICLES"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_01_2",
+      "question": "Ô tô có được phép đi vào đường này không?",
+      "observations": [
+        {
+          "sign_code": "P.103a",
+          "image_name": "popular_01_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "entering",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P103A_NO_ENTRY_MOTOR_VEHICLES"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_01_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.103a",
+          "image_name": "popular_01_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_01_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_01_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.103a",
+          "image_name": "popular_01_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_01_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_02_1",
+      "question": "Xe ô tô có được đi vào đường này không?",
+      "observations": [
+        {
+          "sign_code": "P.105",
+          "image_name": "popular_02_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "entering",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P105_NO_CAR_AND_MOTORCYCLE"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_02_2",
+      "question": "Ô tô có được phép đi vào đường này không?",
+      "observations": [
+        {
+          "sign_code": "P.105",
+          "image_name": "popular_02_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "entering",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P105_NO_CAR_AND_MOTORCYCLE"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_02_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.105",
+          "image_name": "popular_02_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_02_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_02_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.105",
+          "image_name": "popular_02_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_02_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_03_1",
+      "question": "Xe khách có được đi vào đường này không?",
+      "observations": [
+        {
+          "sign_code": "P.107",
+          "image_name": "popular_03_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "entering",
+        "actor": "bus"
+      },
+      "expected_rule_ids": [
+        "P107_PROHIBIT_PASSENGER_AND_TRUCK_VEHICLES"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_03_2",
+      "question": "Xe buýt có được phép đi vào không?",
+      "observations": [
+        {
+          "sign_code": "P.107",
+          "image_name": "popular_03_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "entering",
+        "actor": "bus"
+      },
+      "expected_rule_ids": [
+        "P107_PROHIBIT_PASSENGER_AND_TRUCK_VEHICLES"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_03_3",
+      "question": "Xe khách có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.107",
+          "image_name": "popular_03_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "bus"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_03_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_03_4",
+      "question": "Xe khách có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.107",
+          "image_name": "popular_03_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "bus"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_03_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_04_1",
+      "question": "Xe đạp có được đi vào đường này không?",
+      "observations": [
+        {
+          "sign_code": "P.110a",
+          "image_name": "popular_04_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "entering",
+        "actor": "non_motor_vehicle"
+      },
+      "expected_rule_ids": [
+        "P110A_NO_BICYCLE"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_04_2",
+      "question": "Xe đạp có được phép lưu thông vào đây không?",
+      "observations": [
+        {
+          "sign_code": "P.110a",
+          "image_name": "popular_04_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "entering",
+        "actor": "non_motor_vehicle"
+      },
+      "expected_rule_ids": [
+        "P110A_NO_BICYCLE"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_04_3",
+      "question": "Xe đạp có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.110a",
+          "image_name": "popular_04_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "non_motor_vehicle"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_04_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_04_4",
+      "question": "Xe đạp có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.110a",
+          "image_name": "popular_04_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "non_motor_vehicle"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_04_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_05_1",
+      "question": "Xe gắn máy có được đi vào không?",
+      "observations": [
+        {
+          "sign_code": "P.111a",
+          "image_name": "popular_05_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "entering",
+        "actor": "moped"
+      },
+      "expected_rule_ids": [
+        "P111A_NO_MOPED"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_05_2",
+      "question": "Xe gắn máy có được phép lưu thông vào đây không?",
+      "observations": [
+        {
+          "sign_code": "P.111a",
+          "image_name": "popular_05_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "entering",
+        "actor": "moped"
+      },
+      "expected_rule_ids": [
+        "P111A_NO_MOPED"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_05_3",
+      "question": "Xe gắn máy có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.111a",
+          "image_name": "popular_05_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "moped"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_05_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_05_4",
+      "question": "Xe gắn máy có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.111a",
+          "image_name": "popular_05_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "moped"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_05_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_06_1",
+      "question": "Người đi bộ có được đi qua đây không?",
+      "observations": [
+        {
+          "sign_code": "P.112",
+          "image_name": "popular_06_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "circulation",
+        "actor": "pedestrian"
+      },
+      "expected_rule_ids": [
+        "P112_NO_PEDESTRIAN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_06_2",
+      "question": "Người đi bộ có được lưu thông qua đường này không?",
+      "observations": [
+        {
+          "sign_code": "P.112",
+          "image_name": "popular_06_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "crossing",
+        "actor": "pedestrian"
+      },
+      "expected_rule_ids": [
+        "P112_NO_PEDESTRIAN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_06_3",
+      "question": "Người đi bộ có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.112",
+          "image_name": "popular_06_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "pedestrian"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_06_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_06_4",
+      "question": "Người đi bộ có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.112",
+          "image_name": "popular_06_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "pedestrian"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_06_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_07_1",
+      "question": "Xe ô tô có được rẽ trái không?",
+      "observations": [
+        {
+          "sign_code": "P.123a",
+          "image_name": "popular_07_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "turn_left",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P123A_NO_LEFT_TURN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_07_2",
+      "question": "Ô tô có được phép rẽ trái tại đây không?",
+      "observations": [
+        {
+          "sign_code": "P.123a",
+          "image_name": "popular_07_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "turn_left",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P123A_NO_LEFT_TURN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_07_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.123a",
+          "image_name": "popular_07_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_07_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_07_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.123a",
+          "image_name": "popular_07_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_07_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_08_1",
+      "question": "Xe ô tô có được rẽ phải không?",
+      "observations": [
+        {
+          "sign_code": "P.123b",
+          "image_name": "popular_08_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "turn_right",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P123B_NO_RIGHT_TURN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_08_2",
+      "question": "Ô tô có được phép rẽ phải tại đây không?",
+      "observations": [
+        {
+          "sign_code": "P.123b",
+          "image_name": "popular_08_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "turn_right",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P123B_NO_RIGHT_TURN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_08_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.123b",
+          "image_name": "popular_08_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_08_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_08_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.123b",
+          "image_name": "popular_08_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_08_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_09_1",
+      "question": "Xe ô tô có được quay đầu không?",
+      "observations": [
+        {
+          "sign_code": "P.124a",
+          "image_name": "popular_09_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "u_turn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P124A_NO_U_TURN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_09_2",
+      "question": "Ô tô có được phép quay đầu tại đây không?",
+      "observations": [
+        {
+          "sign_code": "P.124a",
+          "image_name": "popular_09_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "u_turn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P124A_NO_U_TURN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_09_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.124a",
+          "image_name": "popular_09_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_09_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_09_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.124a",
+          "image_name": "popular_09_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_09_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_10_1",
+      "question": "Xe ô tô có được rẽ trái không?",
+      "observations": [
+        {
+          "sign_code": "P.124c",
+          "image_name": "popular_10_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "turn_left",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P124C_NO_LEFT_OR_U_TURN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_10_2",
+      "question": "Ô tô có được phép quay đầu không?",
+      "observations": [
+        {
+          "sign_code": "P.124c",
+          "image_name": "popular_10_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "u_turn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P124C_NO_LEFT_OR_U_TURN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_10_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.124c",
+          "image_name": "popular_10_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_10_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_10_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.124c",
+          "image_name": "popular_10_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_10_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_11_1",
+      "question": "Xe ô tô có được rẽ phải không?",
+      "observations": [
+        {
+          "sign_code": "P.124d",
+          "image_name": "popular_11_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "turn_right",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P124D_NO_RIGHT_OR_U_TURN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_11_2",
+      "question": "Ô tô có được phép quay đầu không?",
+      "observations": [
+        {
+          "sign_code": "P.124d",
+          "image_name": "popular_11_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "u_turn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P124D_NO_RIGHT_OR_U_TURN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_11_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.124d",
+          "image_name": "popular_11_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_11_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_11_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.124d",
+          "image_name": "popular_11_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_11_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_12_1",
+      "question": "Xe ô tô có được chạy ở tốc độ 60 km/h không?",
+      "observations": [
+        {
+          "sign_code": "P.127",
+          "image_name": "popular_12_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "speed",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P127_SPEED_LIMIT"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_12_2",
+      "question": "Ô tô có được chạy tối đa 60 km/h không?",
+      "observations": [
+        {
+          "sign_code": "P.127",
+          "image_name": "popular_12_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "speed",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P127_SPEED_LIMIT"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_12_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.127",
+          "image_name": "popular_12_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_12_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_12_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.127",
+          "image_name": "popular_12_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_12_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_13_1",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.128",
+          "image_name": "popular_13_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P128_NO_HORN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_13_2",
+      "question": "Ô tô có được phép sử dụng còi không?",
+      "observations": [
+        {
+          "sign_code": "P.128",
+          "image_name": "popular_13_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P128_NO_HORN"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_13_3",
+      "question": "Xe ô tô có được đỗ xe không?",
+      "observations": [
+        {
+          "sign_code": "P.128",
+          "image_name": "popular_13_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "parking",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_13_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_13_4",
+      "question": "Xe ô tô có được đỗ xe không?",
+      "observations": [
+        {
+          "sign_code": "P.128",
+          "image_name": "popular_13_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "parking",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_13_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_14_1",
+      "question": "Xe ô tô có được đỗ ở đây không?",
+      "observations": [
+        {
+          "sign_code": "P.130",
+          "image_name": "popular_14_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "parking",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P130_NO_STOPPING_NO_PARKING"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_14_2",
+      "question": "Ô tô có được phép đỗ tại đây không?",
+      "observations": [
+        {
+          "sign_code": "P.130",
+          "image_name": "popular_14_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "parking",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P130_NO_STOPPING_NO_PARKING"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_14_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.130",
+          "image_name": "popular_14_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_14_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_14_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.130",
+          "image_name": "popular_14_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_14_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_15_1",
+      "question": "Xe ô tô có được đỗ ở đây không?",
+      "observations": [
+        {
+          "sign_code": "P.131a",
+          "image_name": "popular_15_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "parking",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P131A_NO_PARKING"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_15_2",
+      "question": "Ô tô có được phép đỗ tại đây không?",
+      "observations": [
+        {
+          "sign_code": "P.131a",
+          "image_name": "popular_15_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "parking",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P131A_NO_PARKING"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_15_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.131a",
+          "image_name": "popular_15_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_15_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_15_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.131a",
+          "image_name": "popular_15_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_15_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_16_1",
+      "question": "Xe ô tô có được đỗ không?",
+      "observations": [
+        {
+          "sign_code": "P.131b",
+          "image_name": "popular_16_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "parking",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P131B_ODD_DAY_NO_PARKING"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_16_2",
+      "question": "Ô tô có được phép đỗ hôm nay không?",
+      "observations": [
+        {
+          "sign_code": "P.131b",
+          "image_name": "popular_16_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "parking",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P131B_ODD_DAY_NO_PARKING"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_16_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.131b",
+          "image_name": "popular_16_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_16_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_16_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.131b",
+          "image_name": "popular_16_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_16_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_17_1",
+      "question": "Xe ô tô có được đỗ ngày mai không?",
+      "observations": [
+        {
+          "sign_code": "P.131c",
+          "image_name": "popular_17_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "parking",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P131C_EVEN_DAY_NO_PARKING"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_17_2",
+      "question": "Ô tô có được phép đỗ vào ngày mai không?",
+      "observations": [
+        {
+          "sign_code": "P.131c",
+          "image_name": "popular_17_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "parking",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P131C_EVEN_DAY_NO_PARKING"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_17_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.131c",
+          "image_name": "popular_17_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_17_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_17_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.131c",
+          "image_name": "popular_17_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_17_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_18_1",
+      "question": "Xe ô tô có phải nhường xe ngược chiều không?",
+      "observations": [
+        {
+          "sign_code": "P.132",
+          "image_name": "popular_18_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "yielding",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P132_STOP_AND_YIELD_TO_ONCOMING_MOTOR_VEHICLES"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_18_2",
+      "question": "Xe ô tô có phải nhường xe ngược chiều không?",
+      "observations": [
+        {
+          "sign_code": "P.132",
+          "image_name": "popular_18_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "yielding",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "P132_STOP_AND_YIELD_TO_ONCOMING_MOTOR_VEHICLES"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_18_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.132",
+          "image_name": "popular_18_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_18_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_18_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.132",
+          "image_name": "popular_18_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_18_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_19_1",
+      "question": "Xe công nông có được đi vào không?",
+      "observations": [
+        {
+          "sign_code": "P.140",
+          "image_name": "popular_19_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "entering",
+        "actor": "other_motor_vehicle"
+      },
+      "expected_rule_ids": [
+        "P140_PROHIBIT_CONG_NONG_VEHICLES"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_19_2",
+      "question": "Xe công nông có được phép lưu thông vào đây không?",
+      "observations": [
+        {
+          "sign_code": "P.140",
+          "image_name": "popular_19_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "entering",
+        "actor": "other_motor_vehicle"
+      },
+      "expected_rule_ids": [
+        "P140_PROHIBIT_CONG_NONG_VEHICLES"
+      ],
+      "expected_decision": "PROHIBITED"
+    },
+    {
+      "id": "popular_19_3",
+      "question": "Xe công nông có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.140",
+          "image_name": "popular_19_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "other_motor_vehicle"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_19_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_19_4",
+      "question": "Xe công nông có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "P.140",
+          "image_name": "popular_19_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "other_motor_vehicle"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_19_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_20_1",
+      "question": "Xe ô tô có phải dừng trước biển không?",
+      "observations": [
+        {
+          "sign_code": "R.122",
+          "image_name": "popular_20_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "stopping",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "R122_REQUIRE_STOP_BEFORE_SIGN_OR_LINE"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_20_2",
+      "question": "Ô tô có bắt buộc dừng trước vạch này không?",
+      "observations": [
+        {
+          "sign_code": "R.122",
+          "image_name": "popular_20_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "stopping",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "R122_REQUIRE_STOP_BEFORE_SIGN_OR_LINE"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_20_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "R.122",
+          "image_name": "popular_20_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_20_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_20_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "R.122",
+          "image_name": "popular_20_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_20_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_21_1",
+      "question": "Xe ô tô có được tránh chướng ngại vật bên trái không?",
+      "observations": [
+        {
+          "sign_code": "R.302a",
+          "image_name": "popular_21_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "passing_obstacle",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "R302A_OBSTACLE_PASSING_DIRECTION"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_21_2",
+      "question": "Ô tô đi vòng qua chướng ngại vật về bên trái được không?",
+      "observations": [
+        {
+          "sign_code": "R.302a",
+          "image_name": "popular_21_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "passing_obstacle",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "R302A_OBSTACLE_PASSING_DIRECTION"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_21_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "R.302a",
+          "image_name": "popular_21_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_21_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_21_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "R.302a",
+          "image_name": "popular_21_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_21_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_22_1",
+      "question": "Xe ô tô có được rẽ trái từ làn này không?",
+      "observations": [
+        {
+          "sign_code": "R.411",
+          "image_name": "popular_22_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "turn_left",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "R411_FOLLOW_DIRECTION_FOR_CURRENT_LANE"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_22_2",
+      "question": "Ô tô đi theo hướng rẽ trái ở làn hiện tại được không?",
+      "observations": [
+        {
+          "sign_code": "R.411",
+          "image_name": "popular_22_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "turn_left",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "R411_FOLLOW_DIRECTION_FOR_CURRENT_LANE"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_22_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "R.411",
+          "image_name": "popular_22_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_22_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_22_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "R.411",
+          "image_name": "popular_22_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_22_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_23_1",
+      "question": "Xe ô tô có được đi ngược chiều trên đường một chiều không?",
+      "observations": [
+        {
+          "sign_code": "I.407a",
+          "image_name": "popular_23_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "circulation",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "I407A_ONE_WAY_DIRECTION_ONLY"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_23_2",
+      "question": "Xe ô tô có được đi ngược chiều trên đường một chiều không?",
+      "observations": [
+        {
+          "sign_code": "I.407a",
+          "image_name": "popular_23_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "circulation",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "I407A_ONE_WAY_DIRECTION_ONLY"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_23_3",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "I.407a",
+          "image_name": "popular_23_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_23_3.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_23_4",
+      "question": "Xe ô tô có được bấm còi không?",
+      "observations": [
+        {
+          "sign_code": "I.407a",
+          "image_name": "popular_23_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "using_horn",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "COVERAGE_GAP_popular_23_4.jpg"
+      ],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_24_1",
+      "question": "Xe ô tô có được đi tiếp không?",
+      "observations": [
+        {
+          "sign_code": "W.201a",
+          "image_name": "popular_24_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "circulation",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "W201A_COMMON_WARNING_SIGN_DUTY"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_24_2",
+      "question": "Xe ô tô có được đi tiếp không?",
+      "observations": [
+        {
+          "sign_code": "W.201a",
+          "image_name": "popular_24_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "circulation",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "W201A_COMMON_WARNING_SIGN_DUTY"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_24_3",
+      "question": "Biển báo W.201a có ý nghĩa gì?",
+      "observations": [
+        {
+          "sign_code": "W.201a",
+          "image_name": "popular_24_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "QUERY_SIGN"
+      },
+      "expected_rule_ids": [],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_24_4",
+      "question": "Biển báo W.201a có ý nghĩa gì?",
+      "observations": [
+        {
+          "sign_code": "W.201a",
+          "image_name": "popular_24_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "QUERY_SIGN"
+      },
+      "expected_rule_ids": [],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_25_1",
+      "question": "Xe ô tô có phải nhường xe ở giao lộ không?",
+      "observations": [
+        {
+          "sign_code": "W.207a",
+          "image_name": "popular_25_1.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "yielding",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "W207A_COMMON_WARNING_SIGN_DUTY",
+        "W207A_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_25_2",
+      "question": "Xe ô tô có phải nhường xe ở giao lộ không?",
+      "observations": [
+        {
+          "sign_code": "W.207a",
+          "image_name": "popular_25_2.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "CHECK_PERMISSION",
+        "action": "yielding",
+        "actor": "automobile"
+      },
+      "expected_rule_ids": [
+        "W207A_COMMON_WARNING_SIGN_DUTY",
+        "W207A_PRIORITY_THROUGH_UNCONTROLLED_INTERSECTION"
+      ],
+      "expected_decision": "CONDITIONAL"
+    },
+    {
+      "id": "popular_25_3",
+      "question": "Biển báo W.207a có ý nghĩa gì?",
+      "observations": [
+        {
+          "sign_code": "W.207a",
+          "image_name": "popular_25_3.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "QUERY_SIGN"
+      },
+      "expected_rule_ids": [],
+      "expected_decision": "UNKNOWN"
+    },
+    {
+      "id": "popular_25_4",
+      "question": "Biển báo W.207a có ý nghĩa gì?",
+      "observations": [
+        {
+          "sign_code": "W.207a",
+          "image_name": "popular_25_4.jpg",
+          "confidence": "high"
+        }
+      ],
+      "complete_sign_inventory": true,
+      "expected_intent": {
+        "kind": "QUERY_SIGN"
+      },
+      "expected_rule_ids": [],
+      "expected_decision": "UNKNOWN"
+    }
+  ]
+}

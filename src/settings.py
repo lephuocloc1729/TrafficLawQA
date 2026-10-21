@@ -52,7 +52,20 @@ class ProjectSettings(ProjectBaseSettings):
 
     # Detection Model
     image_lawdb_detection_model: str = "ImageProcessing"
-    image_query_detection_model: str = "YoloE"
+    image_query_detection_model: str = "Yolo26m"
+    sign_model_path: str = str(
+        Path(__file__).resolve().parents[1] / "models" / "yolo26m_vtsdb100_best.pt"
+    )
+    sign_detection_confidence_threshold: float = 0.25
+    # Legacy detectors may opt into image retrieval; YOLO26m QA bypasses it.
+    enable_sign_retrieval_fallback: bool = False
+    enable_symbolic_reasoning: bool = True
+    sign_recognition_candidate_limit: int = 10
+
+    # OCR for explicit text/numeric values printed on sign crops.
+    traffic_sign_ocr_enabled: bool = True
+    traffic_sign_ocr_device: str = "auto"
+    traffic_sign_ocr_language: str = "vi"
 
     # LawDB directory
     lawdb_json_path: str = "data/law_db/vlsp2025_law_new.json"

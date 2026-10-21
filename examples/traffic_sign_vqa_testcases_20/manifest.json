@@ -1,0 +1,509 @@
+{
+  "title": "20 test cases ảnh + câu hỏi từ VTSDB100 test set",
+  "source": "data/archive.zip → VTSDB100/annotations/instances_test.json",
+  "random_seed": 20261020,
+  "case_count": 20,
+  "usage": "Bộ test dùng chung cho các Git branch; mỗi case gồm ảnh và câu hỏi tiếng Việt. Nhãn tham chiếu chỉ dùng để kiểm tra thủ công.",
+  "cases": [
+    {
+      "case_id": "TC01",
+      "image": "images/01_675.png",
+      "question": "Khu vực trong ảnh có lưu ý gì dành cho người đi bộ?",
+      "source_split": "test",
+      "source_image": "images/test/675.png",
+      "source_image_id": 6343,
+      "primary_reference_label": "Pedestrian_crossing_zone",
+      "reference_labels": [
+        "Pedestrian_crossing_zone"
+      ],
+      "reference_annotations": [
+        {
+          "label": "Pedestrian_crossing_zone",
+          "bbox_xywh": [
+            367.0,
+            206.0,
+            17.0,
+            16.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC02",
+      "image": "images/02_31344.png",
+      "question": "Phía trước có nguy cơ gì và người lái xe nên chú ý điều gì?",
+      "source_split": "test",
+      "source_image": "images/test/31344.png",
+      "source_image_id": 3767,
+      "primary_reference_label": "Dangerous_curve_left",
+      "reference_labels": [
+        "Dangerous_curve_left"
+      ],
+      "reference_annotations": [
+        {
+          "label": "Dangerous_curve_left",
+          "bbox_xywh": [
+            449.0,
+            209.0,
+            29.0,
+            26.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC03",
+      "image": "images/03_568frame_00011.png",
+      "question": "Đoạn đường phía trước thay đổi như thế nào và người lái xe cần lưu ý gì?",
+      "source_split": "test",
+      "source_image": "images/test/568frame_00011.png",
+      "source_image_id": 6105,
+      "primary_reference_label": "Road_narrows",
+      "reference_labels": [
+        "Road_narrows"
+      ],
+      "reference_annotations": [
+        {
+          "label": "Road_narrows",
+          "bbox_xywh": [
+            134.33,
+            203.0,
+            159.0,
+            142.33
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC04",
+      "image": "images/04_34225_aug_181.png",
+      "question": "Từ vị trí có biển này, quy định cấm vượt còn tiếp tục áp dụng không?",
+      "source_split": "test",
+      "source_image": "images/test/34225_aug_181.png",
+      "source_image_id": 5340,
+      "primary_reference_label": "End_no_overtaking",
+      "reference_labels": [
+        "End_no_overtaking"
+      ],
+      "reference_annotations": [
+        {
+          "label": "End_no_overtaking",
+          "bbox_xywh": [
+            233.57,
+            301.29,
+            117.84,
+            115.59
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC05",
+      "image": "images/05_819.png",
+      "question": "Tại vị trí này, xe có được đi thẳng không?",
+      "source_split": "test",
+      "source_image": "images/test/819.png",
+      "source_image_id": 6702,
+      "primary_reference_label": "No_straight_ahead",
+      "reference_labels": [
+        "No_straight_ahead"
+      ],
+      "reference_annotations": [
+        {
+          "label": "No_straight_ahead",
+          "bbox_xywh": [
+            289.0,
+            77.0,
+            41.0,
+            41.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC06",
+      "image": "images/06_21377.png",
+      "question": "Tại vị trí này, xe có được quay đầu không?",
+      "source_split": "test",
+      "source_image": "images/test/21377.png",
+      "source_image_id": 2571,
+      "primary_reference_label": "No_U_turn",
+      "reference_labels": [
+        "No_U_turn"
+      ],
+      "reference_annotations": [
+        {
+          "label": "No_U_turn",
+          "bbox_xywh": [
+            310.0,
+            148.0,
+            20.0,
+            20.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC07",
+      "image": "images/07_17372_aug_150.png",
+      "question": "Khi đến nút giao phía trước, người lái xe cần nhường đường cho hướng nào?",
+      "source_split": "test",
+      "source_image": "images/test/17372_aug_150.png",
+      "source_image_id": 1742,
+      "primary_reference_label": "Intersection_with_non_priority_road_left",
+      "reference_labels": [
+        "Intersection_with_non_priority_road_left"
+      ],
+      "reference_annotations": [
+        {
+          "label": "Intersection_with_non_priority_road_left",
+          "bbox_xywh": [
+            140.0,
+            118.0,
+            51.0,
+            48.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC08",
+      "image": "images/08_32453.png",
+      "question": "Xe có được đi tiếp vào đoạn đường phía trước không?",
+      "source_split": "test",
+      "source_image": "images/test/32453.png",
+      "source_image_id": 3944,
+      "primary_reference_label": "Road_closed",
+      "reference_labels": [
+        "Road_closed"
+      ],
+      "reference_annotations": [
+        {
+          "label": "Road_closed",
+          "bbox_xywh": [
+            333.0,
+            136.0,
+            26.0,
+            36.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC09",
+      "image": "images/09_11213.png",
+      "question": "Biển báo trong ảnh hạn chế việc đỗ xe vào những ngày nào?",
+      "source_split": "test",
+      "source_image": "images/test/11213.png",
+      "source_image_id": 511,
+      "primary_reference_label": "No_parking_even_days",
+      "reference_labels": [
+        "No_parking_even_days"
+      ],
+      "reference_annotations": [
+        {
+          "label": "No_parking_even_days",
+          "bbox_xywh": [
+            364.0,
+            124.0,
+            19.0,
+            18.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC10",
+      "image": "images/10_34219_aug_175.png",
+      "question": "Từ vị trí có biển này, quy định cấm vượt còn tiếp tục áp dụng không?",
+      "source_split": "test",
+      "source_image": "images/test/34219_aug_175.png",
+      "source_image_id": 5331,
+      "primary_reference_label": "End_no_overtaking",
+      "reference_labels": [
+        "End_no_overtaking"
+      ],
+      "reference_annotations": [
+        {
+          "label": "End_no_overtaking",
+          "bbox_xywh": [
+            295.0,
+            342.0,
+            63.0,
+            66.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC11",
+      "image": "images/11_9571_aug_300.png",
+      "question": "Tốc độ tối đa được phép theo biển báo trong ảnh là bao nhiêu?",
+      "source_split": "test",
+      "source_image": "images/test/9571_aug_300.png",
+      "source_image_id": 7040,
+      "primary_reference_label": "Speed_limit_40",
+      "reference_labels": [
+        "Speed_limit_40",
+        "Min_speed_limit_30"
+      ],
+      "reference_annotations": [
+        {
+          "label": "Speed_limit_40",
+          "bbox_xywh": [
+            258.0,
+            238.0,
+            63.0,
+            60.0
+          ]
+        },
+        {
+          "label": "Min_speed_limit_30",
+          "bbox_xywh": [
+            234.0,
+            385.0,
+            33.0,
+            36.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC12",
+      "image": "images/12_7208.png",
+      "question": "Người lái xe cần chú ý gì khi đến khu vực phía trước?",
+      "source_split": "test",
+      "source_image": "images/test/7208.png",
+      "source_image_id": 6519,
+      "primary_reference_label": "Pedestrian_crossing",
+      "reference_labels": [
+        "Pedestrian_crossing"
+      ],
+      "reference_annotations": [
+        {
+          "label": "Pedestrian_crossing",
+          "bbox_xywh": [
+            434.0,
+            187.0,
+            39.0,
+            32.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC13",
+      "image": "images/13_32565.png",
+      "question": "Biển báo cho biết xe đang đi vào khu vực nào?",
+      "source_split": "test",
+      "source_image": "images/test/32565.png",
+      "source_image_id": 4057,
+      "primary_reference_label": "Residential_area",
+      "reference_labels": [
+        "Residential_area"
+      ],
+      "reference_annotations": [
+        {
+          "label": "Residential_area",
+          "bbox_xywh": [
+            309.0,
+            93.0,
+            25.0,
+            26.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC14",
+      "image": "images/14_11820_aug_95.png",
+      "question": "Xe mô tô có được đi vào tuyến đường này không?",
+      "source_split": "test",
+      "source_image": "images/test/11820_aug_95.png",
+      "source_image_id": 671,
+      "primary_reference_label": "No_motorcycles",
+      "reference_labels": [
+        "No_motorcycles",
+        "No_vehicles_carrying_dangerous_goods",
+        "No_pedestrians"
+      ],
+      "reference_annotations": [
+        {
+          "label": "No_motorcycles",
+          "bbox_xywh": [
+            413.0,
+            26.0,
+            57.0,
+            54.0
+          ]
+        },
+        {
+          "label": "No_vehicles_carrying_dangerous_goods",
+          "bbox_xywh": [
+            296.0,
+            17.0,
+            57.0,
+            54.0
+          ]
+        },
+        {
+          "label": "No_pedestrians",
+          "bbox_xywh": [
+            473.0,
+            29.0,
+            54.0,
+            54.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC15",
+      "image": "images/15_13754.png",
+      "question": "Khi gặp biển báo này, người lái xe cần đi theo dạng nút giao nào?",
+      "source_split": "test",
+      "source_image": "images/test/13754.png",
+      "source_image_id": 1213,
+      "primary_reference_label": "Roundabout",
+      "reference_labels": [
+        "Roundabout"
+      ],
+      "reference_annotations": [
+        {
+          "label": "Roundabout",
+          "bbox_xywh": [
+            256.0,
+            75.0,
+            32.0,
+            36.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC16",
+      "image": "images/16_10563_aug_179.png",
+      "question": "Phần đường bị thu hẹp ở phía nào?",
+      "source_split": "test",
+      "source_image": "images/test/10563_aug_179.png",
+      "source_image_id": 263,
+      "primary_reference_label": "Road_narrows_left",
+      "reference_labels": [
+        "Road_narrows_left",
+        "Two_way_traffic"
+      ],
+      "reference_annotations": [
+        {
+          "label": "Road_narrows_left",
+          "bbox_xywh": [
+            463.74,
+            314.82,
+            119.92,
+            125.43
+          ]
+        },
+        {
+          "label": "Two_way_traffic",
+          "bbox_xywh": [
+            382.11,
+            428.15,
+            57.4,
+            49.14
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC17",
+      "image": "images/17_21977.png",
+      "question": "Địa điểm hoặc dịch vụ giao thông nào được báo hiệu trong ảnh?",
+      "source_split": "test",
+      "source_image": "images/test/21977.png",
+      "source_image_id": 2643,
+      "primary_reference_label": "Bus_stop",
+      "reference_labels": [
+        "Bus_stop"
+      ],
+      "reference_annotations": [
+        {
+          "label": "Bus_stop",
+          "bbox_xywh": [
+            303.0,
+            125.0,
+            12.0,
+            16.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC18",
+      "image": "images/18_32709.png",
+      "question": "Biển báo cho biết xe đang đi vào khu vực nào?",
+      "source_split": "test",
+      "source_image": "images/test/32709.png",
+      "source_image_id": 4165,
+      "primary_reference_label": "Residential_area",
+      "reference_labels": [
+        "Residential_area"
+      ],
+      "reference_annotations": [
+        {
+          "label": "Residential_area",
+          "bbox_xywh": [
+            292.0,
+            52.0,
+            63.0,
+            48.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC19",
+      "image": "images/19_1710.png",
+      "question": "Phía trước là nút giao dạng nào và nhánh đường rẽ về phía nào?",
+      "source_split": "test",
+      "source_image": "images/test/1710.png",
+      "source_image_id": 1668,
+      "primary_reference_label": "T_junction_left",
+      "reference_labels": [
+        "T_junction_left"
+      ],
+      "reference_annotations": [
+        {
+          "label": "T_junction_left",
+          "bbox_xywh": [
+            309.0,
+            110.0,
+            50.0,
+            52.0
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "TC20",
+      "image": "images/20_11340.png",
+      "question": "Ô tô có được đi vào tuyến đường này không?",
+      "source_split": "test",
+      "source_image": "images/test/11340.png",
+      "source_image_id": 537,
+      "primary_reference_label": "No_cars",
+      "reference_labels": [
+        "No_cars"
+      ],
+      "reference_annotations": [
+        {
+          "label": "No_cars",
+          "bbox_xywh": [
+            256.0,
+            84.0,
+            88.0,
+            79.0
+          ]
+        }
+      ]
+    }
+  ]
+}

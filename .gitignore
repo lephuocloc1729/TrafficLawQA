@@ -62,6 +62,9 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+data/reviews/*.sqlite3
+data/reviews/*.sqlite3-shm
+data/reviews/*.sqlite3-wal
 
 # Flask stuff:
 instance/
@@ -216,7 +219,9 @@ task1/yoloe-v8l-seg.pt
 datasets
 extracted_signs
 extracted_signs_from_real_image
-outputs
+outputs/*
+!outputs/baseline_metrics.json
+!outputs/baseline_rows.json
 qdrant_storage
 weights
 insight_data

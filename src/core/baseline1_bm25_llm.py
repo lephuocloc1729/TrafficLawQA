@@ -187,7 +187,8 @@ def create_resources(lawdb_path: str | Path | None = None, device: str = "cpu") 
     if not api_keys:
         raise ValueError("Set LLM_API_KEYS in .env before running Baseline 1")
     return BaselineResources(
-        detector=SignExtractor(detector=settings.image_query_detection_model, device=device),
+        # Keep this baseline pinned even when the shared QA detector changes.
+        detector=SignExtractor(detector="YoloE", device=device),
         llm=LLMClient(settings.llm_base_url, api_keys, settings.llm_model),
         index=BM25Index(load_legal_units(lawdb_path or settings.lawdb_json_path)),
         ocr=OptionalOCR(),
