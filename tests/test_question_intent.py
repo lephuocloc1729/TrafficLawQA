@@ -33,7 +33,7 @@ class QueryIntentTest(unittest.TestCase):
             ),
             (
                 "Biển báo trong ảnh này có ý nghĩa gì?",
-                {"kind": "QUERY_SIGN", "target": "scene"},
+                {"kind": "INFORMATION", "information_type": "sign_meaning", "target": "scene"},
             ),
             (
                 "Biển này cấm những phương tiện nào?",
@@ -113,8 +113,9 @@ class QueryIntentTest(unittest.TestCase):
         )
         self.assertEqual(
             [item.kind for item in query.query_intent.intents],
-            ["QUERY_SIGN", "CHECK_PERMISSION"],
+            ["INFORMATION", "CHECK_PERMISSION"],
         )
+        self.assertEqual(query.query_intent.intents[0].information_type, "sign_meaning")
 
     def test_permission_defaults_to_a_system_clock_fact(self) -> None:
         now = datetime(2026, 10, 5, 8, 30, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
@@ -354,7 +355,8 @@ class QueryIntentTest(unittest.TestCase):
         }))
         query = parse_query_intent("Trường hợp xe chở hàng như hình thì sao?", llm_client=client)
         self.assertEqual(client.calls, 1)
-        self.assertEqual([item.kind for item in query.query_intent.intents], ["QUERY_SIGN", "CHECK_PERMISSION"])
+        self.assertEqual([item.kind for item in query.query_intent.intents], ["INFORMATION", "CHECK_PERMISSION"])
+        self.assertEqual(query.query_intent.intents[0].information_type, "sign_meaning")
         self.assertEqual(query.query_intent.intents[1].action.value, "entering")
         self.assertEqual(query.query_intent.intents[1].actor.value, "truck")
         self.assertEqual(query.context_facts[0].metadata["resolution"], "default_current")
@@ -366,7 +368,8 @@ class QueryIntentTest(unittest.TestCase):
         }))
         query = parse_query_intent("Xe ô tô có được đỗ không?", llm_client=client)
         self.assertEqual(client.calls, 1)
-        self.assertEqual(query.query_intent.intents[0].kind, "QUERY_SIGN")
+        self.assertEqual(query.query_intent.intents[0].kind, "INFORMATION")
+        self.assertEqual(query.query_intent.intents[0].information_type, "sign_meaning")
         self.assertEqual(query.query_intent.parser["method"], "llm")
 
     def test_invalid_llm_labels_are_reduced_to_unknown(self) -> None:

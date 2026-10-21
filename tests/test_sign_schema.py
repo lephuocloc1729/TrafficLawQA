@@ -27,7 +27,8 @@ class SymbolicSchemaTest(unittest.TestCase):
             }],
         )
         decoded = json.loads(parsed.to_json())
-        self.assertEqual([item["kind"] for item in decoded["intents"]], ["QUERY_SIGN", "CHECK_PERMISSION"])
+        self.assertEqual([item["kind"] for item in decoded["intents"]], ["INFORMATION", "CHECK_PERMISSION"])
+        self.assertEqual(decoded["intents"][0]["information_type"], "sign_meaning")
         self.assertEqual(decoded["context_facts"][0]["source"], "system_clock")
         permission = decoded["intents"][1]
         self.assertEqual(set(permission), {"kind", "action", "actor"})

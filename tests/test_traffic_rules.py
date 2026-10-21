@@ -195,8 +195,8 @@ class TrafficRulesTest(unittest.TestCase):
 
     def test_r415_and_populated_area_sign_rules_stay_conditional_and_do_not_invent_limits(self) -> None:
         cases = [
-            ("R.415a", "Biển R.415a có ý nghĩa gì?", "QUERY_SIGN"),
-            ("R.415b", "Biển R.415b có ý nghĩa gì?", "QUERY_SIGN"),
+            ("R.415a", "Biển R.415a có ý nghĩa gì?", "INFORMATION"),
+            ("R.415b", "Biển R.415b có ý nghĩa gì?", "INFORMATION"),
             ("R.420", "Tốc độ tối đa trong khu đông dân cư là bao nhiêu?", "INFORMATION"),
             ("R.421", "Tốc độ tối đa sau biển R.421 là bao nhiêu?", "INFORMATION"),
         ]
@@ -1178,7 +1178,8 @@ class TrafficRulesTest(unittest.TestCase):
 
         facts = _scoped_sign_facts("W.212")
         meaning_query = query("Biển W.212 có ý nghĩa gì?")
-        self.assertEqual(meaning_query.query_intent.intents[0].kind, "QUERY_SIGN")
+        self.assertEqual(meaning_query.query_intent.intents[0].kind, "INFORMATION")
+        self.assertEqual(meaning_query.query_intent.intents[0].information_type, "sign_meaning")
         self.assertEqual(evaluate(facts, meaning_query, [rule]), [])
 
         reviewed = reviewed_rules([rule])

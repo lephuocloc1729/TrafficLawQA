@@ -165,7 +165,6 @@ P131B = {
 - [x] Start with deterministic keyword parsing.
   - Intents:
     - `CHECK_PERMISSION`
-    - `QUERY_SIGN`
     - `INFORMATION`
     - `UNKNOWN`
 

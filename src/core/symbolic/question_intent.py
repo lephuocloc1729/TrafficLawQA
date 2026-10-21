@@ -93,7 +93,7 @@ INTENT_PATTERNS = (
         "ten duong nao", "bien chi duong", "di den dau",
         "dieu kien gi", "truong hop nao", "ap dung khi nao",
     )),
-    ("QUERY_SIGN", (
+    ("INFORMATION", (
         "y nghia gi", "y nghia cua bien", "co nghia gi", "bien nay la gi", "bien nay la bien gi",
         "bien gi vay", "bien gi", "noi dung bien", "noi dung cua bien", "nhan dien bien", "nhan dien giup bien",
         "xac dinh bien", "bien nao trong hinh", "bien nao", "ma bien gi", "ma bien bao nay",
@@ -657,6 +657,14 @@ def _information_type(question: str) -> str | None:
     """Return a known hint when available; unmatched information stays untyped."""
     text = normalize_question_text(question)
     if any(term in text for term in (
+        "y nghia gi", "y nghia cua bien", "co nghia gi", "bien nay la gi", "bien nay la bien gi",
+        "bien gi vay", "bien gi", "noi dung bien", "noi dung cua bien", "nhan dien bien",
+        "nhan dien giup bien", "xac dinh bien", "bien nao trong hinh", "bien nao", "ma bien gi",
+        "ma bien bao nay", "thong bao dieu gi", "noi len dieu gi", "loai bien bao nao", "ten goi cua bien",
+        "thuoc loai bien nao", "bao hieu dieu gi", "hien thi bien bao nao",
+    )):
+        return "sign_meaning"
+    if any(term in text for term in (
         "cam nhung phuong tien nao", "cam phuong tien nao", "loai xe nao bi cam",
         "xe nao bi cam", "cam xe nao", "ap dung cho loai phuong tien nao",
     )):
@@ -682,7 +690,6 @@ def _information_type(question: str) -> str | None:
 def _answer_spec(kind: str) -> dict[str, Any]:
     answer_types = {
         "CHECK_PERMISSION": "decision_with_explanation",
-        "QUERY_SIGN": "sign_information",
         "INFORMATION": "traffic_sign_information",
     }
     return {"kind": answer_types.get(kind, "clarification"), "include_legal_basis": True}
@@ -779,6 +786,7 @@ def _validate_llm_query(payload: dict[str, Any], question: str, now: datetime | 
     for index, item in enumerate(raw_intents if isinstance(raw_intents, list) else []):
         if not isinstance(item, dict):
             continue
+        raw_kind = str(item.get("kind") or "UNKNOWN").strip().upper()
         kind = normalize_intent_kind(item.get("kind"))
         action_payload = item.get("action")
         actor_payload = item.get("actor")
@@ -812,6 +820,9 @@ def _validate_llm_query(payload: dict[str, Any], question: str, now: datetime | 
             ),
         )
         requested = item.get("requested_answer") if isinstance(item.get("requested_answer"), dict) else _answer_spec(kind)
+        information_type = str(item.get("information_type") or "").strip().lower() or None
+        if raw_kind in {"QUERY_SIGN", "QUERY_SIGN_MEANING", "IDENTIFY_SIGN"} and not information_type:
+            information_type = "sign_meaning"
         parsed_intents.append(Intent(
             intent_id=str(item.get("intent_id") or f"intent-{index + 1}"),
             kind=kind,
@@ -819,7 +830,7 @@ def _validate_llm_query(payload: dict[str, Any], question: str, now: datetime | 
             action=IntentSlot(action_value, action_obj.get("raw_text"), str(action_obj.get("status") or "not_stated")),
             actor=IntentSlot(actor_value, actor_raw_text, actor_status),
             requested_answer=requested,
-            information_type=str(item.get("information_type") or "").strip().lower() or None,
+            information_type=information_type,
         ))
 
     if not parsed_intents:
@@ -867,11 +878,11 @@ def parse_query_intent_with_llm(
         "Định nghĩa nhãn:\n"
         "- CHECK_PERMISSION: hỏi một hành động có được phép/bị cấm hay có bắt buộc phải làm không; "
         "bao gồm cách hỏi khẩu ngữ hoặc diễn đạt gián tiếp.\n"
-        "- QUERY_SIGN: hỏi biển là biển gì, ký hiệu/mã nào, hoặc biển/biểu tượng mang ý nghĩa hay thông điệp gì.\n"
-        "- INFORMATION: hỏi thông tin thể hiện bởi biển hoặc dữ liệu nhận diện, gồm đối tượng xe, thời gian hiệu lực, "
+        "- INFORMATION: hỏi thông tin thể hiện bởi biển hoặc dữ liệu nhận diện, gồm nhận diện biển, ký hiệu/mã, "
+        "ý nghĩa/thông điệp của biển, đối tượng xe, thời gian hiệu lực, "
         "hướng, tốc độ, khoảng cách, mã/tên đường và các thông tin cụ thể khác. information_type chỉ là gợi ý tùy chọn: "
         "nếu không khớp các giá trị liệt kê, vẫn chọn INFORMATION và bỏ qua trường information_type để LLM tự trả lời "
-        "từ câu hỏi cùng context. Nếu câu hỏi nhắm vào một thuộc tính cụ thể, chọn INFORMATION thay vì QUERY_SIGN.\n"
+        "từ câu hỏi cùng context. Với câu hỏi nhận diện/ý nghĩa biển, đặt information_type=sign_meaning.\n"
         "- UNKNOWN: bao gồm câu hỏi ngoài phạm vi giao thông/biển báo, không thể xác định ý định, hoặc hỏi tiền phạt, "
         "mức xử phạt hay chế tài cho vi phạm. Câu hỏi lạ cách "
         "diễn đạt nhưng vẫn rõ nghĩa không được gán UNKNOWN chỉ vì không khớp từ khóa.\n"
@@ -881,11 +892,11 @@ def parse_query_intent_with_llm(
         "Với cách gọi chung 'xe máy', dùng actor=motorcycle_or_moped, không tự chọn mô tô hay xe gắn máy.\n"
         "Intent mô tả điều người dùng muốn biết; không suy đoán dữ kiện từ ảnh. Dữ kiện thời gian/vị trí "
         "được nêu rõ đưa vào context_facts với source=user_query. Trả về JSON hợp lệ, không thêm văn xuôi.\n"
-        'Schema: {"schema_version":"3.0","intents":[{"kind":"CHECK_PERMISSION|QUERY_SIGN|INFORMATION|UNKNOWN",'
+        'Schema: {"schema_version":"3.0","intents":[{"kind":"CHECK_PERMISSION|INFORMATION|UNKNOWN",'
         '"target":"scene|sign_observation|sign_code|unresolved",'
         '"action":"parking|stopping|yielding|turn_left|turn_right|u_turn|going_straight|entering|exiting|speed|reduce_speed|circulation|crossing|overtaking|reversing|lane_change|using_horn|following_distance|passing_obstacle|roundabout_circulation|unknown",'
         '"actor":"'
-        + vehicle_enum + '","information_type":"prohibited_subjects|time_condition|direction_scope|speed|distance_scope|destination_distance|road_identity",'
+        + vehicle_enum + '","information_type":"sign_meaning|prohibited_subjects|time_condition|direction_scope|speed|distance_scope|destination_distance|road_identity",'
         '"requested_answer":{}}],'
         '"context_facts":[],"unresolved_items":[],"confidence":"high|medium|low"}\n'
         f"Câu hỏi: {question}"

@@ -345,8 +345,7 @@ def reason_over_facts(
                 intent_id=intent.intent_id,
                 decision="UNKNOWN",
                 reason={
-                    "QUERY_SIGN": "Thông tin biển được tra từ catalog nguồn chính thức; xem sign_meaning_evaluations.",
-                    "INFORMATION": "Intent thông tin được chuyển cho pipeline LLM dựa trên dữ kiện biển báo/OCR.",
+                    "INFORMATION": "Intent thông tin được chuyển cho pipeline LLM dựa trên dữ kiện biển báo/OCR; câu hỏi ý nghĩa biển có sign_meaning_evaluations từ catalog.",
                     "UNKNOWN": "Chưa xác định được intent; hệ thống chưa hỗ trợ yêu cầu này.",
                 }.get(intent.kind, "Intent chưa được hệ thống hỗ trợ."),
             )

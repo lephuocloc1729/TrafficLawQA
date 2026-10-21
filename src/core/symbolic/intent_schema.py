@@ -7,13 +7,14 @@ from src.core.symbolic.fact_schema import ContextFact
 from src.core.symbolic.sign_schema import SerializableMixin
 
 
-IntentKind = Literal["CHECK_PERMISSION", "QUERY_SIGN", "INFORMATION", "UNKNOWN"]
+IntentKind = Literal["CHECK_PERMISSION", "INFORMATION", "UNKNOWN"]
 VALID_INTENT_KINDS = frozenset({
-    "CHECK_PERMISSION", "QUERY_SIGN", "INFORMATION", "UNKNOWN",
+    "CHECK_PERMISSION", "INFORMATION", "UNKNOWN",
 })
 LEGACY_INTENT_KIND_ALIASES = {
-    "QUERY_SIGN_MEANING": "QUERY_SIGN",
-    "IDENTIFY_SIGN": "QUERY_SIGN",
+    "QUERY_SIGN": "INFORMATION",
+    "QUERY_SIGN_MEANING": "INFORMATION",
+    "IDENTIFY_SIGN": "INFORMATION",
     "ASK_CONDITION": "CHECK_PERMISSION",
     "PENALTY": "UNKNOWN",
     "ASK_PENALTY": "UNKNOWN",
@@ -71,7 +72,10 @@ class Intent(SerializableMixin):
 
     def __post_init__(self) -> None:
         self.intent_id = str(self.intent_id or "intent-1").strip()
+        legacy_kind = str(self.kind or "UNKNOWN").strip().upper()
         self.kind = normalize_intent_kind(self.kind)
+        if legacy_kind in {"QUERY_SIGN", "QUERY_SIGN_MEANING", "IDENTIFY_SIGN"} and not self.information_type:
+            self.information_type = "sign_meaning"
         if isinstance(self.target, str):
             self.target = IntentTarget(kind=self.target)
         if isinstance(self.target, dict):
@@ -109,8 +113,8 @@ class Intent(SerializableMixin):
             }
             if requested_values:
                 payload["requested_answer"] = requested_values
-        elif self.kind in {"QUERY_SIGN", "INFORMATION"}:
-            if self.kind == "INFORMATION" and self.information_type:
+        elif self.kind == "INFORMATION":
+            if self.information_type:
                 payload["information_type"] = self.information_type
             if self.target.kind != "unresolved":
                 payload["target"] = "scene" if self.target.kind in {"scene", "sign_observation", "sign_code"} else self.target.kind
