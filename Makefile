@@ -1,7 +1,7 @@
 # VLSP2025 Legal Q&A System Makefile
 # This Makefile provides convenient commands for common project tasks
 
-.PHONY: help install setup venv venv-create venv-activate venv-remove lawdb task1 task2 clean docker-up docker-down test format lint ui-freeform-demo
+.PHONY: help install setup venv venv-create venv-activate venv-remove lawdb task1 task2 clean docker-up docker-down test baseline-vlm-only format lint ui-freeform-demo
 
 # Default target
 help:
@@ -174,3 +174,6 @@ status:
 	@echo "Docker status: $(shell docker-compose ps --services --filter status=running)"
 	@echo "Qdrant status: $(shell curl -s http://localhost:6333/collections 2>/dev/null && echo 'Running' || echo 'Not running')"
 	@echo "Environment file: $(shell test -f .env && echo 'Present' || echo 'Missing')"
+
+baseline-vlm-only:
+	python -m src.eval.vlm_only --config configs/baseline2_vlm_only.json
