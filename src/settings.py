@@ -44,7 +44,8 @@ class ProjectSettings(ProjectBaseSettings):
     limit: int = 5
 
     # LLM Models
-    llm_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai/"
+    # Default to the local Ollama server hosting Gemma 3 12B.
+    llm_base_url: str = "http://localhost:18989/v1"
     llm_api_keys: str | None = None
     llm_model: str = "gemma-3-12b-it"
     llm_temperature: float = 0.0
@@ -62,9 +63,9 @@ class ProjectSettings(ProjectBaseSettings):
     enable_symbolic_reasoning: bool = True
     sign_recognition_candidate_limit: int = 10
 
-    # OCR for explicit text/numeric values printed on sign crops.
+    # OCR the full source image and retain all recognized text for information queries.
     traffic_sign_ocr_enabled: bool = True
-    traffic_sign_ocr_device: str = "auto"
+    traffic_sign_ocr_device: str = "gpu"
     traffic_sign_ocr_language: str = "vi"
 
     # LawDB directory

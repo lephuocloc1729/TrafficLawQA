@@ -6,15 +6,13 @@ from src.settings import settings
 from src.core.symbolic.traffic_sign_ocr import get_traffic_sign_ocr
 
 
-def _ocr_yolo_detections(
+def _ocr_full_image_and_associate_yolo_text(
     image_path: Path,
     detections: list[dict],
-) -> None:
-    """OCR the source image once, then associate text boxes with YOLO signs."""
-    if not settings.traffic_sign_ocr_enabled or not detections:
-        return
-    if not any("yolo26" in str(item.get("source") or "").lower() for item in detections):
-        return
+) -> tuple[list[dict], str]:
+    """OCR the full source image, retaining all text and associating YOLO text."""
+    if not settings.traffic_sign_ocr_enabled:
+        return [], "disabled"
 
     try:
         engine = get_traffic_sign_ocr(
@@ -28,7 +26,13 @@ def _ocr_yolo_detections(
         for detection in detections:
             detection["ocr_texts"] = []
             detection["ocr_status"] = "unavailable"
-        return
+        return [], "unavailable"
+
+    if not detections or not any(
+        "yolo26" in str(item.get("source") or "").lower()
+        for item in detections
+    ):
+        return image_texts, "read" if image_texts else "no_text"
 
     associations: list[list[dict]] = [[] for _ in detections]
     for text_item in image_texts:
@@ -99,12 +103,15 @@ def _ocr_yolo_detections(
         detection["ocr_texts"] = texts
         detection["ocr_status"] = "read" if texts else "no_text"
 
+    return image_texts, "read" if image_texts else "no_text"
+
 
 def extract_signs(
     sign_extractor: SignExtractor,
     sample: dict[str, any],
     image_dir: Path,
     sign_dir: str | None = None,
+    include_full_image_ocr: bool = False,
 ) -> dict[str, any]:
     sample["detected_signs"] = []
 
@@ -114,7 +121,14 @@ def extract_signs(
         detections = sign_extractor.detect_and_crop(image_path=str(image_path))
         detection_metadata = [metadata for _, metadata in detections]
         detection_dir = Path(sign_dir) if sign_dir is not None else image_dir
-        _ocr_yolo_detections(image_path, detection_metadata)
+        if include_full_image_ocr:
+            full_image_ocr, full_image_ocr_status = _ocr_full_image_and_associate_yolo_text(
+                image_path, detection_metadata
+            )
+        else:
+            full_image_ocr, full_image_ocr_status = [], "disabled"
+        sample["full_image_ocr"] = full_image_ocr
+        sample["full_image_ocr_status"] = full_image_ocr_status
         for i, (sign, metadata) in enumerate(detections):
             sign = sign.convert("RGB")
             sign_name = f"{sample['image_id']}_crop{i}.jpg"

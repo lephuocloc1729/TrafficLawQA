@@ -11,9 +11,13 @@ import streamlit as st
 from openai import OpenAI
 import torch
 
-from src.core.baseline1_bm25_llm import answer_image_question as answer_bm25_question
-from src.core.baseline1_bm25_llm import create_resources as create_bm25_resources
-from src.core.freeform_qa import answer_image_question, create_freeform_qa_resources
+from src.core.baseline1_yolo26s_vlm import answer_image_question as answer_baseline1_question
+from src.core.baseline1_yolo26s_vlm import create_resources as create_baseline1_resources
+from src.core.freeform_qa import (
+    answer_image_question,
+    answer_rag_compatible_image_question,
+    create_freeform_qa_resources,
+)
 from src.eval.baseline_config import load_baseline_config
 from src.eval.freeform_qa_metrics import apply_baseline_config
 from src.eval.vlm_only import answer_one as answer_vlm_question
@@ -26,12 +30,12 @@ DEMO_CONTENT_MAX_WIDTH = 920
 DEMO_IMAGE_WIDTH = 520
 RAG_PIPELINE = "RAG baseline"
 NEURO_SYMBOLIC_PIPELINE = "Neuro-symbolic (YOLO26s)"
-BM25_PIPELINE = "BM25 + LLM"
+BASELINE1_PIPELINE = "YOLO26s + VLM"
 VLM_PIPELINE = "VLM-only"
 PIPELINE_NAMES = (
     RAG_PIPELINE,
     NEURO_SYMBOLIC_PIPELINE,
-    BM25_PIPELINE,
+    BASELINE1_PIPELINE,
     VLM_PIPELINE,
 )
 
@@ -41,9 +45,9 @@ st.set_page_config(page_title="Traffic Sign QA", layout="wide")
 
 @st.cache_resource(show_spinner="Loading pipeline resources...")
 def load_resources(pipeline_name: str):
-    if pipeline_name == BM25_PIPELINE:
+    if pipeline_name == BASELINE1_PIPELINE:
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        return create_bm25_resources(device=device)
+        return create_baseline1_resources(device=device)
     return create_freeform_qa_resources()
 
 
@@ -62,13 +66,6 @@ def configure_pipeline(pipeline_name: str) -> dict[str, Any] | None:
         config = load_baseline_config("configs/neuro_symbolic_eval.json")
         apply_baseline_config(config)
         return config
-    if pipeline_name == BM25_PIPELINE:
-        config = load_baseline_config("configs/baseline_eval.json")
-        apply_baseline_config(config)
-        settings.image_query_detection_model = "YoloE"
-        settings.enable_sign_retrieval_fallback = False
-        settings.enable_symbolic_reasoning = False
-        return config
     return None
 
 
@@ -80,9 +77,17 @@ def run_selected_pipeline(
     use_vlm_filter: bool,
     resources: Any | None = None,
 ) -> dict[str, Any]:
+    # Streamlit reruns and cached resources share one process; restore the
+    # selected profile at execution time before reading settings.
+    configure_pipeline(pipeline_name)
     if pipeline_name in {RAG_PIPELINE, NEURO_SYMBOLIC_PIPELINE}:
         resources = resources or load_resources(pipeline_name)
-        return answer_image_question(
+        answer_fn = (
+            answer_rag_compatible_image_question
+            if pipeline_name == RAG_PIPELINE
+            else answer_image_question
+        )
+        return answer_fn(
             image_path=image_path,
             question=question,
             choices=choices or None,
@@ -90,13 +95,13 @@ def run_selected_pipeline(
             use_vlm_filter=use_vlm_filter,
         )
 
-    if pipeline_name == BM25_PIPELINE:
+    if pipeline_name == BASELINE1_PIPELINE:
         resources = resources or load_resources(pipeline_name)
         started = time.perf_counter()
-        result = answer_bm25_question(
+        result = answer_baseline1_question(
             image_path=image_path,
             question=question,
-            choices=choices.splitlines() if choices.strip() else None,
+            choices=choices or None,
             resources=resources,
         )
         result["latency_seconds"] = round(time.perf_counter() - started, 5)
@@ -256,7 +261,11 @@ def render_answer(result: dict[str, Any]) -> None:
         st.write(reasoning)
 
 
-def render_detected_signs(result: dict[str, Any]) -> None:
+def render_detected_signs(
+    result: dict[str, Any],
+    *,
+    show_ocr: bool = False,
+) -> None:
     detected_signs = result.get("detected_signs", [])
     st.subheader("Detected Signs")
     if not detected_signs:
@@ -278,6 +287,40 @@ def render_detected_signs(result: dict[str, Any]) -> None:
                     f"Variant: {variant_decision.get('method')} | "
                     f"{variant_decision.get('confidence', 'low')}"
                 )
+            if show_ocr:
+                ocr_texts = sign.get("ocr_texts") or []
+                st.markdown("**OCR detected text**")
+                if ocr_texts:
+                    for item in ocr_texts:
+                        if isinstance(item, dict):
+                            text = str(
+                                item.get("raw_text")
+                                or item.get("normalized_value")
+                                or ""
+                            ).strip()
+                            confidence = item.get("confidence")
+                            region_role = item.get("region_role")
+                            details = []
+                            if confidence is not None:
+                                details.append(f"confidence {confidence}")
+                            if region_role == "below_sign_context":
+                                details.append("text below sign")
+                            elif region_role:
+                                details.append(str(region_role).replace("_", " "))
+                        else:
+                            text = str(item).strip()
+                            details = []
+                        if text:
+                            st.write(f"- {text}")
+                            if details:
+                                st.caption(" · ".join(details))
+                else:
+                    status = sign.get("ocr_status") or "no_text"
+                    status_message = {
+                        "unavailable": "OCR is unavailable for this detection.",
+                        "no_text": "No text was detected in this region.",
+                    }.get(status, "No OCR text was returned.")
+                    st.caption(status_message)
 
 
 def render_citations(result: dict[str, Any]) -> None:
@@ -347,7 +390,7 @@ def main() -> None:
         pipeline_descriptions = {
             RAG_PIPELINE: "Sign detection + LawDB vector retrieval + answer generation.",
             NEURO_SYMBOLIC_PIPELINE: "YOLO26s sign recognition + symbolic traffic rules + answer generation.",
-            BM25_PIPELINE: "YoloE crops + optional OCR + BM25 legal text retrieval + answer generation.",
+            BASELINE1_PIPELINE: "YOLO26s sign detection + original image + Gemma 3 12B answer generation; no retrieval or symbolic rules.",
             VLM_PIPELINE: "Original image + question sent directly to one multimodal model.",
         }
         st.caption(pipeline_descriptions[pipeline_name])
@@ -425,25 +468,22 @@ def main() -> None:
 
     st.divider()
     st.subheader(pipeline_name)
-    if pipeline_name == BM25_PIPELINE:
+    if pipeline_name == BASELINE1_PIPELINE:
         render_answer(
             {
                 "freeform_answer": result.get("answer"),
                 "confidence": "not scored",
                 "performance": {"total": result.get("latency_seconds")},
-                "reasoning": result.get("recognition_limit"),
+                "reasoning": "YOLO26s detections are provided to the VLM as visual context; no legal retrieval or symbolic reasoning is used.",
             }
         )
-        render_citations(result)
-        st.subheader("BM25 Evidence")
-        st.json(
-            {
-                "retrieved_units": result.get("retrieved_units"),
-                "ocr_texts": result.get("ocr_texts"),
-                "ocr_status": result.get("ocr_status"),
-                "query": result.get("query"),
-            }
-        )
+        st.info("This pipeline does not return verified legal citations.")
+        st.subheader("YOLO26s Detections")
+        detections = result.get("detected_signs") or []
+        if detections:
+            st.json(detections)
+        else:
+            st.info("YOLO26s did not detect any signs in this image.")
     elif pipeline_name == VLM_PIPELINE:
         render_answer(result)
         st.info("VLM-only does not produce legal citations or detected-sign evidence.")
@@ -454,7 +494,10 @@ def main() -> None:
         )
     else:
         render_answer(result)
-        render_detected_signs(result)
+        render_detected_signs(
+            result,
+            show_ocr=(pipeline_name == NEURO_SYMBOLIC_PIPELINE),
+        )
         render_citations(result)
         render_visual_evidence(result)
         if debug:

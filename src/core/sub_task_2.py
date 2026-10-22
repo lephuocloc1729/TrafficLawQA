@@ -34,6 +34,7 @@ from src.core.symbolic.sign_information_facts import extract_nearby_highway_prof
 from src.prompts.answer_prompt import (
     SYSTEM_PROMPT_FREEFORM_CITED_QA,
     SYSTEM_PROMPT_SIGN_VARIANT_DISAMBIGUATION,
+    SYSTEM_PROMPT_TRAFFICLAWQA_RAG,
 )
 
 
@@ -408,6 +409,7 @@ def disambiguate_sign_payloads(
     sign_payloads: list[dict[str, Any]],
     temperature: float = 0.0,
     max_tokens: int = 500,
+    trafficlawqa_rag_compatibility: bool = False,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     if not sign_payloads:
         return sign_payloads, {}
@@ -426,6 +428,18 @@ def disambiguate_sign_payloads(
             "reason": "Selected from explicit question hint.",
             "method": "question_hint",
         }
+
+    if trafficlawqa_rag_compatibility:
+        # Match the reference project's policy: only ask the VLM to resolve
+        # lettered variants within the same sign family; otherwise keep top-1.
+        ambiguous_families: dict[str, set[str]] = {}
+        for payload in sign_payloads:
+            code = _sign_code(payload)
+            if code and re.search(r"[a-z]$", code):
+                ambiguous_families.setdefault(_sign_family(code), set()).add(code)
+        has_ambiguous_variants = any(len(codes) > 1 for codes in ambiguous_families.values())
+        if len(sign_payloads) < 2 or not has_ambiguous_variants or not llm_client:
+            return sign_payloads, {"selected_index": 0, "method": "top1"}
 
     if (
         len(sign_payloads) < 2
@@ -456,19 +470,31 @@ def disambiguate_sign_payloads(
             "method": "retrieval_candidates_unresolved",
         }
 
-    candidates = [
-        {
-            "index": index,
-            "sign_code": _sign_code(payload),
-            "retrieval_rank": payload.get("retrieval_rank", index + 1),
-            "retrieval_score": payload.get("score"),
-            "sign_name": payload.get("sign_name", ""),
-            "description": payload.get("sign_description", ""),
-            "attributes": payload.get("attributes", {}),
-            "normalized_conditions": payload.get("normalized_conditions", {}),
-        }
-        for index, payload in enumerate(sign_payloads)
-    ]
+    if trafficlawqa_rag_compatibility:
+        candidates = [
+            {
+                "index": index,
+                "sign_name": payload.get("sign_name", ""),
+                "description": payload.get("sign_description", ""),
+                "law_id": payload.get("law_id", ""),
+                "article_id": payload.get("article_id", ""),
+            }
+            for index, payload in enumerate(sign_payloads)
+        ]
+    else:
+        candidates = [
+            {
+                "index": index,
+                "sign_code": _sign_code(payload),
+                "retrieval_rank": payload.get("retrieval_rank", index + 1),
+                "retrieval_score": payload.get("score"),
+                "sign_name": payload.get("sign_name", ""),
+                "description": payload.get("sign_description", ""),
+                "attributes": payload.get("attributes", {}),
+                "normalized_conditions": payload.get("normalized_conditions", {}),
+            }
+            for index, payload in enumerate(sign_payloads)
+        ]
     sign_b64, sign_mime = pil_to_base64_png(sign_image)
     try:
         response_content = llm_client.generate_content(
@@ -502,10 +528,14 @@ def disambiguate_sign_payloads(
         decision = _parse_selected_index(response_content, sign_payloads)
     except Exception as exc:
         decision = {
-            "selected_index": None,
+            "selected_index": 0 if trafficlawqa_rag_compatibility else None,
             "confidence": "low",
-            "identity_confirmed": False,
-            "reason": f"Candidate selection abstained because the LLM call failed: {exc}",
+            "identity_confirmed": trafficlawqa_rag_compatibility,
+            "reason": (
+                f"Fallback to top-1 because variant disambiguation failed: {exc}"
+                if trafficlawqa_rag_compatibility
+                else f"Candidate selection abstained because the LLM call failed: {exc}"
+            ),
             "method": "vlm_variant_disambiguation",
         }
     selected_index = decision["selected_index"]
@@ -519,7 +549,11 @@ def disambiguate_sign_payloads(
             *sign_payloads[:selected_index],
             *sign_payloads[selected_index + 1 :],
         ]
-    decision["method"] = "llm_top10_sign_selection"
+    decision["method"] = (
+        "vlm_variant_disambiguation"
+        if trafficlawqa_rag_compatibility
+        else "llm_top10_sign_selection"
+    )
     return reordered, decision
 
 
@@ -535,6 +569,7 @@ def collect_retrieved_context(
     temperature: float = 0.0,
     max_tokens: int = 500,
     allow_sign_retrieval: bool = True,
+    trafficlawqa_rag_compatibility: bool = False,
 ) -> tuple[
     list[dict[str, Any]],
     list[dict[str, str]],
@@ -595,6 +630,7 @@ def collect_retrieved_context(
                 sign_payloads=sign_payloads,
                 temperature=temperature,
                 max_tokens=max_tokens,
+                trafficlawqa_rag_compatibility=trafficlawqa_rag_compatibility,
             )
         elif isinstance(sign.get("variant_decision"), dict):
             # Direct-class detectors such as YOLO26s already resolve the class;
@@ -636,7 +672,7 @@ def collect_retrieved_context(
 
         sign_visual_evidence: list[dict[str, Any]] = []
         for rank, payload in enumerate(sign_payloads, start=1):
-            if selection_confirmed and rank == 1:
+            if trafficlawqa_rag_compatibility or (selection_confirmed and rank == 1):
                 article_candidate = article_candidate_from_payload(
                     payload,
                     retrieval_rank=payload.get("retrieval_rank", rank),
@@ -654,7 +690,8 @@ def collect_retrieved_context(
                 "image_name": str(sign.get("image_name") or ""),
                 "retrieval_rank": payload.get("retrieval_rank", rank),
                 "retrieval_score": payload.get("score"),
-                "is_primary": selection_confirmed and rank == 1,
+                "is_primary": (trafficlawqa_rag_compatibility and rank == 1)
+                or (selection_confirmed and rank == 1),
                 "is_candidate": True,
             }
             sign_visual_evidence.append(evidence_item)
@@ -769,16 +806,26 @@ def build_freeform_prompt_parts(
     visual_evidence: list[dict[str, Any]],
     sign_prompt_parts: list[dict[str, Any]],
     symbolic_context: dict[str, Any] | None = None,
+    trafficlawqa_rag_compatibility: bool = False,
+    include_full_image_ocr: bool = False,
 ) -> list[dict[str, Any]]:
     symbolic_context = symbolic_context or {}
     choices = sample.get("choices")
     user_context = {
         "question": sample.get("question", ""),
         "choices_optional_reference": choices if choices else None,
-        "query_intent": symbolic_context.get("query_intent", {}),
-        "symbolic_decision": symbolic_context.get("symbolic_decision", {}),
-        "rules_fired": symbolic_context.get("rules_fired", []),
     }
+    if include_full_image_ocr:
+        user_context.update({
+            "full_image_ocr_status": sample.get("full_image_ocr_status", "unavailable"),
+            "full_image_ocr": sample.get("full_image_ocr", []),
+        })
+    if not trafficlawqa_rag_compatibility:
+        user_context.update({
+            "query_intent": symbolic_context.get("query_intent", {}),
+            "symbolic_decision": symbolic_context.get("symbolic_decision", {}),
+            "rules_fired": symbolic_context.get("rules_fired", []),
+        })
 
     def format_article_section(
         heading: str,
@@ -838,23 +885,45 @@ def build_freeform_prompt_parts(
         json.dumps(sign_evidence, ensure_ascii=False) if sign_evidence else "None"
     )
 
-    return [
-        {"type": "text", "text": SYSTEM_PROMPT_FREEFORM_CITED_QA},
+    question_block = (
+        "USER QUESTION CONTEXT\n"
+        f"{json.dumps(user_context, ensure_ascii=False)}\n\n"
+    )
+    if not trafficlawqa_rag_compatibility:
+        question_block += (
+            "SYMBOLIC REASONING CONTEXT\n"
+            f"{json.dumps(symbolic_context, ensure_ascii=False)}\n\n"
+        )
+    question_block += (
+        "LEGAL ARTICLE CONTEXT\n"
+        f"{legal_context}\n\n"
+        "SIGN-SPECIFIC EVIDENCE\n"
+        f"{sign_specific_context}"
+    )
+
+    prompt_parts = [
         {
             "type": "text",
             "text": (
-                "USER QUESTION CONTEXT\n"
-                f"{json.dumps(user_context, ensure_ascii=False)}\n\n"
-                "SYMBOLIC REASONING CONTEXT\n"
-                f"{json.dumps(symbolic_context, ensure_ascii=False)}\n\n"
-                "LEGAL ARTICLE CONTEXT\n"
-                f"{legal_context}\n\n"
-                "SIGN-SPECIFIC EVIDENCE\n"
-                f"{sign_specific_context}"
+                SYSTEM_PROMPT_TRAFFICLAWQA_RAG
+                if trafficlawqa_rag_compatibility
+                else SYSTEM_PROMPT_FREEFORM_CITED_QA
             ),
         },
-        *sign_prompt_parts,
+        {"type": "text", "text": question_block},
     ]
+    if trafficlawqa_rag_compatibility:
+        original_image = Image.open(image_dir / f"{sample['image_id']}.jpg").convert("RGB")
+        image_b64, image_mime = pil_to_base64_png(original_image)
+        prompt_parts.extend([
+            {"type": "text", "text": "INPUT IMAGE"},
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:{image_mime};base64,{image_b64}"},
+            },
+        ])
+    prompt_parts.extend(sign_prompt_parts)
+    return prompt_parts
 
 
 def _primary_evidence_by_sign(
@@ -883,6 +952,7 @@ def get_freeform_answer(
     temperature: float = 0.0,
     max_tokens: int = 5000,
     allow_sign_retrieval: bool = True,
+    trafficlawqa_rag_compatibility: bool = False,
 ) -> dict[str, Any]:
     t1 = time.time()
     try:
@@ -902,13 +972,14 @@ def get_freeform_answer(
             # legal conclusions. It may select a sign identity from retrieved
             # candidates before the symbolic pipeline evaluates any rule.
             llm_client=llm_client,
-            limit=settings.sign_recognition_candidate_limit,
+            limit=(settings.limit if trafficlawqa_rag_compatibility else settings.sign_recognition_candidate_limit),
             temperature=temperature,
             max_tokens=min(max_tokens, 500),
             allow_sign_retrieval=allow_sign_retrieval,
+            trafficlawqa_rag_compatibility=trafficlawqa_rag_compatibility,
         )
         symbolic_context = {}
-        if settings.enable_symbolic_reasoning:
+        if settings.enable_symbolic_reasoning and not trafficlawqa_rag_compatibility:
             symbolic_context = build_symbolic_reasoning_context(
                 traffic_facts=traffic_sign_observations,
                 question=str(sample.get("question") or ""),
@@ -917,6 +988,8 @@ def get_freeform_answer(
                 temperature=temperature,
                 max_tokens=min(max_tokens, 300),
             )
+        if trafficlawqa_rag_compatibility:
+            symbolic_context = {}
         article_contexts = build_article_contexts(
             [*article_contexts, *rule_article_candidates(symbolic_context)],
             article_lookup=article_lookup,
@@ -930,12 +1003,18 @@ def get_freeform_answer(
             visual_evidence=visual_evidence,
             sign_prompt_parts=sign_prompt_parts,
             symbolic_context=symbolic_context,
+            trafficlawqa_rag_compatibility=trafficlawqa_rag_compatibility,
+            include_full_image_ocr=(
+                settings.enable_symbolic_reasoning
+                and not trafficlawqa_rag_compatibility
+            ),
         )
 
         response_content: str = llm_client.generate_content(
             contents=[{"role": "user", "content": parts}],
             temperature=temperature,
             max_tokens=max_tokens,
+            response_format={"type": "json_object"},
         )
         parsed = normalize_freeform_response(
             response_content=response_content,

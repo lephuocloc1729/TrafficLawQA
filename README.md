@@ -113,10 +113,11 @@ limits) with PaddleOCR:
 pip install -e ".[dev,ocr]"
 ```
 
-PaddleOCR uses the GPU when the installed PaddlePaddle build supports the
-machine's CUDA version; otherwise it selects CPU automatically. For GPU use,
-install the matching CUDA build of PaddlePaddle using the
+PaddleOCR defaults to GPU and requires a CUDA-enabled PaddlePaddle build on the
+machine. For GPU use, install the matching CUDA build of PaddlePaddle using the
 [official PaddlePaddle installation guide](https://www.paddlepaddle.org.cn/install/quick).
+Set `TRAFFIC_SIGN_OCR_DEVICE=cpu` to run on CPU, or `auto` to select GPU when
+available and otherwise use CPU.
 OCR runs once on the full source image immediately after YOLO26. Its text
 polygons are associated with detected signs by overlap or close alignment
 below a sign, so text on an attached supplementary panel can be linked to the
@@ -380,7 +381,7 @@ The demo supports:
 - image upload;
 - free-form Vietnamese question input;
 - selection between the RAG baseline, YOLO26s neuro-symbolic pipeline,
-  BM25 + LLM, and VLM-only;
+  Baseline 1 (YOLO26s + VLM), and VLM-only;
 - optional choices for pipelines that use them;
 - pipeline-specific answers, citations, OCR/retrieval details, and visual
   evidence where those outputs apply.
@@ -536,8 +537,8 @@ to one multimodal model in a single request. It does not run sign detection,
 OCR, LawDB lookup, BM25 or vector retrieval, or symbolic reasoning. It uses the
 same locked `train_40`–`train_59` sample IDs as the other baseline.
 
-The evaluator uses `gemma-3-12b-it` through the OpenAI-compatible endpoint set
-by `LLM_BASE_URL`, with credentials from `LLM_API_KEYS`. It asks for a concise
+The evaluator uses Gemma 3 12B through the local Ollama OpenAI-compatible
+endpoint set by `LLM_BASE_URL` (`http://localhost:18989/v1` by default). It asks for a concise
 Vietnamese answer and an uncertainty statement when the evidence is
 insufficient. It does not request legal citations; any law mentioned is
 model-generated and unverified.

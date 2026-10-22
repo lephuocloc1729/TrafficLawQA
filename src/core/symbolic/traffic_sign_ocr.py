@@ -1,4 +1,4 @@
-"""GPU-capable OCR adapter for text printed on traffic-sign crops."""
+"""GPU-capable OCR adapter for full-image text and traffic-sign crops."""
 
 from __future__ import annotations
 
@@ -9,21 +9,37 @@ from typing import Any
 from PIL import Image
 
 
-def resolve_ocr_device(requested: str = "auto") -> str:
-    """Resolve auto to Paddle's GPU only when this Paddle build can use CUDA."""
+def resolve_ocr_device(requested: str = "gpu") -> str:
+    """Resolve OCR device, requiring a usable CUDA backend when GPU is requested."""
     normalized = str(requested or "auto").strip().lower()
     if normalized not in {"auto", "cpu", "gpu"}:
         raise ValueError("OCR_DEVICE must be one of: auto, cpu, gpu")
-    if normalized != "auto":
+    if normalized == "cpu":
         return normalized
 
     try:
         import paddle
 
-        if paddle.is_compiled_with_cuda() and paddle.device.cuda.device_count() > 0:
-            return "gpu"
-    except (ImportError, RuntimeError, AttributeError):
-        pass
+        gpu_available = (
+            paddle.is_compiled_with_cuda() and paddle.device.cuda.device_count() > 0
+        )
+    except (ImportError, RuntimeError, AttributeError) as exc:
+        if normalized == "gpu":
+            raise RuntimeError(
+                "GPU OCR is the default, but PaddlePaddle could not initialize CUDA. "
+                "Install a CUDA-enabled PaddlePaddle build or set "
+                "TRAFFIC_SIGN_OCR_DEVICE=cpu."
+            ) from exc
+        return "cpu"
+
+    if gpu_available:
+        return "gpu"
+    if normalized == "gpu":
+        raise RuntimeError(
+            "GPU OCR is the default, but no CUDA-enabled Paddle GPU is available. "
+            "Install a CUDA-enabled PaddlePaddle build or set "
+            "TRAFFIC_SIGN_OCR_DEVICE=cpu."
+        )
     return "cpu"
 
 
@@ -58,21 +74,45 @@ def _confidence_label(score: float) -> str:
 
 
 class TrafficSignOCR:
-    """PaddleOCR PP-OCRv6 wrapper returning the project's OCR fact schema."""
+    """Pinned PaddleOCR 3.7.0 PP-OCRv6 medium wrapper."""
 
-    def __init__(self, device: str = "auto", language: str = "vi") -> None:
+    PADDLEOCR_VERSION = "3.7.0"
+    DETECTION_MODEL = "PP-OCRv6_medium_det"
+    RECOGNITION_MODEL = "PP-OCRv6_medium_rec"
+
+    def __init__(self, device: str = "gpu", language: str = "vi") -> None:
+        from importlib.metadata import PackageNotFoundError, version
+
+        try:
+            installed_version = version("paddleocr")
+        except PackageNotFoundError as exc:
+            raise RuntimeError(
+                f"Install the OCR extra with paddleocr=={self.PADDLEOCR_VERSION}."
+            ) from exc
+        if installed_version != self.PADDLEOCR_VERSION:
+            raise RuntimeError(
+                f"This pipeline requires paddleocr=={self.PADDLEOCR_VERSION}; "
+                f"found {installed_version}."
+            )
+
         from paddleocr import PaddleOCR
 
         self.device = resolve_ocr_device(device)
         self.language = language
+        options = {
+            "lang": language,
+            "device": self.device,
+            "use_doc_orientation_classify": False,
+            "use_doc_unwarping": False,
+            "use_textline_orientation": False,
+        }
         self.pipeline = PaddleOCR(
-            lang=language,
             ocr_version="PP-OCRv6",
-            device=self.device,
-            use_doc_orientation_classify=False,
-            use_doc_unwarping=False,
-            use_textline_orientation=False,
+            text_detection_model_name=self.DETECTION_MODEL,
+            text_recognition_model_name=self.RECOGNITION_MODEL,
+            **options,
         )
+        self.ocr_version = "PP-OCRv6"
 
     def recognize(self, image_path: str | Path) -> list[dict[str, Any]]:
         results = self.pipeline.predict(str(image_path))
@@ -111,12 +151,12 @@ class TrafficSignOCR:
                     "confidence": _confidence_label(score),
                     "score": score,
                     "bbox": polygon,
-                    "source": "paddleocr_ppocrv6",
+                    "source": "paddleocr_ppocrv6_medium",
                 })
         return extracted
 
 
 @lru_cache(maxsize=4)
-def get_traffic_sign_ocr(device: str = "auto", language: str = "vi") -> TrafficSignOCR:
+def get_traffic_sign_ocr(device: str = "gpu", language: str = "vi") -> TrafficSignOCR:
     """Load one OCR model per device/language and reuse it across sign crops."""
     return TrafficSignOCR(device=device, language=language)

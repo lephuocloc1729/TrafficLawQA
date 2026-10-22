@@ -21,7 +21,10 @@ from src.eval.baseline_config import (
     select_samples,
 )
 from src.deps.llm_client import LLMClient
-from src.core.freeform_qa import answer_image_question, create_freeform_qa_resources
+from src.core.freeform_qa import (
+    answer_rag_compatible_image_question,
+    create_freeform_qa_resources,
+)
 from src.core.sub_task_2 import extract_json_object
 from src.core.utils import load_json
 
@@ -397,7 +400,7 @@ def main() -> None:
             continue
         image_path = image_dir / f"{sample['image_id']}.jpg"
         t0 = time.perf_counter()
-        result = answer_image_question(
+        result = answer_rag_compatible_image_question(
             image_path=image_path,
             question=sample.get("question", ""),
             choices=json.dumps(sample.get("choices", {}), ensure_ascii=False),

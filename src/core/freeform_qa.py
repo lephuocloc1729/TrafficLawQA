@@ -80,6 +80,7 @@ def answer_image_question(
     debug: bool = False,
     resources: FreeformQAResources | None = None,
     use_vlm_filter: bool = True,
+    _trafficlawqa_rag_compatibility: bool = False,
 ) -> dict[str, Any]:
     total_start = time.perf_counter()
     timings: dict[str, float] = {}
@@ -111,10 +112,17 @@ def answer_image_question(
         sample=sample,
         image_dir=image_dir,
         sign_dir=sign_dir,
+        include_full_image_ocr=(
+            settings.enable_symbolic_reasoning
+            and not _trafficlawqa_rag_compatibility
+        ),
     )
     timings["detect_signs"] = round(time.perf_counter() - t0, 5)
 
-    direct_class_detector = settings.image_query_detection_model == "Yolo26s"
+    direct_class_detector = (
+        settings.image_query_detection_model == "Yolo26s"
+        and not _trafficlawqa_rag_compatibility
+    )
     t0 = time.perf_counter()
     if direct_class_detector:
         # YOLO26s supplies the sign identities directly. Keep all detections;
@@ -152,9 +160,9 @@ def answer_image_question(
             sample=sample,
             sign_dir=sign_dir,
             collection_name=settings.collection_name,
-            limit=settings.sign_recognition_candidate_limit,
+            limit=(settings.limit if _trafficlawqa_rag_compatibility else settings.sign_recognition_candidate_limit),
             set_name="public_test",
-            unknown_only=True,
+            unknown_only=not _trafficlawqa_rag_compatibility,
         )
     timings["retrieve_lawdb"] = (
         0.0 if direct_class_detector else round(time.perf_counter() - t0, 5)
@@ -170,10 +178,11 @@ def answer_image_question(
         vector_store=resources.vector_store,
         collection_name=settings.collection_name,
         article_lookup=resources.article_lookup,
-        limit=settings.sign_recognition_candidate_limit,
+        limit=(settings.limit if _trafficlawqa_rag_compatibility else settings.sign_recognition_candidate_limit),
         temperature=settings.llm_temperature,
         max_tokens=settings.llm_max_new_tokens,
         allow_sign_retrieval=not direct_class_detector,
+        trafficlawqa_rag_compatibility=_trafficlawqa_rag_compatibility,
     )
     timings["answer_generation"] = round(time.perf_counter() - t0, 5)
     timings["total"] = round(time.perf_counter() - total_start, 5)
@@ -195,3 +204,23 @@ def answer_image_question(
         )
 
     return result
+
+
+def answer_rag_compatible_image_question(
+    image_path: Path,
+    question: str,
+    choices: str | None = None,
+    debug: bool = False,
+    resources: FreeformQAResources | None = None,
+    use_vlm_filter: bool = True,
+) -> dict[str, Any]:
+    """Use the TrafficLawQA RAG flow while preserving the full-image OCR context."""
+    return answer_image_question(
+        image_path=image_path,
+        question=question,
+        choices=choices,
+        debug=debug,
+        resources=resources,
+        use_vlm_filter=use_vlm_filter,
+        _trafficlawqa_rag_compatibility=True,
+    )

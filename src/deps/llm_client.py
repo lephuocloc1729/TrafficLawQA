@@ -32,12 +32,16 @@ class LLMClient:
         temperature: float = 0,
         top_p: float = 0.1,
         max_tokens: int = 5000,
+        response_format: dict[str, str] | None = None,
     ):
-        completion = self.client.chat.completions.create(
-            model=self.model_id,
-            messages=contents,
-            temperature=temperature,
-            top_p=top_p,
-            max_tokens=max_tokens,
-        )
+        request = {
+            "model": self.model_id,
+            "messages": contents,
+            "temperature": temperature,
+            "top_p": top_p,
+            "max_tokens": max_tokens,
+        }
+        if response_format is not None:
+            request["response_format"] = response_format
+        completion = self.client.chat.completions.create(**request)
         return completion.choices[0].message.content

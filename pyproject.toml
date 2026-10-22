@@ -23,7 +23,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7.3,<9"]
-ocr = ["paddleocr>=3.6,<4"]
+ocr = ["paddleocr==3.7.0"]
 baseline1 = ["pytesseract>=0.3.13"]
 
 [tool.pytest.ini_options]

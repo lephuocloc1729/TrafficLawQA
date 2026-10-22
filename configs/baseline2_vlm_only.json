@@ -12,9 +12,9 @@
     ]
   },
   "model": {
-    "provider": "Google Gemini API, OpenAI-compatible endpoint",
+    "provider": "Ollama, OpenAI-compatible local endpoint",
     "model_id": "gemma-3-12b-it",
-    "model_version": "Gemma 3 12B IT; API model ID (provider does not expose an immutable weight revision)",
+    "model_version": "Gemma 3 12B IT (Ollama model gemma3:12b)",
     "base_url_env": "LLM_BASE_URL",
     "api_key_env": "LLM_API_KEYS",
     "temperature": 0.0,

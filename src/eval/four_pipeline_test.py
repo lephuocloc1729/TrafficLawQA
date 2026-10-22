@@ -18,9 +18,13 @@ import torch
 from openai import OpenAI
 from tqdm import tqdm
 
-from src.core.baseline1_bm25_llm import answer_image_question as answer_bm25
-from src.core.baseline1_bm25_llm import create_resources as create_bm25_resources
-from src.core.freeform_qa import answer_image_question, create_freeform_qa_resources
+from src.core.baseline1_yolo26s_vlm import answer_image_question as answer_baseline1
+from src.core.baseline1_yolo26s_vlm import create_resources as create_baseline1_resources
+from src.core.freeform_qa import (
+    answer_image_question,
+    answer_rag_compatible_image_question,
+    create_freeform_qa_resources,
+)
 from src.eval.freeform_qa_metrics import apply_baseline_config
 from src.eval.vlm_only import answer_one as answer_vlm
 from src.eval.vlm_only import load_config as load_vlm_config
@@ -30,7 +34,7 @@ from src.settings import settings
 PIPELINES = (
     ("RAG baseline", "rag"),
     ("Neuro-symbolic (YOLO26s)", "neuro_symbolic"),
-    ("BM25 + LLM", "bm25"),
+    ("Baseline 1: YOLO26s + VLM", "baseline1"),
     ("VLM-only", "vlm"),
 )
 
@@ -49,22 +53,29 @@ def save_json(path: Path, payload: dict[str, Any]) -> None:
     temporary.replace(path)
 
 
-def pipeline_resources(kind: str) -> tuple[Any, dict[str, Any] | None]:
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+def configure_pipeline(kind: str) -> dict[str, Any] | None:
     if kind == "rag":
         config = load_json(Path("configs/baseline_eval.json"))
         apply_baseline_config(config)
-        return create_freeform_qa_resources(device=device), None
+        return config
     if kind == "neuro_symbolic":
         config = load_json(Path("configs/neuro_symbolic_eval.json"))
         apply_baseline_config(config)
+        return config
+    return None
+
+
+def pipeline_resources(kind: str) -> tuple[Any, dict[str, Any] | None]:
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if kind == "rag":
+        configure_pipeline(kind)
         return create_freeform_qa_resources(device=device), None
-    if kind == "bm25":
-        config = load_json(Path("configs/baseline_eval.json"))
-        apply_baseline_config(config)
-        settings.enable_sign_retrieval_fallback = False
-        settings.enable_symbolic_reasoning = False
-        return create_bm25_resources(device=device), None
+    if kind == "neuro_symbolic":
+        configure_pipeline(kind)
+        return create_freeform_qa_resources(device=device), None
+    if kind == "baseline1":
+        configure_pipeline(kind)
+        return create_baseline1_resources(device=device), None
     if kind == "vlm":
         config = load_vlm_config(Path("configs/baseline2_vlm_only.json"))
         model = config["model"]
@@ -88,8 +99,19 @@ def run_one(
     image_path: Path,
     question: str,
 ) -> tuple[str, float]:
+    # Reapply the selected profile for every inference so a previous pipeline
+    # cannot leave detector/retrieval/symbolic flags behind in global settings.
+    configure_pipeline(kind)
     started = time.perf_counter()
-    if kind in {"rag", "neuro_symbolic"}:
+    if kind == "rag":
+        result = answer_rag_compatible_image_question(
+            image_path=image_path,
+            question=question,
+            resources=resources,
+            use_vlm_filter=True,
+        )
+        answer = str(result.get("freeform_answer") or "")
+    elif kind == "neuro_symbolic":
         result = answer_image_question(
             image_path=image_path,
             question=question,
@@ -97,8 +119,8 @@ def run_one(
             use_vlm_filter=(kind == "rag"),
         )
         answer = str(result.get("freeform_answer") or "")
-    elif kind == "bm25":
-        result = answer_bm25(
+    elif kind == "baseline1":
+        result = answer_baseline1(
             image_path=image_path,
             question=question,
             resources=resources,
