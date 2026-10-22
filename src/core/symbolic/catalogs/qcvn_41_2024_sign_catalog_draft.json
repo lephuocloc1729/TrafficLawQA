@@ -21218,7 +21218,7 @@
       "official_name": "Bắt đầu khu đông dân cư;",
       "sign_category": "command",
       "visual_description": null,
-      "legal_meaning": "a) Để báo hiệu bắt đầu đoạn đường vào phạm vi khu đông dân cư, đặt biển số R.420 \"Bắt đầu khu đông dân cư\".",
+      "legal_meaning": "a) Để báo hiệu bắt đầu đoạn đường vào phạm vi khu đông dân cư, đặt biển số R.420 \"Bắt đầu khu đông dân cư\". Biển báo khu đông dân cư không tự ghi một trị số tốc độ riêng. Thông tin tốc độ tối đa dùng để trả lời câu hỏi về tốc độ trong khu dân cư (đơn vị km/h; phân biệt theo loại phương tiện và loại đường, không cần phân biệt đường đôi với đường một chiều có từ 2 làn xe trở lên): ô tô con, ô tô tải, ô tô chở người: 60 trên đường đôi hoặc đường một chiều có từ 2 làn xe trở lên; 50 trên đường hai chiều hoặc đường một chiều có 1 làn xe. Xe mô tô (xe máy dung tích trên 50cc): 60 và 50 tương ứng. Xe gắn máy (dung tích dưới 50cc, xe máy điện): 40 ở cả hai loại đường. Xe máy chuyên dùng: 40 ở cả hai loại đường. Khi người dùng hỏi thông tin tốc độ, cung cấp toàn bộ bảng này, không tự chọn một loại đường hoặc phương tiện khi câu hỏi chưa nêu. Khi đánh giá tốc độ cụ thể, xét đúng loại xe và loại đường được nêu; biển tốc độ áp dụng tại đoạn đường vẫn cần được tuân thủ. R.420 có hiệu lực trong phạm vi khu đông dân cư đến R.421.",
       "scope_attributes": {
         "vehicle_scope": null,
         "action_scope": null,

@@ -26190,7 +26190,7 @@
           "on_mismatch": "CONDITIONAL"
         }
       ],
-      "reason": "QCVN 41:2024/BGTVT Appendix D.17(a-d), Figure D.19: R.420 marks the start of the populated-area segment; its scope ends at R.421. It signals that populated-area road rules apply and specifically directs drivers to obey a posted P.127 maximum-speed sign. R.420 does not itself state a numeric speed limit; the applicable vehicle/action-specific rule and any posted signs must be resolved separately.",
+      "reason": "QCVN 41:2024/BGTVT Appendix D.17(a-d), Figure D.19: R.420 marks the start of the populated-area segment; its scope ends at R.421. For Check Permission questions about speed, use this default populated-area maximum-speed table (km/h): ô tô con, ô tô tải, ô tô chở người and xe mô tô trên 50cc: 60 on a divided road or a one-way road with at least 2 lanes, 50 on a two-way road or a one-way road with 1 lane; xe gắn máy under 50cc, xe máy điện, and xe máy chuyên dùng: 40 on either road type. Treat divided roads and one-way roads with at least 2 lanes as the same category. If the question gives neither vehicle nor road condition, return CONDITIONAL and include the complete table. If it gives only one condition, narrow to the matching row or column, keep CONDITIONAL for the unresolved condition, and state the remaining alternatives. If it gives both, assess the requested speed against the matching maximum; do not infer a missing condition. R.420 signals populated-area rules and requires compliance with any posted P.127 maximum-speed sign, which must also be considered when present.",
       "effects": [
         {
           "effect_type": "sign_meaning",
@@ -26201,7 +26201,7 @@
             "zone_end_sign": "R.421",
             "numeric_speed_limit": null
           },
-          "description": "QCVN 41:2024/BGTVT Appendix D.17(a-d), Figure D.19: R.420 marks the start of the populated-area segment; its scope ends at R.421. It signals that populated-area road rules apply and specifically directs drivers to obey a posted P.127 maximum-speed sign. R.420 does not itself state a numeric speed limit; the applicable vehicle/action-specific rule and any posted signs must be resolved separately."
+          "description": "Default populated-area maximum speed (km/h): ô tô con, ô tô tải, ô tô chở người and xe mô tô over 50cc: 60 on a divided road or a one-way road with at least 2 lanes, 50 on a two-way road or a one-way road with 1 lane; xe gắn máy under 50cc, xe máy điện, and xe máy chuyên dùng: 40 on either road type. No vehicle or road condition: return CONDITIONAL with the full table. One condition supplied: narrow to its row or column and remain CONDITIONAL on the missing condition. Both supplied: assess the matching cell. Consider any posted P.127 sign as well. R.420 scope ends at R.421."
         }
       ],
       "additional_legal_basis": [
