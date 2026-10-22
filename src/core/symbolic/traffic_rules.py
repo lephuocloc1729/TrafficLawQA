@@ -1386,10 +1386,10 @@ def _evaluate_candidate(
                     decision = "PROHIBITED"
                     reason = f"Tốc độ được hỏi ({requested:g} km/h) vượt quá giới hạn trên biển ({maximum:g} km/h)."
                 else:
-                    decision = "CONDITIONAL"
+                    decision = "ALLOWED"
                     reason = (
                         f"Tốc độ được hỏi ({requested:g} km/h) không vượt giới hạn trên biển "
-                        f"({maximum:g} km/h), nhưng kiểm tra biển này chưa xác nhận được quyền lưu thông tổng thể."
+                        f"({maximum:g} km/h); rule này không kết luận cấm."
                     )
         elif requested_speed is not None and minimum_effect is not None:
             try:
@@ -1414,11 +1414,19 @@ def _evaluate_candidate(
                         f"trên biển ({minimum:g} km/h) trong điều kiện đã xác nhận thuận lợi và an toàn."
                     )
                 else:
-                    decision = "CONDITIONAL"
+                    decision = "ALLOWED"
                     reason = (
                         f"Tốc độ được hỏi ({requested:g} km/h) không thấp hơn mức tối thiểu "
-                        f"trên biển ({minimum:g} km/h), nhưng điều đó chưa xác nhận quyền lưu thông tổng thể."
+                        f"trên biển ({minimum:g} km/h); rule này không kết luận cấm."
                     )
+
+    if intent.kind == "CHECK_PERMISSION" and decision == "CONDITIONAL":
+        decision = "ALLOWED"
+        reason = "Rule không xác nhận căn cứ cấm với dữ kiện hiện có."
+        trace.append({
+            "step": "binary_permission_outcome",
+            "state": "no_prohibition_from_this_rule",
+        })
 
     incomplete = bool(missing)
     return RuleEvaluation(
@@ -1470,7 +1478,7 @@ def find_matching_rules(
                 actor = detailed_actor
         intent_context = list(scenario_facts)
         if (
-            query_intent.actor.status == "provided"
+            query_intent.actor.status in {"provided", "defaulted"}
             and actor not in {"unknown", "vehicle", "motor_vehicle", "non_motor_vehicle", "priority_vehicle", "emergency_vehicle"}
             and vehicle_is_covered(actor, "vehicle")
         ):
@@ -1478,6 +1486,16 @@ def find_matching_rules(
                 fact_id=f"{query_intent.intent_id}:actor-vehicle-category",
                 predicate="actor_vehicle_category",
                 value=actor,
+                status="provided",
+                source="intent_actor_slot",
+                raw_text=query_intent.actor.raw_text,
+                confidence="high",
+                metadata={"intent_id": query_intent.intent_id},
+            ))
+            intent_context.append(ContextFact(
+                fact_id=f"{query_intent.intent_id}:actor-is-motor-vehicle",
+                predicate="actor_is_motor_vehicle",
+                value=vehicle_is_covered(actor, "motor_vehicle"),
                 status="provided",
                 source="intent_actor_slot",
                 raw_text=query_intent.actor.raw_text,

@@ -618,6 +618,33 @@ def _context_facts(question: str, intent_kinds: list[str], now: datetime | None,
             "raw_text": question,
             "confidence": "high",
         })
+    if "CHECK_PERMISSION" in intent_kinds and not any(
+        fact.get("predicate") == "calendar_parity" for fact in facts
+    ):
+        observed = next((
+            fact for fact in reversed(facts)
+            if fact.get("predicate") == "observed_at" and fact.get("status") == "resolved"
+        ), None)
+        current = _now_in_zone(now, timezone_name)
+        parity_date = current.date()
+        if observed and isinstance(observed.get("value"), str):
+            try:
+                parity_date = datetime.fromisoformat(observed["value"]).date()
+            except ValueError:
+                pass
+        facts.append({
+            "fact_id": "query-default-calendar-parity",
+            "predicate": "calendar_parity",
+            "value": "odd_days" if parity_date.day % 2 else "even_days",
+            "status": "derived",
+            "source": "system_clock" if observed is None else "derived",
+            "raw_text": None,
+            "confidence": "high",
+            "metadata": {
+                "resolution": "default_current_date" if observed is None else "derived_from_observed_at",
+                "timezone": timezone_name,
+            },
+        })
     return facts
 
 
@@ -725,11 +752,17 @@ def parse_query_intent_deterministic(
     detailed_actor = extract_vehicle(question)
     vehicle_value = classify_intent_actor(question, detailed_actor)
     kinds = _intent_kinds(question, action_value)
+    actor_status = "provided" if detailed_actor != "unknown" else "not_stated"
+    if detailed_actor == "unknown" and "CHECK_PERMISSION" in kinds:
+        # Permission questions without an explicit vehicle use the project's
+        # requested default actor. Information questions remain unresolved.
+        vehicle_value = "car"
+        actor_status = "defaulted"
     location = extract_location_context(question)
     action = IntentSlot(action_value, question if action_value != "unknown" else None,
                         "provided" if action_value != "unknown" else "not_stated")
     actor = IntentSlot(vehicle_value, question if detailed_actor != "unknown" else None,
-                       "provided" if detailed_actor != "unknown" else "not_stated")
+                       actor_status)
     explicit_sign_codes = list(dict.fromkeys(match.group(1).strip() for match in SIGN_CODE_RE.finditer(question or "")))
     normalized_question = normalize_question_text(question)
     refers_to_scene = location is not None or any(phrase in normalized_question for phrase in (
@@ -952,7 +985,9 @@ def _fill_missing_permission_slots(
             continue
         if intent.action.value == "unknown" and fallback.action.value != "unknown":
             intent.action = fallback.action
-        if intent.actor.value == "unknown" and fallback.actor.status == "provided":
+        if fallback.actor.status == "defaulted":
+            intent.actor = fallback.actor
+        elif intent.actor.value == "unknown" and fallback.actor.status == "provided":
             intent.actor = fallback.actor
         elif intent.actor.value != "unknown" and not intent.actor.raw_text:
             intent.actor.raw_text = deterministic_result.query_intent.raw_query

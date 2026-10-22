@@ -162,7 +162,7 @@ def _normalize_label(label: str) -> str:
 def _confidence_label(score: float) -> str:
     if score >= 0.8:
         return "high"
-    if score >= 0.6:
+    if score >= 0.5:
         return "medium"
     return "low"
 
@@ -211,7 +211,7 @@ def class_label_to_qcvn(label: str, confidence: float) -> dict[str, Any]:
         dataset_code = _DATASET_CODE_OVERRIDES.get(key, code)
         confidence_label = _confidence_label(confidence)
         has_catalog_meaning = catalog_entry is not None and catalog_entry.status != "variant_required"
-        identity_status = "identified" if confidence >= 0.6 and has_catalog_meaning else "ambiguous"
+        identity_status = "identified" if confidence >= 0.5 and has_catalog_meaning else "ambiguous"
         candidates = [] if identity_status == "identified" or not has_catalog_meaning else [
             {
                 "sign_code": code,
@@ -299,7 +299,7 @@ def class_label_to_qcvn(label: str, confidence: float) -> dict[str, Any]:
             return {
                 "sign_code": code,
                 "sign_family": sign_family(code),
-                "identity_status": "identified" if confidence >= 0.6 else "ambiguous",
+                "identity_status": "identified" if confidence >= 0.5 else "ambiguous",
                 "candidates": [],
                 "attributes": {},
                 "qcvn_mapping_status": "canonical_label",
@@ -307,7 +307,7 @@ def class_label_to_qcvn(label: str, confidence: float) -> dict[str, Any]:
                 "sign_description": catalog_entry.legal_meaning or "",
                 "variant_decision": {
                     "confidence": _confidence_label(confidence),
-                    "identity_confirmed": confidence >= 0.6,
+                    "identity_confirmed": confidence >= 0.5,
                     "method": "yolo26s_direct_classification",
                     "reason": "The model class label is an official sign code.",
                 },

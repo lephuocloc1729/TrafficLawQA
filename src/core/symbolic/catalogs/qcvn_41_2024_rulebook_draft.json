@@ -1,6 +1,6 @@
 {
   "rulebook_version": "qcvn41_sign_rules_draft_1",
-  "scope": "sign_and_supplementary_sign_permission_and_limit_rules",
+  "scope": "yolov26s_vtsdb100_sign_permission_and_limit_rules",
   "status": "draft_unreviewed",
   "source_document": "QCVN 41:2024/BGTVT",
   "rules": [
@@ -425,7 +425,7 @@
           "predicate": "speed_limit_value",
           "operator": "exists",
           "expected_value": null,
-          "required": true,
+          "required": false,
           "on_missing": "CONDITIONAL",
           "on_mismatch": "NOT_APPLICABLE"
         }
@@ -459,9 +459,17 @@
           "source_type": "user_provided_not_law"
         }
       ],
-      "trigger_sign_codes": ["LOCAL.001"],
-      "actions": ["entering", "circulation"],
-      "actor_scope": ["motorized_tricycle", "non_motorized_tricycle"],
+      "trigger_sign_codes": [
+        "LOCAL.001"
+      ],
+      "actions": [
+        "entering",
+        "circulation"
+      ],
+      "actor_scope": [
+        "motorized_tricycle",
+        "non_motorized_tricycle"
+      ],
       "outcome": "PROHIBITED",
       "conditions": [],
       "reason": "Theo định nghĩa riêng của dự án từ mô tả người dùng, biển LOCAL.001 cấm xe ba bánh có động cơ, xe ba bánh không động cơ và xe lam đi vào hoặc lưu thông. Đây không phải quy định hay mã biển chính thức của QCVN.",
@@ -471,7 +479,10 @@
           "effect_type": "prohibit_action",
           "action": "entering",
           "scope": {
-            "actor_classes": ["motorized_tricycle", "non_motorized_tricycle"]
+            "actor_classes": [
+              "motorized_tricycle",
+              "non_motorized_tricycle"
+            ]
           },
           "description": "Project-defined prohibition; not an official QCVN rule."
         },
@@ -479,7 +490,10 @@
           "effect_type": "prohibit_action",
           "action": "circulation",
           "scope": {
-            "actor_classes": ["motorized_tricycle", "non_motorized_tricycle"]
+            "actor_classes": [
+              "motorized_tricycle",
+              "non_motorized_tricycle"
+            ]
           },
           "description": "Project-defined prohibition; not an official QCVN rule."
         }
@@ -498,8 +512,13 @@
           "source_type": "user_provided_not_law"
         }
       ],
-      "trigger_sign_codes": ["LOCAL.002"],
-      "actions": ["entering", "circulation"],
+      "trigger_sign_codes": [
+        "LOCAL.002"
+      ],
+      "actions": [
+        "entering",
+        "circulation"
+      ],
       "actor_scope": [
         "motorbike",
         "motorcycle",

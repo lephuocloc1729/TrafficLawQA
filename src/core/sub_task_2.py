@@ -32,9 +32,12 @@ from src.core.symbolic.sign_relations import link_supplementary_signs
 from src.core.symbolic.traffic_sign_ocr import get_traffic_sign_ocr
 from src.core.symbolic.sign_information_facts import extract_nearby_highway_profile_facts
 from src.prompts.answer_prompt import (
+    SYSTEM_PROMPT_CHECK_PERMISSION,
     SYSTEM_PROMPT_FREEFORM_CITED_QA,
+    SYSTEM_PROMPT_INFORMATION,
     SYSTEM_PROMPT_SIGN_VARIANT_DISAMBIGUATION,
     SYSTEM_PROMPT_TRAFFICLAWQA_RAG,
+    SYSTEM_PROMPT_UNSUPPORTED_INTENT,
 )
 
 
@@ -67,6 +70,37 @@ def sanitize_prompt_parts(parts: list[dict[str, Any]]) -> list[dict[str, Any]]:
             copied["image_url"] = {"url": "<IMAGE_CONTENT>"}
         sanitized_parts.append(copied)
     return sanitized_parts
+
+
+def _without_verification_status(value: Any) -> Any:
+    """Hide review-status metadata from the answer model's reasoning context."""
+    if isinstance(value, dict):
+        return {
+            key: _without_verification_status(item)
+            for key, item in value.items()
+            if key != "verification_status"
+        }
+    if isinstance(value, list):
+        return [_without_verification_status(item) for item in value]
+    return value
+
+
+def _answer_system_prompt(symbolic_context: dict[str, Any]) -> str:
+    """Choose a focused answer prompt when the request has one supported intent."""
+    query_intent = symbolic_context.get("query_intent", {})
+    intents = query_intent.get("intents", []) if isinstance(query_intent, dict) else []
+    kinds = {
+        normalize_intent_kind(str(item.get("kind") or "UNKNOWN"))
+        for item in intents
+        if isinstance(item, dict)
+    }
+    if kinds and kinds == {"CHECK_PERMISSION"}:
+        return SYSTEM_PROMPT_CHECK_PERMISSION
+    if kinds and kinds == {"INFORMATION"}:
+        return SYSTEM_PROMPT_INFORMATION
+    if kinds and kinds == {"UNKNOWN"}:
+        return SYSTEM_PROMPT_UNSUPPORTED_INTENT
+    return SYSTEM_PROMPT_FREEFORM_CITED_QA
 
 
 def extract_json_object(response_content: str) -> dict[str, Any]:
@@ -229,10 +263,8 @@ def normalize_freeform_response(
         answer = "Chưa đủ thông tin trong context được cung cấp để trả lời chắc chắn."
         confidence = "low"
 
-    # Do not let the free-form model turn an uncovered or incomplete sign rule
-    # into a permission claim. For sign permission intents, the
-    # symbolic outcome is the authority; the LLM may explain it, but it cannot
-    # promote UNKNOWN/CONDITIONAL to ALLOWED (or PROHIBITED).
+    # The rule engine owns permission outcomes. Use its resolved verdict
+    # directly so the free-form model cannot contradict or abstain from it.
     query_intent = symbolic_context.get("query_intent", {})
     intents = query_intent.get("intents", []) if isinstance(query_intent, dict) else []
     intent_kinds = {
@@ -272,6 +304,22 @@ def normalize_freeform_response(
         if isinstance(symbolic_decision, dict)
         else "UNKNOWN"
     )
+    if sign_permission_intent and target_has_sign and outcome in {"ALLOWED", "PROHIBITED"}:
+        conclusion = (
+            str(symbolic_decision.get("conclusion") or symbolic_decision.get("reason") or "").strip()
+            if isinstance(symbolic_decision, dict)
+            else ""
+        )
+        verdict_text = (
+            "Có, theo kết luận của rule engine."
+            if outcome == "ALLOWED"
+            else "Không, theo kết luận của rule engine."
+        )
+        answer = f"{verdict_text} {conclusion}".strip()
+        reasoning = conclusion or f"Rule engine kết luận {outcome}."
+        rule_confidence = str(symbolic_decision.get("confidence") or "").lower()
+        if rule_confidence in {"high", "medium", "low"}:
+            confidence = rule_confidence
     if sign_permission_intent and target_has_sign and outcome in {"UNKNOWN", "CONDITIONAL"}:
         conclusion = (
             str(symbolic_decision.get("conclusion") or symbolic_decision.get("reason") or "").strip()
@@ -642,7 +690,7 @@ def collect_retrieved_context(
                 "selected_index": None,
                 "confidence": (
                     "high" if detector_confidence >= 0.8 else
-                    "medium" if detector_confidence >= 0.6 else "low"
+                    "medium" if detector_confidence >= 0.5 else "low"
                 ),
                 "reason": (
                     "Canonical identity came directly from the YOLOv8m QCVN crosswalk."
@@ -892,7 +940,7 @@ def build_freeform_prompt_parts(
     if not trafficlawqa_rag_compatibility:
         question_block += (
             "SYMBOLIC REASONING CONTEXT\n"
-            f"{json.dumps(symbolic_context, ensure_ascii=False)}\n\n"
+            f"{json.dumps(_without_verification_status(symbolic_context), ensure_ascii=False)}\n\n"
         )
     question_block += (
         "LEGAL ARTICLE CONTEXT\n"
@@ -907,7 +955,7 @@ def build_freeform_prompt_parts(
             "text": (
                 SYSTEM_PROMPT_TRAFFICLAWQA_RAG
                 if trafficlawqa_rag_compatibility
-                else SYSTEM_PROMPT_FREEFORM_CITED_QA
+                else _answer_system_prompt(symbolic_context)
             ),
         },
         {"type": "text", "text": question_block},

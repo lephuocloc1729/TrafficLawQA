@@ -105,36 +105,22 @@ def _coerce_query(query: IntentParseResult | QueryIntent | dict[str, Any] | str)
 
 def _evaluate_intent(intent_id: str, evaluations: list[RuleEvaluation]) -> IntentEvaluation:
     relevant = [item for item in evaluations if item.intent_id == intent_id and item.status != "not_applicable"]
-    if not relevant:
-        return IntentEvaluation(intent_id, "UNKNOWN", [], ["no_matching_rule"], "Không tìm thấy rule phù hợp với dữ kiện đã xác minh.")
-    decisions = {item.decision for item in relevant}
     missing = sorted({field for item in relevant for field in item.missing_facts})
-    has_unresolved = any(item.status == "unresolved" for item in relevant)
-    has_decisive = bool(decisions.intersection({"ALLOWED", "PROHIBITED"}))
-    if has_unresolved and has_decisive:
-        decision = "CONDITIONAL"
-        reason = "Có rule cho một phần dữ kiện nhưng còn biển hoặc phạm vi áp dụng chưa được xử lý; chưa thể kết luận tổng thể."
-        missing.append("unresolved_sign_rule_coverage_or_facts")
-    elif "CONDITIONAL" in decisions:
-        decision = "CONDITIONAL"
-        reason = next(item.reason for item in relevant if item.decision == decision)
-        missing.append("unresolved_applicability_conditions")
-    elif "PROHIBITED" in decisions and "ALLOWED" in decisions:
-        decision = "CONDITIONAL"
-        reason = "Các rule phù hợp đưa ra kết quả đối nghịch; cần kiểm tra phạm vi hoặc biển phụ."
-        missing.append("conflicting_rule_outcomes")
-    elif "PROHIBITED" in decisions:
+    fired = [item for item in relevant if item.status in {"applied", "incomplete"}]
+    prohibited = next((item for item in fired if item.decision == "PROHIBITED"), None)
+
+    # CHECK_PERMISSION is intentionally binary: one fired prohibition wins;
+    # otherwise the fired rules return ALLOWED. Conditional evidence remains in
+    # each rule's trace/missing-fact fields instead of becoming a third verdict.
+    if prohibited is not None:
         decision = "PROHIBITED"
-        reason = next(item.reason for item in relevant if item.decision == decision)
-    elif "CONDITIONAL" in decisions:
-        decision = "CONDITIONAL"
-        reason = next(item.reason for item in relevant if item.decision == decision)
-    elif "ALLOWED" in decisions:
-        decision = "ALLOWED"
-        reason = next(item.reason for item in relevant if item.decision == decision)
+        reason = prohibited.reason
     else:
-        decision = "UNKNOWN"
-        reason = next((item.reason for item in relevant if item.reason), "Chưa đủ dữ kiện.")
+        decision = "ALLOWED"
+        reason = next(
+            (item.reason for item in fired if item.reason),
+            "Không có rule nào đã fire kết luận cấm hành vi được hỏi.",
+        )
     return IntentEvaluation(intent_id, decision, relevant, missing, reason)
 
 

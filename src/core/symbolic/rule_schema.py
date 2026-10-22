@@ -102,12 +102,12 @@ class TrafficRule(SerializableMixin):
             effect.value_predicate for effect in self.effects if effect.value_predicate
         }
         declared_condition_facts = {
-            condition.predicate for condition in self.conditions if condition.required
+            condition.predicate for condition in self.conditions
         }
         undeclared = required_effect_facts - declared_condition_facts
         if undeclared:
             raise ValueError(
-                f"Rule {self.rule_id!r} has value-dependent effects without required conditions: "
+                f"Rule {self.rule_id!r} has value-dependent effects without declared conditions: "
                 f"{', '.join(sorted(undeclared))}"
             )
         self.reason = str(self.reason or "").strip()

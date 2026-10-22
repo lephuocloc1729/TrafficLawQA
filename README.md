@@ -107,26 +107,31 @@ pip install -e ".[dev]"
 ```
 
 Enable traffic-sign text recognition (time ranges, distances, and numeric
-limits) with PaddleOCR:
+limits) with VietOCR:
 
 ```bash
 pip install -e ".[dev,ocr]"
 ```
 
-PaddleOCR defaults to GPU and requires a CUDA-enabled PaddlePaddle build on the
-machine. For GPU use, install the matching CUDA build of PaddlePaddle using the
-[official PaddlePaddle installation guide](https://www.paddlepaddle.org.cn/install/quick).
-Set `TRAFFIC_SIGN_OCR_DEVICE=cpu` to run on CPU, or `auto` to select GPU when
-available and otherwise use CPU.
-OCR runs once on the full source image immediately after YOLO26. Its text
-polygons are associated with detected signs by overlap or close alignment
+VietOCR recognizes Vietnamese text in detected text regions. PaddleOCR's
+PP-OCRv6 medium text detector locates those regions; its recognition model is
+not loaded. The default device is GPU and requires CUDA-enabled PyTorch for
+VietOCR and a CUDA-enabled PaddlePaddle build for text detection. Follow the
+[official PaddlePaddle installation guide](https://www.paddlepaddle.org.cn/install/quick)
+for the matching detector build. Set `TRAFFIC_SIGN_OCR_DEVICE=cpu` to run on
+CPU, or `auto` to select GPU when available and otherwise use CPU.
+OCR runs once on the full source image immediately after YOLO26. VietOCR
+recognizes each detected text crop; the detector polygons are associated with
+detected signs by overlap or close alignment
 below a sign, so text on an attached supplementary panel can be linked to the
 sign above. The symbolic layer extracts every visible time window, below-sign
 distance, expressway route code/name, and destination-plus-distance pair. The
 highway profile also collects nearby YOLO maximum/minimum speed-limit signs.
 These observations support `INFORMATION` questions; they do not by themselves
 decide whether a restriction is legally active. Unclear distances retain an
-unresolved S.501/S.502 meaning.
+unresolved S.501/S.502 meaning. The recognizer uses VietOCR's `vgg_transformer`
+pretrained model; signs with stylized or damaged lettering may still need
+visual review.
 Configure it with `TRAFFIC_SIGN_OCR_ENABLED`,
 `TRAFFIC_SIGN_OCR_DEVICE` (`auto`, `gpu`, or `cpu`), and
 `TRAFFIC_SIGN_OCR_LANGUAGE` (default `vi`).
@@ -426,6 +431,10 @@ closed for those signs. The checkpoint training and download steps are in
 [`docs/yolo26_vtsdb100_gpu_runbook.md`](docs/yolo26_vtsdb100_gpu_runbook.md).
 
 ## Run Demo on a GPU Machine
+
+Follow the [GPU demo runbook](docs/gpu_demo_runbook.md) to prepare and verify
+the checkpoint, GPU OCR runtime, LawDB/Qdrant collection, Ollama Gemma endpoint,
+and Streamlit startup before testing the pipelines.
 
 Start Streamlit with public binding:
 

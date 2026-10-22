@@ -53,11 +53,11 @@ def class_label_to_qcvn(label: str, confidence: float = 1.0) -> dict[str, Any]:
     mapping_status = mapping["mapping_status"]
     exact_code = mapping.get("sign_code")
     candidates = list(mapping.get("candidate_codes", []))
-    if exact_code and confidence < 0.6:
+    if exact_code and confidence < 0.5:
         candidates = list(dict.fromkeys([exact_code, *candidates]))
     identity_status = (
         "identified"
-        if exact_code and confidence >= 0.6
+        if exact_code and confidence >= 0.5
         else "ambiguous"
         if exact_code or candidates
         else "unidentified"

@@ -7,7 +7,7 @@ requires-python = ">=3.10"
 dependencies = [
     "html2text==2025.4.15",
     "pydantic-settings==2.10.1",
-    "pillow==11.3.0",
+    "pillow==10.2.0",
     "torch==2.8.0",
     "torchvision==0.23.0",
     "transformers==4.56.0",
@@ -23,7 +23,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7.3,<9"]
-ocr = ["paddleocr==3.7.0"]
+ocr = ["paddleocr==3.7.0", "vietocr==0.3.13"]
 baseline1 = ["pytesseract>=0.3.13"]
 
 [tool.pytest.ini_options]
