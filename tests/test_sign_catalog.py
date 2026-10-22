@@ -17,14 +17,23 @@ from src.core.symbolic.sign_catalog import (
 def test_official_catalog_is_source_first_and_independent_of_lawdb() -> None:
     catalog = load_default_sign_catalog()
     assert catalog.metadata["official_document"] == "QCVN 41:2024/BGTVT"
-    assert catalog.metadata["items_count"] == 442
+    assert catalog.metadata["items_count"] == 444
     assert catalog.lookup("P.123a") is not None
     assert catalog.lookup("P.123a").status == "unverified"
     assert catalog.lookup("P.123a").legal_basis[0]["source_url"].startswith("https://datafiles.chinhphu.vn/")
     payload = json.loads((Path(__file__).parents[1] / "src/core/symbolic/catalogs/qcvn_41_2024_sign_catalog_draft.json").read_text())
     ids = [item["canonical_sign_id"] for item in payload["items"]]
     assert len(ids) == len(set(ids))
-    assert all(item["legal_basis"] for item in payload["items"])
+    assert all(
+        item["legal_basis"]
+        for item in payload["items"]
+        if item.get("code_namespace") != "project_defined_not_qcvn"
+    )
+    assert all(
+        item.get("source_evidence", {}).get("source_type") == "user_provided_interpretation"
+        for item in payload["items"]
+        if item.get("code_namespace") == "project_defined_not_qcvn"
+    )
     assert all(item["eligible_for_automatic_decision"] is False for item in payload["items"])
     assert not {"P.133", "P.134", "P.135"}.intersection(
         item["official_code"] for item in payload["items"]
@@ -237,7 +246,7 @@ def test_default_catalog_includes_numbered_supplementary_signs_from_appendix_f()
         assert entry is not None, code
         assert entry.status == "unverified"
         assert entry.legal_basis[0]["section_or_figure"].startswith("Phụ lục F.")
-    assert len(catalog.items) == 442
+    assert len(catalog.items) == 444
     family_result = catalog.lookup("S.503")
     assert family_result is not None
     assert family_result.status == "variant_required"
