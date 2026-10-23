@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+import copy
 import shutil
 import tempfile
 from dataclasses import dataclass
@@ -81,92 +82,121 @@ def answer_image_question(
     resources: FreeformQAResources | None = None,
     use_vlm_filter: bool = True,
     _trafficlawqa_rag_compatibility: bool = False,
+    prepared: dict[str, Any] | None = None,
+    prepare_only: bool = False,
 ) -> dict[str, Any]:
     total_start = time.perf_counter()
     timings: dict[str, float] = {}
-    run_id = uuid4().hex
-    work_dir = Path(tempfile.gettempdir()) / "lexisign_freeform_demo" / run_id
-    image_dir = work_dir / "images"
-    sign_dir = work_dir / "signs"
-    image_dir.mkdir(parents=True, exist_ok=True)
-    sign_dir.mkdir(parents=True, exist_ok=True)
+    if prepared is None:
+        run_id = uuid4().hex
+        work_dir = Path(tempfile.gettempdir()) / "lexisign_freeform_demo" / run_id
+        image_dir = work_dir / "images"
+        sign_dir = work_dir / "signs"
+        image_dir.mkdir(parents=True, exist_ok=True)
+        sign_dir.mkdir(parents=True, exist_ok=True)
 
-    image_id = "demo"
-    prepared_image_path = _prepare_demo_image(Path(image_path), image_dir, image_id)
+        image_id = "demo"
+        prepared_image_path = _prepare_demo_image(Path(image_path), image_dir, image_id)
 
-    sample: dict[str, Any] = {
-        "id": run_id,
-        "image_id": image_id,
-        "question": question,
-    }
-    if choices:
-        sample["choices"] = choices
+        sample: dict[str, Any] = {
+            "id": run_id,
+            "image_id": image_id,
+            "question": question,
+        }
+        if choices:
+            sample["choices"] = choices
 
-    t0 = time.perf_counter()
-    resources = resources or create_freeform_qa_resources()
-    timings["load_resources"] = round(time.perf_counter() - t0, 5)
+        t0 = time.perf_counter()
+        resources = resources or create_freeform_qa_resources()
+        timings["load_resources"] = round(time.perf_counter() - t0, 5)
 
-    t0 = time.perf_counter()
-    sample = extract_signs(
-        sign_extractor=resources.sign_extractor,
-        sample=sample,
-        image_dir=image_dir,
-        sign_dir=sign_dir,
-        include_full_image_ocr=(
-            settings.enable_symbolic_reasoning
-            and not _trafficlawqa_rag_compatibility
-        ),
-    )
-    timings["detect_signs"] = round(time.perf_counter() - t0, 5)
-
-    direct_class_detector = (
-        settings.image_query_detection_model == "Yolo26s"
-        and not _trafficlawqa_rag_compatibility
-    )
-    t0 = time.perf_counter()
-    if direct_class_detector:
-        # YOLO26s supplies the sign identities directly. Keep all detections;
-        # no relevance-filtering VLM call is needed.
-        for sign in sample.get("detected_signs", []):
-            sign["is_chosen"] = True
-    elif use_vlm_filter:
-        sample = filter_relevant_signs(
-            llm_client=resources.llm_client,
+        t0 = time.perf_counter()
+        sample = extract_signs(
+            sign_extractor=resources.sign_extractor,
             sample=sample,
             image_dir=image_dir,
             sign_dir=sign_dir,
-            batch_size=10,
-            temperature=settings.llm_temperature,
-            max_tokens=settings.llm_max_new_tokens,
+            include_full_image_ocr=(
+                settings.enable_symbolic_reasoning
+                and not _trafficlawqa_rag_compatibility
+            ),
         )
-    else:
-        for sign in sample.get("detected_signs", []):
-            sign["is_chosen"] = True
-            sign["relevance_reason"] = "Selected by fast mode without VLM filtering."
-    timings["filter_relevant_signs"] = (
-        0.0 if direct_class_detector else round(time.perf_counter() - t0, 5)
-    )
+        timings["detect_signs"] = round(time.perf_counter() - t0, 5)
 
-    t0 = time.perf_counter()
-    if (
-        not direct_class_detector
-        and settings.enable_sign_retrieval_fallback
-        and resources.embedder is not None
-        and resources.vector_store is not None
-    ):
-        sample = query_relevant_signs(
-            embedding_model=resources.embedder,
-            vector_store=resources.vector_store,
-            sample=sample,
-            sign_dir=sign_dir,
-            collection_name=settings.collection_name,
-            limit=(settings.limit if _trafficlawqa_rag_compatibility else settings.sign_recognition_candidate_limit),
-            set_name="public_test",
-            unknown_only=not _trafficlawqa_rag_compatibility,
+        direct_class_detector = (
+            settings.image_query_detection_model == "Yolo26s"
+            and not _trafficlawqa_rag_compatibility
         )
-    timings["retrieve_lawdb"] = (
-        0.0 if direct_class_detector else round(time.perf_counter() - t0, 5)
-    )
+        t0 = time.perf_counter()
+        if direct_class_detector:
+            # YOLO26s supplies the sign identities directly. Keep all detections;
+            # no relevance-filtering VLM call is needed.
+            for sign in sample.get("detected_signs", []):
+                sign["is_chosen"] = True
+        elif use_vlm_filter:
+            sample = filter_relevant_signs(
+                llm_client=resources.llm_client,
+                sample=sample,
+                image_dir=image_dir,
+                sign_dir=sign_dir,
+                batch_size=10,
+                temperature=settings.llm_temperature,
+                max_tokens=settings.llm_max_new_tokens,
+            )
+        else:
+            for sign in sample.get("detected_signs", []):
+                sign["is_chosen"] = True
+                sign["relevance_reason"] = "Selected by fast mode without VLM filtering."
+        timings["filter_relevant_signs"] = (
+            0.0 if direct_class_detector else round(time.perf_counter() - t0, 5)
+        )
+
+        t0 = time.perf_counter()
+        if (
+            not direct_class_detector
+            and settings.enable_sign_retrieval_fallback
+            and resources.embedder is not None
+            and resources.vector_store is not None
+        ):
+            sample = query_relevant_signs(
+                embedding_model=resources.embedder,
+                vector_store=resources.vector_store,
+                sample=sample,
+                sign_dir=sign_dir,
+                collection_name=settings.collection_name,
+                limit=(settings.limit if _trafficlawqa_rag_compatibility else settings.sign_recognition_candidate_limit),
+                set_name="public_test",
+                unknown_only=not _trafficlawqa_rag_compatibility,
+            )
+        timings["retrieve_lawdb"] = (
+            0.0 if direct_class_detector else round(time.perf_counter() - t0, 5)
+        )
+
+        from src.core.sub_task_2 import collect_retrieved_context
+        context = None
+        if prepare_only:
+            context = collect_retrieved_context(
+                sample=sample, sign_dir=sign_dir,
+                embedding_model=resources.embedder, vector_store=resources.vector_store,
+                collection_name=settings.collection_name, article_lookup=resources.article_lookup,
+                llm_client=resources.llm_client, limit=settings.sign_recognition_candidate_limit,
+                temperature=settings.llm_temperature, max_tokens=500,
+                allow_sign_retrieval=False,
+            )
+        prepared = dict(sample=sample, image_dir=image_dir, sign_dir=sign_dir,
+                        prepared_image_path=prepared_image_path, context=context)
+    else:
+        resources = resources or create_freeform_qa_resources()
+        sample = copy.deepcopy(prepared["sample"])
+        sample["question"] = question
+        if choices:
+            sample["choices"] = choices
+        image_dir = prepared["image_dir"]
+        sign_dir = prepared["sign_dir"]
+        prepared_image_path = prepared["prepared_image_path"]
+        direct_class_detector = True
+    if prepare_only:
+        return prepared
 
     t0 = time.perf_counter()
     result = get_freeform_answer(
@@ -183,6 +213,7 @@ def answer_image_question(
         max_tokens=settings.llm_max_new_tokens,
         allow_sign_retrieval=not direct_class_detector,
         trafficlawqa_rag_compatibility=_trafficlawqa_rag_compatibility,
+        prepared_context=copy.deepcopy(prepared.get("context")),
     )
     timings["answer_generation"] = round(time.perf_counter() - t0, 5)
     timings["total"] = round(time.perf_counter() - total_start, 5)

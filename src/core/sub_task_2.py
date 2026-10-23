@@ -1689,6 +1689,7 @@ def get_freeform_answer(
     max_tokens: int = 5000,
     allow_sign_retrieval: bool = True,
     trafficlawqa_rag_compatibility: bool = False,
+    prepared_context: Any = None,
 ) -> dict[str, Any]:
     t1 = time.time()
     try:
@@ -1697,7 +1698,7 @@ def get_freeform_answer(
             visual_evidence,
             sign_prompt_parts,
             traffic_sign_observations,
-        ) = collect_retrieved_context(
+        ) = prepared_context if prepared_context is not None else collect_retrieved_context(
             sample=sample,
             sign_dir=sign_dir,
             embedding_model=embedding_model,

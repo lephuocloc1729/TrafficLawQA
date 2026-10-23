@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import hashlib
+from concurrent.futures import ThreadPoolExecutor
 import os
 import tempfile
 import time
@@ -76,6 +78,7 @@ def run_selected_pipeline(
     choices: str,
     use_vlm_filter: bool,
     resources: Any | None = None,
+    prepared: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     # Streamlit reruns and cached resources share one process; restore the
     # selected profile at execution time before reading settings.
@@ -93,6 +96,7 @@ def run_selected_pipeline(
             choices=choices or None,
             resources=resources,
             use_vlm_filter=use_vlm_filter,
+            **({"prepared": prepared} if pipeline_name == NEURO_SYMBOLIC_PIPELINE else {}),
         )
 
     if pipeline_name == BASELINE1_PIPELINE:
@@ -134,6 +138,18 @@ def run_selected_pipeline(
         "visual_evidence": [],
         "vlm_usage": prediction,
     }
+
+
+@st.cache_resource(show_spinner=False)
+def preparation_executor():
+    return ThreadPoolExecutor(max_workers=1)
+
+
+def prepare_neuro_image(image_path, resources):
+    return answer_image_question(
+        image_path=image_path, question="", resources=resources,
+        use_vlm_filter=False, prepare_only=True,
+    )
 
 
 def inject_demo_styles() -> None:
@@ -419,6 +435,21 @@ def main() -> None:
         accept_multiple_files=False,
     )
     image_path = render_selected_image(uploaded_file)
+    preparation = None
+    if pipeline_name == NEURO_SYMBOLIC_PIPELINE and uploaded_file is not None:
+        digest = hashlib.sha256(uploaded_file.getbuffer()).hexdigest()
+        cached = st.session_state.get("neuro_preparation")
+        if cached is None or cached[0] != digest:
+            resources = load_resources(pipeline_name)
+            future = preparation_executor().submit(prepare_neuro_image, image_path, resources)
+            cached = (digest, future)
+            st.session_state["neuro_preparation"] = cached
+        preparation = cached[1]
+        st.caption("Facts ready." if preparation.done() and preparation.exception() is None
+                   else "Preparing image facts in the background…")
+    elif uploaded_file is None:
+        st.session_state.pop("neuro_preparation", None)
+
 
     with st.form("freeform_question_form", clear_on_submit=False):
         question_col, send_col = st.columns([8, 1], gap="small")
@@ -460,6 +491,7 @@ def main() -> None:
                 choices=choices.strip(),
                 use_vlm_filter=use_vlm_filter,
                 resources=resources,
+                prepared=preparation.result() if preparation is not None else None,
             )
     except Exception as exc:
         st.error(f"{pipeline_name} run failed.")
