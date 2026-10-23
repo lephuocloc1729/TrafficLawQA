@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0",
-  "source": "VTSDB100 reviewed class mapping and QCVN 41:2024/BGTVT sign catalog",
+  "schema_version": "1.2",
+  "source": "VTSDB100 reviewed class mapping and QCVN 41:2024/BGTVT sign catalog; numeric, calendar, and temporal predicates are bundled under conditions",
   "class_count": 100,
   "classes": {
     "no_entry": {
@@ -33,6 +33,28 @@
           "predicate": "prohibited_action",
           "value": [
             "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "permitted_actor",
+          "value": [
+            "pedestrian"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "location": [
+              "sidewalk",
+              "road_shoulder"
+            ]
+          }
+        },
+        {
+          "predicate": "permitted_action",
+          "value": [
+            "circulation"
           ],
           "status": "derived",
           "confidence": "medium"
@@ -257,14 +279,7 @@
             "special_use_vehicle"
           ],
           "status": "derived",
-          "confidence": "medium",
-          "conditions": {
-            "truck": {
-              "predicate": "maximum_payload_mass",
-              "operator": ">",
-              "limit": "sign_value"
-            }
-          }
+          "confidence": "medium"
         },
         {
           "predicate": "prohibited_action",
@@ -275,16 +290,22 @@
           "confidence": "medium"
         },
         {
-          "predicate": "maximum_payload_mass",
-          "value": 2.5,
-          "unit": "t",
-          "status": "derived",
-          "confidence": "high",
-          "fill_from": "ocr_or_detector_attribute",
-          "scope": {
-            "vehicle_types": [
-              "truck"
-            ]
+          "predicate": "conditions",
+          "value": {
+            "maximum_payload_mass": {
+              "value": 2.5,
+              "unit": "t",
+              "scope": {
+                "vehicle_types": [
+                  "truck"
+                ]
+              },
+              "status": "derived",
+              "confidence": "high",
+              "fill_from": "ocr_or_detector_attribute",
+              "applies_to": "truck",
+              "operator": ">"
+            }
           }
         }
       ]
@@ -348,12 +369,16 @@
           "confidence": "medium"
         },
         {
-          "predicate": "maximum_vehicle_height",
-          "value": null,
-          "unit": "m",
-          "status": "not_observed",
-          "confidence": "low",
-          "fill_from": "ocr_or_detector_attribute"
+          "predicate": "conditions",
+          "value": {
+            "maximum_vehicle_height": {
+              "value": null,
+              "unit": "m",
+              "status": "not_observed",
+              "confidence": "low",
+              "fill_from": "ocr_or_detector_attribute"
+            }
+          }
         }
       ]
     },
@@ -633,10 +658,14 @@
           "confidence": "medium"
         },
         {
-          "predicate": "calendar_parity",
-          "value": "odd",
-          "status": "derived",
-          "confidence": "medium"
+          "predicate": "conditions",
+          "value": {
+            "calendar_parity": {
+              "value": "odd",
+              "status": "derived",
+              "confidence": "medium"
+            }
+          }
         }
       ]
     },
@@ -674,10 +703,14 @@
           "confidence": "medium"
         },
         {
-          "predicate": "calendar_parity",
-          "value": "even",
-          "status": "derived",
-          "confidence": "medium"
+          "predicate": "conditions",
+          "value": {
+            "calendar_parity": {
+              "value": "even",
+              "status": "derived",
+              "confidence": "medium"
+            }
+          }
         }
       ]
     },
@@ -1002,12 +1035,16 @@
           "confidence": "medium"
         },
         {
-          "predicate": "maximum_vehicle_width",
-          "value": null,
-          "unit": "m",
-          "status": "not_observed",
-          "confidence": "low",
-          "fill_from": "ocr_or_detector_attribute"
+          "predicate": "conditions",
+          "value": {
+            "maximum_vehicle_width": {
+              "value": null,
+              "unit": "m",
+              "status": "not_observed",
+              "confidence": "low",
+              "fill_from": "ocr_or_detector_attribute"
+            }
+          }
         }
       ]
     },
@@ -1040,12 +1077,16 @@
           "confidence": "medium"
         },
         {
-          "predicate": "maximum_vehicle_mass",
-          "value": null,
-          "unit": "t",
-          "status": "not_observed",
-          "confidence": "low",
-          "fill_from": "ocr_or_detector_attribute"
+          "predicate": "conditions",
+          "value": {
+            "maximum_vehicle_mass": {
+              "value": null,
+              "unit": "t",
+              "status": "not_observed",
+              "confidence": "low",
+              "fill_from": "ocr_or_detector_attribute"
+            }
+          }
         }
       ]
     },
@@ -1078,12 +1119,16 @@
           "confidence": "medium"
         },
         {
-          "predicate": "maximum_axle_load",
-          "value": null,
-          "unit": "t",
-          "status": "not_observed",
-          "confidence": "low",
-          "fill_from": "ocr_or_detector_attribute"
+          "predicate": "conditions",
+          "value": {
+            "maximum_axle_load": {
+              "value": null,
+              "unit": "t",
+              "status": "not_observed",
+              "confidence": "low",
+              "fill_from": "ocr_or_detector_attribute"
+            }
+          }
         }
       ]
     },
@@ -1136,21 +1181,25 @@
           "source_status": "unverified"
         },
         {
-          "predicate": "minimum_distance",
-          "value": null,
-          "unit": "m",
-          "status": "not_observed",
-          "confidence": "low",
-          "fill_from": "ocr_or_detector_attribute",
-          "scope": {
-            "vehicle_types": [
-              "car",
-              "bus",
-              "truck",
-              "tractor_unit",
-              "four_wheel_passenger_vehicle",
-              "four_wheel_goods_vehicle"
-            ]
+          "predicate": "conditions",
+          "value": {
+            "minimum_distance": {
+              "value": null,
+              "unit": "m",
+              "scope": {
+                "vehicle_types": [
+                  "car",
+                  "bus",
+                  "truck",
+                  "tractor_unit",
+                  "four_wheel_passenger_vehicle",
+                  "four_wheel_goods_vehicle"
+                ]
+              },
+              "status": "not_observed",
+              "confidence": "low",
+              "fill_from": "ocr_or_detector_attribute"
+            }
           }
         }
       ]
@@ -1337,7 +1386,8 @@
           "scope": {
             "vehicle_types": [
               "vehicle"
-            ]
+            ],
+            "exclusive": true
           }
         }
       ]
@@ -1364,7 +1414,8 @@
           "scope": {
             "vehicle_types": [
               "vehicle"
-            ]
+            ],
+            "exclusive": true
           }
         }
       ]
@@ -1391,7 +1442,8 @@
           "scope": {
             "vehicle_types": [
               "vehicle"
-            ]
+            ],
+            "exclusive": true
           }
         }
       ]
@@ -1418,7 +1470,8 @@
           "scope": {
             "vehicle_types": [
               "vehicle"
-            ]
+            ],
+            "exclusive": true
           }
         }
       ]
@@ -1582,12 +1635,16 @@
           "source_status": "unverified"
         },
         {
-          "predicate": "maximum_vehicle_height",
-          "value": null,
-          "unit": "m",
-          "status": "not_observed",
-          "confidence": "low",
-          "fill_from": "ocr_or_detector_attribute"
+          "predicate": "conditions",
+          "value": {
+            "maximum_vehicle_height": {
+              "value": null,
+              "unit": "m",
+              "status": "not_observed",
+              "confidence": "low",
+              "fill_from": "ocr_or_detector_attribute"
+            }
+          }
         }
       ]
     },
@@ -1679,7 +1736,14 @@
             "automobile"
           ],
           "status": "derived",
-          "confidence": "medium"
+          "confidence": "medium",
+          "scope": {
+            "actions": [
+              "entering",
+              "circulation"
+            ],
+            "exclusive": true
+          }
         }
       ]
     },
@@ -1766,16 +1830,20 @@
           "source_status": "unverified"
         },
         {
-          "predicate": "maximum_speed",
-          "value": 40,
-          "unit": "km/h",
-          "status": "derived",
-          "confidence": "high",
-          "fill_from": "ocr_or_detector_attribute",
-          "scope": {
-            "vehicle_types": [
-              "motor_vehicle"
-            ]
+          "predicate": "conditions",
+          "value": {
+            "maximum_speed": {
+              "value": 40,
+              "unit": "km/h",
+              "scope": {
+                "vehicle_types": [
+                  "motor_vehicle"
+                ]
+              },
+              "status": "derived",
+              "confidence": "high",
+              "fill_from": "ocr_or_detector_attribute"
+            }
           }
         }
       ]
@@ -1793,16 +1861,20 @@
           "source_status": "unverified"
         },
         {
-          "predicate": "maximum_speed",
-          "value": 50,
-          "unit": "km/h",
-          "status": "derived",
-          "confidence": "high",
-          "fill_from": "ocr_or_detector_attribute",
-          "scope": {
-            "vehicle_types": [
-              "motor_vehicle"
-            ]
+          "predicate": "conditions",
+          "value": {
+            "maximum_speed": {
+              "value": 50,
+              "unit": "km/h",
+              "scope": {
+                "vehicle_types": [
+                  "motor_vehicle"
+                ]
+              },
+              "status": "derived",
+              "confidence": "high",
+              "fill_from": "ocr_or_detector_attribute"
+            }
           }
         }
       ]
@@ -1820,16 +1892,20 @@
           "source_status": "unverified"
         },
         {
-          "predicate": "maximum_speed",
-          "value": 60,
-          "unit": "km/h",
-          "status": "derived",
-          "confidence": "high",
-          "fill_from": "ocr_or_detector_attribute",
-          "scope": {
-            "vehicle_types": [
-              "motor_vehicle"
-            ]
+          "predicate": "conditions",
+          "value": {
+            "maximum_speed": {
+              "value": 60,
+              "unit": "km/h",
+              "scope": {
+                "vehicle_types": [
+                  "motor_vehicle"
+                ]
+              },
+              "status": "derived",
+              "confidence": "high",
+              "fill_from": "ocr_or_detector_attribute"
+            }
           }
         }
       ]
@@ -1847,16 +1923,20 @@
           "source_status": "unverified"
         },
         {
-          "predicate": "maximum_speed",
-          "value": 70,
-          "unit": "km/h",
-          "status": "derived",
-          "confidence": "high",
-          "fill_from": "ocr_or_detector_attribute",
-          "scope": {
-            "vehicle_types": [
-              "motor_vehicle"
-            ]
+          "predicate": "conditions",
+          "value": {
+            "maximum_speed": {
+              "value": 70,
+              "unit": "km/h",
+              "scope": {
+                "vehicle_types": [
+                  "motor_vehicle"
+                ]
+              },
+              "status": "derived",
+              "confidence": "high",
+              "fill_from": "ocr_or_detector_attribute"
+            }
           }
         }
       ]
@@ -1874,16 +1954,20 @@
           "source_status": "unverified"
         },
         {
-          "predicate": "maximum_speed",
-          "value": 80,
-          "unit": "km/h",
-          "status": "derived",
-          "confidence": "high",
-          "fill_from": "ocr_or_detector_attribute",
-          "scope": {
-            "vehicle_types": [
-              "motor_vehicle"
-            ]
+          "predicate": "conditions",
+          "value": {
+            "maximum_speed": {
+              "value": 80,
+              "unit": "km/h",
+              "scope": {
+                "vehicle_types": [
+                  "motor_vehicle"
+                ]
+              },
+              "status": "derived",
+              "confidence": "high",
+              "fill_from": "ocr_or_detector_attribute"
+            }
           }
         }
       ]
@@ -1901,16 +1985,20 @@
           "source_status": "unverified"
         },
         {
-          "predicate": "maximum_speed",
-          "value": 90,
-          "unit": "km/h",
-          "status": "derived",
-          "confidence": "high",
-          "fill_from": "ocr_or_detector_attribute",
-          "scope": {
-            "vehicle_types": [
-              "motor_vehicle"
-            ]
+          "predicate": "conditions",
+          "value": {
+            "maximum_speed": {
+              "value": 90,
+              "unit": "km/h",
+              "scope": {
+                "vehicle_types": [
+                  "motor_vehicle"
+                ]
+              },
+              "status": "derived",
+              "confidence": "high",
+              "fill_from": "ocr_or_detector_attribute"
+            }
           }
         }
       ]
@@ -1928,16 +2016,20 @@
           "source_status": "unverified"
         },
         {
-          "predicate": "maximum_speed",
-          "value": 100,
-          "unit": "km/h",
-          "status": "derived",
-          "confidence": "high",
-          "fill_from": "ocr_or_detector_attribute",
-          "scope": {
-            "vehicle_types": [
-              "motor_vehicle"
-            ]
+          "predicate": "conditions",
+          "value": {
+            "maximum_speed": {
+              "value": 100,
+              "unit": "km/h",
+              "scope": {
+                "vehicle_types": [
+                  "motor_vehicle"
+                ]
+              },
+              "status": "derived",
+              "confidence": "high",
+              "fill_from": "ocr_or_detector_attribute"
+            }
           }
         }
       ]
@@ -1955,16 +2047,20 @@
           "source_status": "unverified"
         },
         {
-          "predicate": "maximum_speed",
-          "value": 120,
-          "unit": "km/h",
-          "status": "derived",
-          "confidence": "high",
-          "fill_from": "ocr_or_detector_attribute",
-          "scope": {
-            "vehicle_types": [
-              "motor_vehicle"
-            ]
+          "predicate": "conditions",
+          "value": {
+            "maximum_speed": {
+              "value": 120,
+              "unit": "km/h",
+              "scope": {
+                "vehicle_types": [
+                  "motor_vehicle"
+                ]
+              },
+              "status": "derived",
+              "confidence": "high",
+              "fill_from": "ocr_or_detector_attribute"
+            }
           }
         }
       ]
@@ -1982,16 +2078,20 @@
           "source_status": "unverified"
         },
         {
-          "predicate": "minimum_speed",
-          "value": 30,
-          "unit": "km/h",
-          "status": "derived",
-          "confidence": "high",
-          "fill_from": "ocr_or_detector_attribute",
-          "scope": {
-            "vehicle_types": [
-              "motor_vehicle"
-            ]
+          "predicate": "conditions",
+          "value": {
+            "minimum_speed": {
+              "value": 30,
+              "unit": "km/h",
+              "scope": {
+                "vehicle_types": [
+                  "motor_vehicle"
+                ]
+              },
+              "status": "derived",
+              "confidence": "high",
+              "fill_from": "ocr_or_detector_attribute"
+            }
           }
         }
       ]
@@ -2009,16 +2109,20 @@
           "source_status": "unverified"
         },
         {
-          "predicate": "minimum_speed",
-          "value": 60,
-          "unit": "km/h",
-          "status": "derived",
-          "confidence": "high",
-          "fill_from": "ocr_or_detector_attribute",
-          "scope": {
-            "vehicle_types": [
-              "motor_vehicle"
-            ]
+          "predicate": "conditions",
+          "value": {
+            "minimum_speed": {
+              "value": 60,
+              "unit": "km/h",
+              "scope": {
+                "vehicle_types": [
+                  "motor_vehicle"
+                ]
+              },
+              "status": "derived",
+              "confidence": "high",
+              "fill_from": "ocr_or_detector_attribute"
+            }
           }
         }
       ]

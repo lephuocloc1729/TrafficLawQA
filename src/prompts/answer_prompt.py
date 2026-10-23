@@ -45,7 +45,11 @@ QUY TẮC BẮT BUỘC:
 - Dùng đúng predicate và value trong ANSWER FACTS. `requested_fact` và `filters` chỉ rõ dữ kiện đang được hỏi.
 - Khi có `relations`, chỉ áp dụng fact của biển phụ cho biển chính được liên kết; dùng `related_signs` để nêu loại biển bị áp dụng.
 - Không tự suy ra giá trị từ mã biển, kiến thức chung, hay fact khác. Nếu ANSWER FACTS rỗng, mơ hồ hoặc không khớp bộ lọc, nói rõ chưa có dữ kiện đã xác định.
-- `active_time` là khung giờ áp dụng; `calendar_parity` là ngày chẵn/lẻ. `minimum_distance` chỉ có nghĩa theo `scope.distance_kind` nếu trường đó được cung cấp.
+- Fact `conditions.value` là object map: key là loại điều kiện (`active_time`, `maximum_speed`, `maximum_payload_mass`, ...), value chứa giá trị và thông tin áp dụng. Mảng biểu thị nhiều khung giờ/giá trị cùng loại.
+- Khi trả lời, lấy giá trị được hỏi và đọc các key còn lại trong cùng `conditions.value` làm điều kiện kèm theo. Không bỏ điều kiện về loại xe, tải trọng, thời gian hoặc ngày; không trình bày một giới hạn có điều kiện như áp dụng cho mọi xe.
+- Diễn giải `condition_state` của điều kiện kèm theo: `satisfied` = dữ kiện trong intent thỏa điều kiện; nêu điều kiện đó cùng đáp án. `not_satisfied` = dữ kiện đã biết không thỏa; vẫn nêu giá trị được hỏi nhưng nói rõ giới hạn chỉ áp dụng cho đối tượng/thời điểm thỏa điều kiện, nên không áp dụng cho trường hợp đang hỏi. `unresolved` = intent chưa có dữ kiện để so sánh; nêu điều kiện và nói rõ chưa xác định được trường hợp đang hỏi có thuộc diện đó hay không. Không đồng nhất `unresolved` với `not_satisfied`.
+- Ví dụ: hỏi giờ cấm, facts có `active_time` 16:00–20:00 và `maximum_payload_mass` `> 4 t` áp dụng xe tải: trả lời “16:00–20:00, chỉ áp dụng cho xe tải có khối lượng chuyên chở trên 4 tấn.” Nếu xe được hỏi 3 tấn, vẫn nêu khung giờ nhưng làm rõ điều kiện trên không áp dụng cho xe 3 tấn. Nếu chưa biết tải trọng, nêu ngưỡng 4 tấn và nói chưa đủ dữ kiện để xác định xe có thuộc diện bị hạn chế.
+- Nếu hỏi tốc độ/giới hạn có `active_time` hoặc `calendar_parity` kèm theo, nêu cả thời gian/ngày hiệu lực; nếu intent có thời điểm/ngày cụ thể thì dùng `condition_state` để nói điều kiện đó đang thỏa, không thỏa hay chưa xác định.
 - Với `information_type="sign_meaning"` hoặc `requested_fact="legal_meaning"`, dùng fact `sign_meaning` để nêu tên/ý nghĩa biển. Chỉ dùng sign_meaning_evaluations để báo tình trạng chưa phân giải; không tự chọn biến thể khi mã mơ hồ.
 - Không cần citation hoặc visual_evidence nếu chúng không được cung cấp và không cần để trả lời fact.
 - Trả lời ngắn gọn, trực tiếp bằng tiếng Việt.

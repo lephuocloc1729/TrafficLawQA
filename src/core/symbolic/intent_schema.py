@@ -71,6 +71,7 @@ class Intent(SerializableMixin):
     information_type: str | None = None
     requested_fact: str | None = None
     filters: dict[str, Any] = field(default_factory=dict)
+    conditions: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.intent_id = str(self.intent_id or "intent-1").strip()
@@ -100,6 +101,7 @@ class Intent(SerializableMixin):
         self.information_type = str(self.information_type).strip().lower() if self.information_type else None
         self.requested_fact = str(self.requested_fact).strip().lower() if self.requested_fact else None
         self.filters = dict(self.filters or {}) if isinstance(self.filters, dict) else {}
+        self.conditions = dict(self.conditions or {}) if isinstance(self.conditions, dict) else {}
 
     def to_dict(self) -> dict[str, Any]:
         """Expose the compact intent contract while retaining richer runtime slots."""
@@ -128,6 +130,8 @@ class Intent(SerializableMixin):
             target = self._compact_target()
             if target is not None:
                 payload["target"] = target
+        if self.conditions:
+            payload["conditions"] = self.conditions
         return payload
 
     def _compact_target(self) -> str | dict[str, Any] | None:
@@ -163,6 +167,7 @@ class QueryIntent(SerializableMixin):
                     if key in {
                         "kind", "target", "action", "actor", "requested_answer",
                         "information_type", "requested_fact", "filters",
+                        "conditions",
                     }
                 },
             })

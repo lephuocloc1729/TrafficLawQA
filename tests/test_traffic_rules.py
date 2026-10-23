@@ -74,7 +74,7 @@ class TrafficRulesTest(unittest.TestCase):
         self.assertEqual(uncovered, ["dead_end", "market"])
         self.assertEqual(ambiguous_classes, {"other_prohibition_signs"})
 
-    def test_every_fired_permission_rule_evaluation_is_binary(self) -> None:
+    def test_permission_rule_evaluations_use_supported_outcome_states(self) -> None:
         for index, rule in enumerate(TRAFFIC_RULES):
             with self.subTest(rule_id=rule.rule_id):
                 observation = SignObservation(
@@ -92,15 +92,23 @@ class TrafficRulesTest(unittest.TestCase):
                 )
                 evaluation = _evaluate_candidate(rule, intent, observation, [])
                 if evaluation.status in {"applied", "incomplete"}:
-                    self.assertIn(evaluation.decision, {"PROHIBITED", "ALLOWED"})
+                    self.assertIn(evaluation.decision, {"PROHIBITED", "ALLOWED", "CONDITIONAL"})
 
-    def test_any_fired_prohibition_wins_aggregate_permission_result(self) -> None:
+    def test_confirmed_prohibition_wins_aggregate_permission_result(self) -> None:
         evaluations = [
             RuleEvaluation("rule-allow", "intent-1", decision="ALLOWED", status="applied"),
-            RuleEvaluation("rule-prohibit", "intent-1", decision="PROHIBITED", status="incomplete"),
+            RuleEvaluation("rule-prohibit", "intent-1", decision="PROHIBITED", status="applied"),
         ]
-        result = _evaluate_intent("intent-1", evaluations)
+        result = _evaluate_intent("intent-1", evaluations, sign_inventory_status="complete")
         self.assertEqual(result.decision, "PROHIBITED")
+
+    def test_incomplete_prohibition_is_not_treated_as_confirmed(self) -> None:
+        evaluations = [
+            RuleEvaluation("rule-prohibit", "intent-1", decision="PROHIBITED", status="incomplete",
+                           missing_facts=["active_time"]),
+        ]
+        result = _evaluate_intent("intent-1", evaluations, sign_inventory_status="complete")
+        self.assertEqual(result.decision, "CONDITIONAL")
 
     def test_p130_prohibition_still_reaches_the_reasoner(self) -> None:
         observation = normalize_payload_to_observation({"sign_code": "P.130"})

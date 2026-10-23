@@ -332,7 +332,7 @@ def test_llm_cannot_promote_unknown_sign_permission_to_allowed():
     assert result["citations"] == []
 
 
-def test_old_pipeline_is_not_overridden_for_non_sign_intents():
+def test_unsupported_legacy_intent_uses_unknown_fallback():
     symbolic_context = {
         "query_intent": {"intents": [{"kind": "GENERAL_LEGAL_QA"}]},
         "facts": {"sign_observations": []},
@@ -342,4 +342,5 @@ def test_old_pipeline_is_not_overridden_for_non_sign_intents():
         '{"answer":"Câu trả lời cũ.","confidence":"medium"}', [], [], symbolic_context,
     )
 
-    assert result["freeform_answer"] == "Câu trả lời cũ."
+    assert result["freeform_answer"] == "Hiện hệ thống chưa xác định hoặc chưa hỗ trợ yêu cầu này."
+    assert result["confidence"] == "low"

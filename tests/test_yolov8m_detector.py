@@ -83,12 +83,19 @@ def test_other_labels_do_not_get_guessed():
     assert mapping["qcvn_mapping_status"] == "unmapped"
 
 
-def test_low_confidence_exact_label_is_not_marked_identified():
-    mapping = class_label_to_qcvn("131b", confidence=0.51)
+def test_exact_label_below_identity_threshold_is_ambiguous():
+    mapping = class_label_to_qcvn("131b", confidence=0.49)
 
     assert mapping["sign_code"] == "P.131b"
     assert mapping["identity_status"] == "ambiguous"
     assert mapping["candidates"][0]["sign_code"] == "P.131b"
+
+
+def test_exact_label_at_identity_threshold_is_identified():
+    mapping = class_label_to_qcvn("131b", confidence=0.5)
+
+    assert mapping["sign_code"] == "P.131b"
+    assert mapping["identity_status"] == "identified"
 
 
 def test_crosswalk_covers_checkpoint_class_ids_without_duplicates():

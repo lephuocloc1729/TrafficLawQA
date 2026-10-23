@@ -7,7 +7,7 @@ from src.core.symbolic.reasoner import build_symbolic_reasoning_context
 from src.core.symbolic.sign_relations import link_supplementary_signs
 from src.core.symbolic.traffic_rules import _supplementary_context
 from src.core.sub_task_2 import build_freeform_prompt_parts
-from src.core.extract_signs import _ocr_yolo_detections
+from src.core.extract_signs import _ocr_full_image_and_associate_yolo_text
 
 
 class TrafficSignOCRPipelineTest(unittest.TestCase):
@@ -40,9 +40,13 @@ class TrafficSignOCRPipelineTest(unittest.TestCase):
 
         with patch("src.core.extract_signs.settings.traffic_sign_ocr_enabled", True), \
              patch("src.core.extract_signs.get_traffic_sign_ocr", return_value=engine):
-            _ocr_yolo_detections(Path("scene.jpg"), detections)
+            image_texts, status = _ocr_full_image_and_associate_yolo_text(
+                Path("scene.jpg"), detections,
+            )
 
         engine.recognize.assert_called_once_with(Path("scene.jpg"))
+        self.assertEqual(status, "read")
+        self.assertEqual(len(image_texts), 3)
         self.assertEqual(
             [item["raw_text"] for item in detections[0]["ocr_texts"]],
             ["CAM XE", "7:30-10:30"],
@@ -102,20 +106,18 @@ class TrafficSignOCRPipelineTest(unittest.TestCase):
                 self.assertEqual(intent["kind"], "INFORMATION")
                 self.assertEqual(intent["information_type"], information_type)
 
-                observed_facts = symbolic["facts"]["sign_observations"][0]["facts"]
+                observed_facts = symbolic["facts"]["signs"][0]["facts"]
                 time_facts = [
                     item for item in observed_facts
-                    if item["predicate"] == "supplementary_time_window"
+                    if item["predicate"] == "active_time"
                 ]
                 distance_facts = [
                     item for item in observed_facts
                     if item["predicate"] == "supplementary_distance_m"
                 ]
                 self.assertEqual(len(time_facts), 2)
-                self.assertEqual(time_facts[0]["value"]["start_minute"], 450)
-                self.assertEqual(time_facts[0]["value"]["end_minute"], 630)
-                self.assertEqual(time_facts[1]["value"]["start_minute"], 960)
-                self.assertEqual(time_facts[1]["value"]["end_minute"], 1110)
+                self.assertEqual(time_facts[0]["value"], {"from": "07:30", "to": "10:30"})
+                self.assertEqual(time_facts[1]["value"], {"from": "16:00", "to": "18:30"})
                 self.assertEqual(len(distance_facts), 1)
                 self.assertEqual(distance_facts[0]["value"], 500.0)
                 self.assertTrue(all(item["status"] == "observed" for item in time_facts + distance_facts))
@@ -129,11 +131,15 @@ class TrafficSignOCRPipelineTest(unittest.TestCase):
                     symbolic_context=symbolic,
                 )
                 llm_context = prompt_parts[1]["text"]
-                self.assertIn('"predicate": "supplementary_time_window"', llm_context)
-                self.assertIn('"predicate": "supplementary_distance_m"', llm_context)
-                self.assertIn("7:30-10:30", llm_context)
-                self.assertIn("16:00-18:30", llm_context)
-                self.assertIn("500.0", llm_context)
+                if information_type == "time_condition":
+                    self.assertIn('"predicate": "active_time"', llm_context)
+                    self.assertIn("07:30", llm_context)
+                    self.assertIn("16:00", llm_context)
+                    self.assertNotIn('"predicate": "supplementary_distance_m"', llm_context)
+                else:
+                    self.assertIn('"predicate": "supplementary_distance_m"', llm_context)
+                    self.assertIn("500.0", llm_context)
+                    self.assertNotIn('"predicate": "active_time"', llm_context)
 
     def test_p127_ocr_value_is_a_fact_of_its_own_sign(self) -> None:
         speed_sign = SignObservation(
@@ -152,13 +158,13 @@ class TrafficSignOCRPipelineTest(unittest.TestCase):
         )
         facts = TrafficFacts("2.0", "scene", [speed_sign]).to_dict()
 
-        speed_facts = facts["sign_observations"][0]["facts"]
+        speed_facts = facts["signs"][0]["facts"]
         self.assertIn({
-            "predicate": "speed_limit_value",
+            "predicate": "maximum_speed",
             "value": 60,
+            "unit": "km/h",
+            "scope": {"vehicle_types": ["motor_vehicle"]},
             "status": "observed",
-            "source": "main_sign_ocr",
-            "raw_text": "60",
             "confidence": "high",
         }, speed_facts)
 

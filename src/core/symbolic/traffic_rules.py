@@ -7,22 +7,14 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from src.core.symbolic.fact_schema import (
-    FACT_PREDICATE_ALIASES,
     ContextFact,
     SignObservation,
     TrafficFacts,
 )
 from src.core.symbolic.intent_schema import Intent, QueryIntent
-from src.core.symbolic.rule_schema import RuleEffect, RuleEvaluation, TrafficRule
-from src.core.symbolic.supplementary_facts import extract_supplementary_context_facts
-from src.core.symbolic.sign_numeric_facts import extract_main_sign_context_facts
-from src.core.symbolic.sign_information_facts import extract_sign_information_facts
-from src.core.symbolic.sign_fact_templates import (
-    instantiate_sign_fact_templates,
-    instantiate_supplementary_template,
-)
-from src.core.symbolic.sign_schema import normalize_confidence
+from src.core.symbolic.rule_schema import RuleCondition, RuleEffect, RuleEvaluation, TrafficRule
 from src.core.symbolic.sign_normalizer import normalize_sign_code, sign_family
+from src.core.symbolic.sign_fact_resolver import observation_context_facts
 from src.core.symbolic.question_intent import extract_vehicle
 from src.core.symbolic.vehicle_taxonomy import (
     ACTOR_CLASS_CANDIDATES,
@@ -193,173 +185,6 @@ def load_rulebook(path: str | Path = RULEBOOK_PATH) -> tuple[dict[str, Any], tup
 TRAFFIC_RULEBOOK_METADATA, TRAFFIC_RULES = load_rulebook()
 
 
-def _observation_context_facts(
-    observation: SignObservation,
-    subject_id: str,
-    relation_id: str | None = None,
-    source: str = "sign_observation_interpretation",
-) -> list[ContextFact]:
-    normalized_fields = {
-        "time_condition": "supplementary_time_condition",
-        "time_window": "time_window",
-        "vehicle_scope": "vehicle_scope_condition",
-        "direction_scope": "direction_scope_condition",
-        "distance_scope": "distance_scope_condition",
-        "numeric_value": "supplementary_numeric_value",
-        "speed_limit_value": "speed_limit_value",
-        "minimum_speed_limit_kmh": "minimum_speed_limit_kmh",
-        "sign_applicability_calendar_parity": "sign_applicability_calendar_parity",
-        "slope_percent": "slope_percent",
-        "total_weight_limit_t": "total_weight_limit_t",
-        "axle_load_limit_t": "axle_load_limit_t",
-        "payload_limit_t": "payload_limit_t",
-        "payload_limit_present": "payload_limit_present",
-        "payload_limit_relation": "payload_limit_relation",
-        "passenger_seat_limit_present": "passenger_seat_limit_present",
-        "passenger_seat_limit": "passenger_seat_limit",
-        "passenger_seat_limit_relation": "passenger_seat_limit_relation",
-        "bus_lane_marking": "bus_lane_marking",
-        "combination_length_limit_m": "combination_length_limit_m",
-        "height_limit_m": "height_limit_m",
-        "width_limit_m": "width_limit_m",
-        "length_limit_m": "length_limit_m",
-        "minimum_following_distance_m": "minimum_following_distance_m",
-        "sg11_lane_direction_mapping_resolved": "sg11_lane_direction_mapping_resolved",
-        "sg12_non_traversable_lane_resolved": "sg12_non_traversable_lane_resolved",
-        "sh6_exception_scope_resolved": "sh6_exception_scope_resolved",
-        "sh6_exception_actor_classes": "sh6_exception_actor_classes",
-        "sh6_exception_applies_to_actor_resolved": "sh6_exception_applies_to_actor_resolved",
-        # The S.505a vehicle silhouettes are not OCR text. These values must
-        # come from an explicit visual classification/review, never from the
-        # supplementary sign code or the primary sign's default scope.
-        "s505a_vehicle_scope_resolved": "s505a_vehicle_scope_resolved",
-        "s505a_vehicle_classes": "s505a_vehicle_classes",
-        "exceptions": "supplementary_exceptions",
-        "sign_effective_scope_confirmed": "sign_effective_scope_confirmed",
-    }
-    normalized_units = {
-        "speed_limit_value": "km/h",
-        "minimum_speed_limit_kmh": "km/h",
-        "total_weight_limit_t": "t",
-        "axle_load_limit_t": "t",
-        "payload_limit_t": "t",
-        "height_limit_m": "m",
-        "width_limit_m": "m",
-        "length_limit_m": "m",
-        "combination_length_limit_m": "m",
-        "minimum_following_distance_m": "m",
-        "passenger_seat_limit": "seats",
-    }
-    result: list[ContextFact] = []
-    main_numeric_ocr_facts = (
-        extract_main_sign_context_facts(observation, subject_id=subject_id)
-        if observation.sign_code and not observation.sign_code.upper().startswith("S.")
-        else []
-    )
-    numeric_ocr_predicates = {
-        FACT_PREDICATE_ALIASES.get(item.predicate, item.predicate)
-        for item in main_numeric_ocr_facts
-    }
-    normalized_field_predicates = {
-        "speed_limit_value": "maximum_speed",
-        "minimum_speed_limit_kmh": "minimum_speed",
-        "total_weight_limit_t": "maximum_vehicle_mass",
-        "axle_load_limit_t": "maximum_axle_load",
-        "payload_limit_t": "maximum_payload_mass",
-        "height_limit_m": "maximum_vehicle_height",
-        "width_limit_m": "maximum_vehicle_width",
-        "length_limit_m": "maximum_vehicle_length",
-        "combination_length_limit_m": "maximum_combination_length",
-        "minimum_following_distance_m": "minimum_distance",
-    }
-    fields = observation.visual_attributes.get("normalized_conditions", {})
-    if isinstance(fields, dict):
-        for source_key, predicate in normalized_fields.items():
-            # P.121's minimum distance must come from OCR of its displayed
-            # number. Ignore pre-normalized values so conflicting OCR remains
-            # ambiguous and cannot be turned into a firm prohibition.
-            if (
-                normalize_sign_code(observation.sign_code) == "P.121"
-                and source_key == "minimum_following_distance_m"
-            ):
-                continue
-            if source_key in fields:
-                if normalized_field_predicates.get(source_key, predicate) in numeric_ocr_predicates:
-                    continue
-                result.append(ContextFact(
-                    fact_id=f"{observation.observation_id}:{predicate}",
-                    predicate=predicate,
-                    value=fields[source_key],
-                    status="derived",
-                    source=(
-                        "yolo26s_class_attribute"
-                        if observation.source == "yolo26s_vtsdb100"
-                        else source
-                    ),
-                    confidence=observation.confidence,
-                    evidence=observation.evidence,
-                    unit=normalized_units.get(source_key),
-                    metadata={
-                        "subject_observation_id": subject_id,
-                        "source_observation_id": observation.observation_id,
-                        "relation_id": relation_id,
-                    },
-                ))
-    for index, ocr_item in enumerate(observation.ocr_texts):
-        ocr_confidence = normalize_confidence(ocr_item.get("confidence"))
-        raw_text = ocr_item.get("raw_text")
-        result.append(ContextFact(
-            fact_id=f"{observation.observation_id}:ocr:{index}",
-            predicate="sign_text" if observation.observation_id == subject_id else "supplementary_text",
-            value=ocr_item.get("normalized_value", ocr_item.get("raw_text")),
-            status=("observed" if ocr_confidence in {"high", "medium"} else "ambiguous")
-            if raw_text else "unknown",
-            source="ocr",
-            raw_text=raw_text,
-            confidence=ocr_confidence,
-            evidence=observation.evidence,
-            metadata={
-                "subject_observation_id": subject_id,
-                "source_observation_id": observation.observation_id,
-                "relation_id": relation_id,
-            },
-        ))
-    if observation.sign_code and observation.sign_code.upper().startswith("S."):
-        result.extend(extract_supplementary_context_facts(
-            observation, subject_id=subject_id, relation_id=relation_id
-        ))
-    elif observation.sign_code:
-        result.extend(main_numeric_ocr_facts)
-    result.extend(extract_sign_information_facts(
-        observation,
-        subject_id=subject_id,
-        relation_id=relation_id,
-    ))
-    template_facts = instantiate_sign_fact_templates(observation)
-    for template_fact in template_facts:
-        if template_fact.metadata.get("fill_from") == "ocr_or_detector_attribute":
-            template_predicate = FACT_PREDICATE_ALIASES.get(
-                template_fact.predicate, template_fact.predicate
-            )
-            observed_matches = [
-                fact for fact in result
-                if FACT_PREDICATE_ALIASES.get(fact.predicate, fact.predicate) == template_predicate
-            ]
-            if observed_matches:
-                # The observed OCR/detector fact supplies the value and status;
-                # the sign-code template supplies its unit and legal scope.
-                # This preserves OCR ambiguity while avoiding duplicate values.
-                for observed in observed_matches:
-                    if observed.unit is None:
-                        observed.unit = template_fact.unit
-                    observed.scope = {**template_fact.scope, **observed.scope}
-                    observed.conditions = {**template_fact.conditions, **observed.conditions}
-                continue
-        result.append(template_fact)
-    result.extend(instantiate_supplementary_template(observation))
-    return result
-
-
 def _supplementary_context(facts: TrafficFacts, main_sign: SignObservation) -> list[ContextFact]:
     observations = {item.observation_id: item for item in facts.sign_observations}
     linked = [
@@ -382,7 +207,7 @@ def _supplementary_context(facts: TrafficFacts, main_sign: SignObservation) -> l
             )
         ):
             continue
-        result.extend(_observation_context_facts(
+        result.extend(observation_context_facts(
             supplementary,
             subject_id=main_sign.observation_id,
             relation_id=relation.relation_id,
@@ -845,14 +670,15 @@ def _context_facts(
     main_sign: SignObservation | None = None,
 ) -> list[ContextFact]:
     main_id = main_sign.observation_id if main_sign else None
+    explicit_query_facts = list(query_facts)
     context = [
         item for item in facts.context_facts
         if not item.metadata.get("subject_observation_id")
         or item.metadata.get("subject_observation_id") == main_id
     ]
-    context.extend(query_facts)
+    context.extend(explicit_query_facts)
     if main_sign:
-        context.extend(_observation_context_facts(main_sign, subject_id=main_sign.observation_id))
+        context.extend(observation_context_facts(main_sign, subject_id=main_sign.observation_id))
         context.extend(_supplementary_context(facts, main_sign))
         context.extend(_s505b_row_limit_map_facts(context, main_sign))
         context.extend(_s505c_limit_map_facts(context, main_sign))
@@ -894,6 +720,10 @@ def _context_facts(
                 confidence="high",
                 metadata={"subject_observation_id": main_sign.observation_id},
             ))
+    # Explicit values in the question take precedence over values inferred
+    # from the sign image (for example, asking about an odd date on a sign
+    # that restricts parking on odd days).
+    context.extend(explicit_query_facts)
     return context
 
 
@@ -986,10 +816,18 @@ def _value_for(predicate: str, context: list[ContextFact]) -> tuple[Any, Context
 def _condition_result(condition: RuleCondition, context: list[ContextFact]) -> tuple[str, Any, str | None]:
     value, fact = _value_for(condition.predicate, context)
     if fact is None:
-        return ("missing" if condition.required else "satisfied", None, None)
+        # Optional conditions may be irrelevant for fixed-outcome rules, but
+        # still need to report absence so a conditional threshold rule cannot
+        # mistake an unknown comparison for permission.
+        return "missing", None, None
     if condition.operator == "exists":
         return ("satisfied" if value not in (None, "", []) else "missing", value, fact.fact_id)
     if condition.operator == "equals":
+        if condition.predicate in {"calendar_parity", "sign_applicability_calendar_parity"}:
+            aliases = {"odd": "odd_days", "even": "even_days"}
+            value = aliases.get(value, value)
+            expected = aliases.get(condition.expected_value, condition.expected_value)
+            return ("satisfied" if value == expected else "mismatch", value, fact.fact_id)
         return ("satisfied" if value == condition.expected_value else "mismatch", value, fact.fact_id)
     if condition.operator == "equals_fact":
         other_value, other_fact = _value_for(str(condition.expected_value or ""), context)
@@ -1169,6 +1007,53 @@ def _resolve_effects(rule: TrafficRule, context: list[ContextFact]) -> list[Rule
     return resolved
 
 
+def _permission_effect_scope_state(
+    rule: TrafficRule,
+    actor: str,
+    context: list[ContextFact],
+) -> tuple[list[str], list[str], list[dict[str, Any]]]:
+    """Check that any declared permission effect is limited to a known scope.
+
+    Rule effects remain declarative: a location list reads the actor's
+    ``<actor>_location`` fact, while ``*_fact`` scope entries name the fact
+    that must establish that part of the permission.
+    """
+    missing: list[str] = []
+    mismatched: list[str] = []
+    trace: list[dict[str, Any]] = []
+    for effect in rule.effects:
+        if effect.effect_type not in {"permit_action", "allow_direction"}:
+            continue
+        scope = effect.scope if isinstance(effect.scope, dict) else {}
+        for key, requirement in scope.items():
+            if key == "location" and isinstance(requirement, (list, tuple, set)):
+                predicate = f"{actor}_location"
+                value, fact = _value_for(predicate, context)
+                if fact is None:
+                    missing.append(predicate)
+                    trace.append({"predicate": predicate, "state": "missing", "scope": list(requirement)})
+                elif value not in requirement:
+                    mismatched.append(predicate)
+                    trace.append({"predicate": predicate, "state": "mismatch", "value": value,
+                                  "scope": list(requirement), "fact_id": fact.fact_id})
+                else:
+                    trace.append({"predicate": predicate, "state": "satisfied", "value": value,
+                                  "fact_id": fact.fact_id})
+            elif key.endswith("_fact") and isinstance(requirement, str):
+                value, fact = _value_for(requirement, context)
+                if fact is None:
+                    missing.append(requirement)
+                    trace.append({"predicate": requirement, "state": "missing"})
+                elif value is False:
+                    mismatched.append(requirement)
+                    trace.append({"predicate": requirement, "state": "mismatch", "value": value,
+                                  "fact_id": fact.fact_id})
+                else:
+                    trace.append({"predicate": requirement, "state": "satisfied", "value": value,
+                                  "fact_id": fact.fact_id})
+    return list(dict.fromkeys(missing)), list(dict.fromkeys(mismatched)), trace
+
+
 def _evaluate_candidate(
     rule: TrafficRule,
     intent: Intent,
@@ -1220,6 +1105,7 @@ def _evaluate_candidate(
     matched: list[str] = []
     trace: list[dict[str, Any]] = []
     skipped_unobservable: list[str] = []
+    condition_states: list[tuple[RuleCondition, str]] = []
     decision = rule.outcome
     for condition in rule.conditions:
         _, condition_fact = _value_for(condition.predicate, context)
@@ -1235,12 +1121,13 @@ def _evaluate_candidate(
             })
             continue
         state, value, fact_id = _condition_result(condition, context)
+        condition_states.append((condition, state))
         trace.append({"predicate": condition.predicate, "state": state, "value": value})
         if state == "satisfied":
             if fact_id:
                 matched.append(fact_id)
         elif state == "missing":
-            if condition.required:
+            if condition.required or rule.outcome == "CONDITIONAL":
                 missing.append(
                     "motorcycle_or_moped_subtype"
                     if condition.predicate == "actor_vehicle_category"
@@ -1418,6 +1305,53 @@ def _evaluate_candidate(
             "required_for_definitive_permission_assessment": True,
         })
 
+    scope_missing, scope_mismatches, scope_trace = _permission_effect_scope_state(
+        rule, intent.actor.value, context,
+    )
+    trace.extend({"step": "permission_effect_scope", **item} for item in scope_trace)
+    if scope_mismatches:
+        return RuleEvaluation(
+            rule_id=rule.rule_id,
+            intent_id=intent.intent_id,
+            observation_ids=[observation.observation_id],
+            decision="UNKNOWN",
+            status="not_applicable",
+            matched_facts=matched,
+            legal_basis=rule.legal_basis,
+            reason="Dữ kiện đã biết nằm ngoài phạm vi cho phép của rule; không thể suy ra quyền từ hiệu ứng này.",
+            confidence="high",
+            trace=trace,
+            verification_status=rule.verification_status,
+        )
+    if scope_missing:
+        missing.extend(scope_missing)
+        decision = "CONDITIONAL"
+
+    # A conditional threshold rule becomes ALLOWED only after its comparison
+    # facts are present and the comparison has passed. A missing measurement
+    # must stay conditional; it must never be treated as proof of permission.
+    passed_prohibitive_threshold = any(
+        condition.operator in {
+            "lte_fact", "gte_fact", "gt_fact", "lt_fact",
+            "lte", "gte", "gt", "lt",
+        }
+        and condition.on_mismatch == "PROHIBITED"
+        and state == "satisfied"
+        for condition, state in condition_states
+    )
+    if (
+        rule.outcome == "CONDITIONAL"
+        and decision == "CONDITIONAL"
+        and passed_prohibitive_threshold
+        and not missing
+        and not skipped_unobservable
+    ):
+        decision = "ALLOWED"
+        trace.append({
+            "step": "generic_threshold_evaluation",
+            "state": "within_limit",
+        })
+
     conditions_incomplete = bool(missing)
     decision_scope_unresolved = bool(
         set(skipped_unobservable).intersection(UNOBSERVABLE_DECISION_SCOPE_PREDICATES)
@@ -1501,14 +1435,6 @@ def _evaluate_candidate(
                         f"Tốc độ được hỏi ({requested:g} km/h) không thấp hơn mức tối thiểu "
                         f"trên biển ({minimum:g} km/h); rule này không kết luận cấm."
                     )
-
-    if intent.kind == "CHECK_PERMISSION" and decision == "CONDITIONAL":
-        decision = "ALLOWED"
-        reason = "Rule không xác nhận căn cứ cấm với dữ kiện hiện có."
-        trace.append({
-            "step": "binary_permission_outcome",
-            "state": "no_prohibition_from_this_rule",
-        })
 
     incomplete = bool(missing)
     return RuleEvaluation(

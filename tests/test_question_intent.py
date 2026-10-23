@@ -33,11 +33,11 @@ class QueryIntentTest(unittest.TestCase):
             ),
             (
                 "Biển báo trong ảnh này có ý nghĩa gì?",
-                {"kind": "INFORMATION", "information_type": "sign_meaning", "target": "scene"},
+                {"kind": "INFORMATION", "information_type": "sign_meaning", "requested_fact": "legal_meaning", "target": "scene"},
             ),
             (
                 "Biển này cấm những phương tiện nào?",
-                {"kind": "INFORMATION", "information_type": "prohibited_subjects", "target": "scene"},
+                {"kind": "INFORMATION", "information_type": "prohibited_subjects", "requested_fact": "prohibited_actor", "target": "scene"},
             ),
             (
                 "Đi sai làn thì mức phạt là bao nhiêu?",
@@ -116,6 +116,23 @@ class QueryIntentTest(unittest.TestCase):
             ["INFORMATION", "CHECK_PERMISSION"],
         )
         self.assertEqual(query.query_intent.intents[0].information_type, "sign_meaning")
+
+    def test_stopping_here_is_parsed_as_permission_check(self) -> None:
+        intent = parse_query_intent_deterministic(
+            "Xe ô tô có được dừng ở đây không?"
+        ).query_intent.intents[0]
+        self.assertEqual(intent.kind, "CHECK_PERMISSION")
+        self.assertEqual(intent.action.value, "stopping")
+        self.assertEqual(intent.actor.value, "automobile")
+
+    def test_vehicle_weight_in_permission_question_is_not_duplicate_information_intent(self) -> None:
+        query = parse_query_intent_deterministic(
+            "Xe tải có tải trọng chuyên chở 3 tấn có được đi vào không?"
+        )
+        self.assertEqual([item.kind for item in query.query_intent.intents], ["CHECK_PERMISSION"])
+        intent = query.query_intent.intents[0]
+        self.assertEqual(intent.action.value, "entering")
+        self.assertEqual(intent.actor.value, "truck")
 
     def test_permission_defaults_to_a_system_clock_fact(self) -> None:
         now = datetime(2026, 10, 5, 8, 30, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))

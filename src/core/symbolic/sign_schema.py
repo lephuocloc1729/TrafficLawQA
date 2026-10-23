@@ -74,7 +74,9 @@ class SymbolicDecision(SerializableMixin):
             self.rules_fired = [
                 str(item.get("rule_id"))
                 for item in self.rule_evaluations
-                if item.get("rule_id") and item.get("status") == "applied"
+                if item.get("rule_id")
+                and item.get("rule_id") != "FACT_COMPARISON"
+                and item.get("status") == "applied"
             ]
 
 

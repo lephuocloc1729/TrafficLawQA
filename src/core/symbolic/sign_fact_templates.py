@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from src.core.symbolic.fact_schema import ContextFact, SignObservation
+from src.core.symbolic.condition_facts import expand_condition_facts
 from src.core.symbolic.sign_normalizer import normalize_sign_code
 
 
@@ -36,6 +37,30 @@ def _code_template(sign_code: str) -> dict[str, Any]:
                 by_predicate.setdefault(str(fact.get("predicate")), []).append(fact)
     facts: list[dict[str, Any]] = []
     for predicate, variants in by_predicate.items():
+        if predicate == "conditions":
+            by_condition: dict[str, list[dict[str, Any]]] = {}
+            for variant in variants:
+                for condition in expand_condition_facts([variant]):
+                    condition_type = condition.get("predicate")
+                    if condition_type:
+                        by_condition.setdefault(condition_type, []).append(condition)
+            merged_conditions: dict[str, Any] = {}
+            for condition_predicate, condition_variants in by_condition.items():
+                template_condition = {
+                    key: value for key, value in condition_variants[0].items()
+                    if key != "predicate"
+                }
+                invariant = all(
+                    item.get("value") == template_condition.get("value")
+                    for item in condition_variants
+                )
+                if template_condition.get("fill_from") == "ocr_or_detector_attribute" or not invariant:
+                    template_condition["value"] = None
+                    template_condition["status"] = "not_observed"
+                    template_condition["confidence"] = "low"
+                merged_conditions[condition_predicate] = template_condition
+            facts.append({"predicate": "conditions", "value": merged_conditions})
+            continue
         # Preserve a value only when it is invariant across all detector classes
         # for the same canonical code. Numeric variants otherwise stay blank.
         first_value = variants[0].get("value")
@@ -56,6 +81,37 @@ def _code_template(sign_code: str) -> dict[str, Any]:
 
 
 def _overlay_class_attributes(fact: dict[str, Any], attributes: dict[str, Any]) -> dict[str, Any]:
+    if fact.get("predicate") == "conditions" and isinstance(fact.get("value"), dict):
+        by_predicate = {
+            "maximum_payload_mass": ("payload_limit_t",),
+            "maximum_vehicle_mass": ("total_weight_limit_t",),
+            "maximum_axle_load": ("axle_load_limit_t",),
+            "maximum_vehicle_height": ("height_limit_m",),
+            "maximum_vehicle_width": ("width_limit_m",),
+            "maximum_vehicle_length": ("length_limit_m",),
+            "maximum_speed": ("speed_limit_value", "speed_limit_kmh"),
+            "minimum_speed": ("minimum_speed_limit_kmh", "min_speed_kmh"),
+        }
+        changed = False
+        values = dict(fact["value"])
+        for condition_predicate, raw in values.items():
+            entries = raw if isinstance(raw, list) else [raw]
+            updated = []
+            for item in entries:
+                if not isinstance(item, dict) or item.get("fill_from") != "ocr_or_detector_attribute":
+                    updated.append(item)
+                    continue
+                value = next((
+                    attributes.get(key) for key in by_predicate.get(condition_predicate, ())
+                    if attributes.get(key) is not None
+                ), None)
+                if value is None:
+                    updated.append(item)
+                else:
+                    updated.append({**item, "value": value, "status": "derived", "confidence": "high"})
+                    changed = True
+            values[condition_predicate] = updated if isinstance(raw, list) else updated[0]
+        return {**fact, "value": values} if changed else fact
     if fact.get("fill_from") != "ocr_or_detector_attribute":
         return fact
     attribute_by_predicate = {

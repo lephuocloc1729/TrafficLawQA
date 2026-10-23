@@ -344,14 +344,14 @@ class TrafficFacts(SerializableMixin):
         # Facts extracted from OCR and normalized sign attributes are computed by
         # the reasoning layer. Include them in the public fact payload as well.
         try:
-            from src.core.symbolic.traffic_rules import _observation_context_facts
+            from src.core.symbolic.sign_fact_resolver import observation_context_facts
 
             for observation_index, observation in enumerate(self.sign_observations):
                 existing = {
                     (fact.get("predicate"), str(fact.get("value")))
                     for fact in signs[observation_index]["facts"]
                 }
-                for fact in _observation_context_facts(
+                for fact in observation_context_facts(
                     observation, subject_id=observation.observation_id
                 ):
                     # The OCR transcription is already preserved under
@@ -364,7 +364,7 @@ class TrafficFacts(SerializableMixin):
                         signs[observation_index]["facts"].append(compact)
                         existing.add(fingerprint)
         except ImportError:
-            # Schema serialization remains available if the optional rule layer
+            # Schema serialization remains available if the optional fact resolver
             # cannot be imported (for example, while generating documentation).
             pass
 
@@ -409,6 +409,12 @@ class TrafficFacts(SerializableMixin):
                 fact for fact in panel_facts
                 if fact.get("predicate") != "active_time"
             ]
+
+        from src.core.symbolic.condition_facts import bundle_condition_facts
+
+        for sign in signs:
+            sign["facts"] = bundle_condition_facts(sign.get("facts", []))
+        scene_facts = bundle_condition_facts(scene_facts)
 
         return {
             "signs": signs,

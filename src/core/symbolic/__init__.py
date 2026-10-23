@@ -1,4 +1,4 @@
-"""Typed intent, fact and rule-engine primitives for traffic-law reasoning."""
+"""Typed intent, fact and permission-engine primitives for traffic reasoning."""
 
 from src.core.symbolic.fact_schema import ContextFact, SignObservation, SignRelation, TrafficFacts
 from src.core.symbolic.intent_schema import (
@@ -44,13 +44,16 @@ from src.core.symbolic.sign_normalizer import (
     sign_family,
 )
 from src.core.symbolic.sign_schema import ReasoningTrace, SymbolicDecision
-from src.core.symbolic.traffic_rules import (
-    TRAFFIC_RULEBOOK_METADATA,
-    TRAFFIC_RULES,
-    find_matching_rules,
-    load_rulebook,
-    vehicle_is_covered,
-)
+from src.core.symbolic.vehicle_taxonomy import vehicle_is_covered
+
+
+def __getattr__(name: str):
+    """Load legacy rulebook APIs only when a caller explicitly requests them."""
+    if name in {"TRAFFIC_RULEBOOK_METADATA", "TRAFFIC_RULES", "find_matching_rules", "load_rulebook"}:
+        from src.core.symbolic import traffic_rules
+
+        return getattr(traffic_rules, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 __all__ = [
     "ContextFact", "Intent", "IntentEvaluation", "IntentKind", "IntentParseResult", "IntentSlot", "IntentTarget",

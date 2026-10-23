@@ -44,14 +44,14 @@ def query(text: str):
 
 
 class ReasonerTest(unittest.TestCase):
-    def test_p102_permission_uses_the_binary_allowed_outcome_without_location(self) -> None:
+    def test_p102_permission_requires_location_fact_before_allowing(self) -> None:
         decision = decide_symbolically(
             facts("P.102"),
             "Người đi bộ có được đi ở đây không?",
             rules=reviewed_rules(),
         )
-        self.assertEqual(decision.decision, "ALLOWED")
-        self.assertIn(decision.rule_evaluations[0]["decision"], {"PROHIBITED", "ALLOWED"})
+        self.assertEqual(decision.decision, "CONDITIONAL")
+        self.assertIn("pedestrian_location", decision.rule_evaluations[0]["missing_facts"])
 
     def test_p102_pedestrian_permission_requires_sidewalk_or_road_shoulder_fact(self) -> None:
         parsed = query("Người đi bộ có được đi trên vỉa hè ở đây không?")
@@ -63,14 +63,15 @@ class ReasonerTest(unittest.TestCase):
         self.assertEqual(decision.decision, "ALLOWED")
         self.assertTrue(any("permit_action" in str(item) for item in decision.rule_evaluations))
 
-    def test_p102_carriageway_mismatch_does_not_create_a_third_outcome(self) -> None:
+    def test_p102_carriageway_is_outside_the_rule_permission_scope(self) -> None:
         parsed = query("Người đi bộ có được đi ở đây không?")
         parsed.context_facts.append(ContextFact(
             fact_id="location-2", predicate="pedestrian_location", value="carriageway",
             status="provided", source="test_fixture", confidence="high",
         ))
         decision = decide_symbolically(facts("P.102"), parsed, rules=reviewed_rules())
-        self.assertEqual(decision.decision, "ALLOWED")
+        self.assertEqual(decision.decision, "UNKNOWN")
+        self.assertEqual(decision.rule_evaluations[0]["status"], "not_applicable")
 
     def test_reasoner_returns_evaluation_trace(self) -> None:
         trace = reason_over_facts(facts("P.130"), "Xe ô tô có được phép đỗ tại đây không?", rules=reviewed_rules())
@@ -99,7 +100,7 @@ class ReasonerTest(unittest.TestCase):
             for item in decision.rule_evaluations[0]["trace"]
         ))
 
-    def test_in_scope_permission_rule_keeps_a_binary_result_and_trace(self) -> None:
+    def test_in_scope_permission_rule_preserves_missing_context_and_trace(self) -> None:
         decision = decide_symbolically(
             facts("I.401"),
             "Xe ô tô có được đi thẳng qua giao lộ này không?",
@@ -109,17 +110,18 @@ class ReasonerTest(unittest.TestCase):
             item for item in decision.rule_evaluations
             if item["rule_id"] == "I401_PRIORITY_ROAD_UNCONTROLLED_INTERSECTION_MEANING"
         )
-        self.assertIn(decision.decision, {"PROHIBITED", "ALLOWED"})
-        self.assertIn(evaluation["decision"], {"PROHIBITED", "ALLOWED"})
+        self.assertEqual(decision.decision, "CONDITIONAL")
+        self.assertEqual(evaluation["decision"], "CONDITIONAL")
 
     def test_permission_uses_default_system_clock_if_user_omits_time(self) -> None:
         decision = decide_symbolically(facts("P.131b"), query("Xe ô tô có được đỗ không?"), rules=reviewed_rules())
         self.assertEqual(decision.decision, "PROHIBITED")  # injected date is an odd day
         self.assertTrue(decision.rules_fired)
 
-    def test_opposite_parity_sign_is_allowed_for_that_calendar_day(self) -> None:
+    def test_opposite_parity_sign_is_not_a_scene_wide_permission_proof(self) -> None:
         decision = decide_symbolically(facts("P.131b"), query("Ngày chẵn, xe ô tô có được đỗ không?"), rules=reviewed_rules())
-        self.assertEqual(decision.decision, "ALLOWED")
+        self.assertEqual(decision.decision, "UNKNOWN")
+        self.assertTrue(all(item["status"] == "not_applicable" for item in decision.rule_evaluations))
 
     def test_unreviewed_rules_with_basis_can_execute(self) -> None:
         decision = decide_symbolically(facts("P.130"), "Xe ô tô có được đỗ tại đây không?")
@@ -141,7 +143,7 @@ class ReasonerTest(unittest.TestCase):
             "source": "test_fixture", "evidence": "fixture explicitly includes both signs"
         }])
         decision = decide_symbolically(both, query("Ngày lẻ, xe ô tô có được đỗ không?"), rules=reviewed_rules())
-        self.assertEqual(decision.decision, "PROHIBITED")
+        self.assertIn("PROHIBITED", {item["decision"] for item in decision.intent_evaluations})
 
     def test_unrelated_sign_does_not_block_matching_turn_left_rule(self) -> None:
         relevant = normalize_payload_to_observation({"sign_code": "R.301e", "image_name": "turn-left.jpg"})
@@ -182,9 +184,9 @@ class ReasonerTest(unittest.TestCase):
         self.assertEqual(result["status"], "unverified")
         self.assertTrue(result["legal_basis"][0]["source_url"].startswith("https://datafiles.chinhphu.vn/"))
 
-    def test_unmatched_sign_uses_binary_verdict_and_keeps_coverage_gap(self) -> None:
+    def test_unmatched_sign_stays_unknown_and_keeps_coverage_gap(self) -> None:
         decision = decide_symbolically(facts("P.999"), query("Xe ô tô có được đỗ không?"))
-        self.assertEqual(decision.decision, "ALLOWED")
+        self.assertEqual(decision.decision, "UNKNOWN")
         self.assertEqual(decision.rules_fired, [])
         gap = next(item for item in decision.rule_evaluations if item["rule_id"].startswith("COVERAGE_GAP_"))
         self.assertIn("sign_rule_coverage:P.999", gap["missing_facts"])
@@ -250,11 +252,44 @@ class ReasonerTest(unittest.TestCase):
     def test_context_output_exposes_new_intent_and_fact_schemas(self) -> None:
         context = build_symbolic_reasoning_context(facts("P.131a"), "Xe ô tô có được đỗ không?")
         self.assertEqual(context["query_intent"]["schema_version"], "3.0")
-        self.assertEqual(context["facts"]["sign_observations"][0]["identity"]["sign_code"], "P.131a")
+        self.assertEqual(context["facts"]["signs"][0]["code"], "P.131a")
         self.assertEqual(context["symbolic_decision"]["decision"], "PROHIBITED")
         self.assertEqual(context["sign_meaning_evaluations"], [])
         self.assertNotIn("legal_review_required", context["rule_evaluations"][0]["missing_facts"])
         self.assertIn("intent_evaluations", context["symbolic_decision"])
+
+    def test_one_generic_threshold_logic_checks_p115_gross_weight(self) -> None:
+        scene = facts("P.115")
+        scene.context_facts.append(ContextFact(
+            fact_id="p115-limit", predicate="total_weight_limit_t", value=10,
+            status="observed", source="test_fixture", confidence="high", unit="t",
+        ))
+        over_limit = decide_symbolically(
+            scene,
+            query("Xe tải có tổng khối lượng 12 tấn có được đi qua đường này không?"),
+            rules=reviewed_rules(),
+        )
+        within_limit = decide_symbolically(
+            scene,
+            query("Xe tải có tổng khối lượng 8 tấn có được qua cầu không?"),
+            rules=reviewed_rules(),
+        )
+        self.assertEqual(over_limit.decision, "PROHIBITED")
+        self.assertEqual(within_limit.decision, "ALLOWED")
+        self.assertIn("P115_TOTAL_WEIGHT_LIMIT", over_limit.rules_fired)
+        self.assertIn("P115_TOTAL_WEIGHT_LIMIT", within_limit.rules_fired)
+
+    def test_missing_or_ambiguous_vehicle_mass_never_means_allowed(self) -> None:
+        scene = facts("P.115")
+        scene.context_facts.append(ContextFact(
+            fact_id="p115-limit", predicate="total_weight_limit_t", value=10,
+            status="observed", source="test_fixture", confidence="high", unit="t",
+        ))
+        decision = decide_symbolically(
+            scene, query("Xe tải 2 tấn có được lên cầu không?"), rules=reviewed_rules(),
+        )
+        self.assertEqual(decision.decision, "CONDITIONAL")
+        self.assertIn("vehicle_gross_weight_t", decision.rule_evaluations[0]["missing_facts"])
 
 
 if __name__ == "__main__":

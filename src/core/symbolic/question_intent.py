@@ -16,6 +16,7 @@ from src.core.symbolic.intent_schema import (
     VALID_INTENT_KINDS,
     normalize_intent_kind,
 )
+from src.core.symbolic.condition_facts import CONDITION_PREDICATES
 from src.core.symbolic.sign_schema import normalize_confidence
 
 
@@ -120,7 +121,7 @@ INFORMATION_SCOPE_PHRASES = (
 )
 ACTION_PATTERNS = (
     ("parking", ("do xe", "dau xe", "dung do", "duoc do", "phep do", "cam do", "do tai", "do khong")),
-    ("stopping", ("dung xe", "tam dung", "dung tai", "dung don", "phai dung", "bat buoc dung", "co can dung", "co phai dung")),
+    ("stopping", ("dung xe", "tam dung", "dung tai", "dung don", "dung o day", "duoc dung o day", "co duoc dung", "phai dung", "bat buoc dung", "co can dung", "co phai dung")),
     ("yielding", ("nhuong duong", "nhuong quyen di truoc", "phai nhuong", "co phai nhuong")),
     ("turn_left", ("re trai", "queo trai", "quay dau sang trai")),
     ("turn_right", ("re phai", "queo phai")),
@@ -132,8 +133,8 @@ ACTION_PATTERNS = (
     ("speed", ("toc do", "van toc", "gioi han toc do", "chay bao nhieu", "chay cham", "chay duoi", "chay thap hon")),
     ("roundabout_circulation", ("chay vong xuyen", "di vong xuyen", "chay vong theo dao", "chay vong quanh dao", "di vong quanh dao", "chay theo huong mui ten")),
     ("passing_obstacle", ("di vong", "vong ben trai", "vong ben phai", "vong qua chuong ngai vat", "di qua ben trai chuong ngai vat", "di qua ben phai chuong ngai vat", "di qua chuong ngai vat", "tranh chuong ngai vat")),
-    ("crossing", ("qua duong", "sang duong", "cat ngang")),
-    ("circulation", ("luu thong", "di qua", "duoc di", "duoc chay", "tham gia giao thong")),
+    ("crossing", ("bang qua duong", "sang duong", "cat ngang")),
+    ("circulation", ("luu thong", "di qua", "qua cau", "len cau", "vao cau", "duoc di", "duoc chay", "tham gia giao thong")),
     ("overtaking", ("vuot xe", "vuot phuong tien")),
     ("reversing", ("lui xe", "di lui", "chay lui")),
     ("lane_change", ("chuyen lan", "doi lan")),
@@ -164,6 +165,18 @@ VEHICLE_COMBINATION_LENGTH_RE = re.compile(
     r"(?<!\w)(?:tong\s+chieu\s+dai\s+(?:doan\s+xe|xe)|"
     r"chieu\s+dai\s+doan\s+xe|doan\s+xe\s+dai)"
     r"\s*(?:la|=|:)?\s*(\d{1,2}(?:[.,]\d{1,2})?)\s*(?:m|met)\b",
+    re.I,
+)
+VEHICLE_GROSS_MASS_RE = re.compile(
+    r"(?<!\w)(?:tong\s+khoi\s+luong(?:\s+(?:toan\s+bo\s+)?xe)?|"
+    r"trong\s+tai\s+toan\s+bo(?:\s+cua\s+xe)?|tong\s+trong\s+tai)"
+    r"\s*(?:la|=|:)?\s*(\d{1,4}(?:[.,]\d{1,2})?)\s*(?:t|tan)\b",
+    re.I,
+)
+VEHICLE_PAYLOAD_MASS_RE = re.compile(
+    r"(?<!\w)(?:khoi\s+luong\s+chuyen\s+cho|tai\s+trong\s+chuyen\s+cho|"
+    r"tai\s+trong\s+hang\s+hoa|kha\s+nang\s+cho)"
+    r"\s*(?:la|=|:)?\s*(\d{1,4}(?:[.,]\d{1,2})?)\s*(?:t|tan)\b",
     re.I,
 )
 SIGN_CODE_RE = re.compile(
@@ -282,6 +295,13 @@ def extract_action(question: str) -> str:
     text = normalize_question_text(question)
     if SPEED_VALUE_RE.search(question or ""):
         return "speed"
+    # In vehicle-permission questions, “đi qua đường/cầu” means travelling
+    # along/across the regulated segment. Reserve crossing for pedestrian
+    # crossing wording such as “băng qua đường”.
+    if any(_contains(text, phrase) for phrase in ("qua cau", "len cau", "vao cau")):
+        return "circulation"
+    if any(_contains(text, phrase) for phrase in ("nguoi di bo", "nguoi di bo duong")) and _contains(text, "qua duong"):
+        return "crossing"
     return next((action for action, phrases in ACTION_PATTERNS if any(_contains(text, p) for p in phrases)), "unknown")
 
 
@@ -464,6 +484,31 @@ def _resolve_query_datetime(
 def _context_facts(question: str, intent_kinds: list[str], now: datetime | None, timezone_name: str) -> list[dict[str, Any]]:
     text = normalize_question_text(question)
     facts: list[dict[str, Any]] = []
+    # Keep gross mass and payload capacity separate. Bare wording such as
+    # “xe tải 2 tấn” is ambiguous, so only explicit measurement phrases become
+    # comparison inputs for permission rules.
+    for predicate, pattern, extraction in (
+        ("vehicle_gross_weight_t", VEHICLE_GROSS_MASS_RE, "explicit_vehicle_gross_mass"),
+        ("vehicle_payload_t", VEHICLE_PAYLOAD_MASS_RE, "explicit_vehicle_payload_mass"),
+    ):
+        readings = _measurement_readings(question, pattern)
+        if readings:
+            distinct_values = set(readings)
+            unambiguous = len(distinct_values) == 1
+            facts.append({
+                "fact_id": f"query-{predicate.replace('_', '-')}",
+                "predicate": predicate,
+                "value": next(iter(distinct_values)) if unambiguous else None,
+                "status": "provided" if unambiguous else "ambiguous",
+                "source": "user_query",
+                "raw_text": question,
+                "confidence": "high" if unambiguous else "low",
+                "metadata": {
+                    "unit": "t",
+                    "extraction": extraction,
+                    "conflicting_values": sorted(distinct_values) if not unambiguous else [],
+                },
+            })
     height_readings = _vehicle_height_readings(question)
     if height_readings:
         distinct_values = set(height_readings)
@@ -676,6 +721,12 @@ def _intent_kinds(question: str, action: str) -> list[str]:
             "xu phat", "vi pham se bi gi", "phat the nao", "bi phat the nao",
         )
     ) or bool(re.search(r"\bvi pham\b.*\bbi gi\b", text))
+    # A threshold mentioned as part of a yes/no vehicle question (for example,
+    # "xe tải 3 tấn có được đi vào không?") is an input to permission checking,
+    # not a second INFORMATION request. Keep explicit information questions,
+    # including mixed questions that also ask for sign meaning or time.
+    if asks_yes_no_permission and action != "unknown" and _information_type(question) is None:
+        found = [kind for kind in found if kind != "INFORMATION"]
     if (
         action != "unknown"
         and any(_contains(text, p) for p in PERMISSION_TERMS)
@@ -735,6 +786,8 @@ def _requested_fact(question: str, information_type: str | None = None) -> str |
         return "maximum_speed"
     if any(term in text for term in ("chieu cao toi da", "chieu cao an toan", "xe cao toi da")):
         return "maximum_vehicle_height"
+    if "xe tai" in text and any(term in text for term in ("bao nhieu tan", "tai trong")):
+        return "maximum_payload_mass"
     if any(term in text for term in ("tai trong toi da", "xe tren bao nhieu tan", "bao nhieu tan")):
         return "maximum_vehicle_mass"
     if any(term in text for term in ("so cho toi da", "toi da bao nhieu cho", "suc chua toi da")):
@@ -764,15 +817,20 @@ def _requested_fact(question: str, information_type: str | None = None) -> str |
 
 def _information_filters(question: str, actor: str, action: str, requested_fact: str | None) -> dict[str, Any]:
     filters: dict[str, Any] = {}
+    effective_fact = _requested_fact(question) if requested_fact == "conditions" else requested_fact
     if actor != "unknown":
         filters["vehicle_type"] = actor
-    if action != "unknown" and requested_fact in {"active_time", "prohibition_active_time"}:
+    if action != "unknown" and effective_fact in {"active_time", "prohibition_active_time"}:
         filters["action"] = action
     text = normalize_question_text(question)
     if requested_fact == "minimum_distance" and any(term in text for term in (
         "giua hai xe", "giua cac xe", "theo sau", "giu khoang cach",
     )):
         filters["distance_kind"] = "following_distance"
+    if effective_fact in CONDITION_PREDICATES:
+        filters["condition_type"] = effective_fact
+    elif effective_fact == "speed_limit":
+        filters["condition_type"] = "speed_limit"
     return filters
 
 
@@ -837,10 +895,26 @@ def parse_query_intent_deterministic(
         if explicit_sign_codes
         else IntentTarget(kind="scene" if refers_to_scene else "unresolved")
     )
+    query_facts = _context_facts(question, kinds, now, timezone_name)
+    intent_conditions = {
+        item["predicate"]: {
+            "value": item.get("value"),
+            **({"unit": item["metadata"].get("unit")} if item.get("metadata", {}).get("unit") else {}),
+        }
+        for item in query_facts
+        if item.get("source") == "user_query"
+        and item.get("status") == "provided"
+    }
     intents = []
     for index, kind in enumerate(kinds):
         info_type = _information_type(question) if kind == "INFORMATION" else None
         requested_fact = _requested_fact(question, info_type) if kind == "INFORMATION" else None
+        information_condition = requested_fact
+        information_filters = _information_filters(
+            question, vehicle_value, action_value, information_condition
+        ) if kind == "INFORMATION" else {}
+        if requested_fact in CONDITION_PREDICATES or requested_fact == "speed_limit":
+            requested_fact = "conditions"
         intents.append(Intent(
             intent_id=f"intent-{index + 1}",
             kind=kind,
@@ -850,8 +924,8 @@ def parse_query_intent_deterministic(
             requested_answer=_requested_answer(kind, action_value, question),
             information_type=info_type,
             requested_fact=requested_fact,
-            filters=_information_filters(question, vehicle_value, action_value, requested_fact)
-            if kind == "INFORMATION" else {},
+            filters=information_filters,
+            conditions=intent_conditions,
         ))
     return IntentParseResult(
         schema_version="3.0",
@@ -862,7 +936,7 @@ def parse_query_intent_deterministic(
             intents=intents,
             parser={"method": "deterministic", "confidence": "medium"},
         ),
-        context_facts=_context_facts(question, kinds, now, timezone_name),
+        context_facts=query_facts,
     )
 
 
@@ -929,6 +1003,19 @@ def _validate_llm_query(payload: dict[str, Any], question: str, now: datetime | 
         filters = item.get("filters") if isinstance(item.get("filters"), dict) else {}
         filters = dict(filters)
         if kind == "INFORMATION":
+            inferred_fact = _requested_fact(question, information_type)
+            if requested_fact in CONDITION_PREDICATES:
+                filters.setdefault("condition_type", requested_fact)
+                requested_fact = "conditions"
+            elif requested_fact == "conditions":
+                condition_type = inferred_fact if inferred_fact in CONDITION_PREDICATES or inferred_fact == "speed_limit" else None
+                if condition_type:
+                    filters.setdefault("condition_type", condition_type)
+            elif inferred_fact in CONDITION_PREDICATES or inferred_fact == "speed_limit":
+                filters.setdefault("condition_type", inferred_fact)
+                requested_fact = "conditions"
+        intent_conditions = item.get("conditions") if isinstance(item.get("conditions"), dict) else {}
+        if kind == "INFORMATION":
             inferred_filters = _information_filters(question, actor_value, action_value, requested_fact)
             for key, value in inferred_filters.items():
                 filters.setdefault(key, value)
@@ -942,6 +1029,7 @@ def _validate_llm_query(payload: dict[str, Any], question: str, now: datetime | 
             information_type=information_type,
             requested_fact=requested_fact,
             filters=filters,
+            conditions=intent_conditions,
         ))
 
     if not parsed_intents:
@@ -958,6 +1046,17 @@ def _validate_llm_query(payload: dict[str, Any], question: str, now: datetime | 
         ]
         if not any(item.get("predicate") in {"observed_at", "calendar_parity", "temporal_reference"} for item in context_facts):
             context_facts.extend(_context_facts(question, [item.kind for item in parsed_intents], now, timezone_name))
+    query_conditions = {
+        item["predicate"]: {
+            "value": item.get("value"),
+            **({"unit": item.get("metadata", {}).get("unit")} if isinstance(item.get("metadata"), dict) and item.get("metadata", {}).get("unit") else {}),
+        }
+        for item in context_facts
+        if item.get("source") == "user_query" and item.get("status") == "provided"
+    }
+    for parsed in parsed_intents:
+        if not parsed.conditions:
+            parsed.conditions = query_conditions
     return IntentParseResult(
         schema_version="3.0",
         query_intent=QueryIntent(
@@ -992,16 +1091,18 @@ def parse_query_intent_with_llm(
         "- INFORMATION: hỏi thông tin thể hiện bởi biển hoặc dữ liệu nhận diện, gồm nhận diện biển, ký hiệu/mã, "
         "ý nghĩa/thông điệp của biển, đối tượng xe, thời gian hiệu lực, "
         "hướng, tốc độ, khoảng cách, ngày chẵn/lẻ, chiều cao, tải trọng, số chỗ và mã/tên đường. "
-        "Khi xác định được, điền requested_fact bằng predicate cụ thể cần truy xuất (ví dụ: legal_meaning, "
-        "active_time, minimum_speed, maximum_speed, calendar_parity, minimum_distance, "
-        "maximum_vehicle_height, maximum_vehicle_mass, maximum_seat_count, prohibited_actor). "
-        "Đưa loại xe/hành động cần lọc vào filters; không tự suy ra dữ kiện từ ảnh. "
+        "Khi hỏi điều kiện thời gian/ngày/giới hạn số, điền requested_fact=conditions và "
+        "filters.condition_type bằng loại được hỏi (active_time, maximum_speed, maximum_payload_mass, ...). "
+        "Với ý nghĩa/đối tượng/hướng, requested_fact vẫn dùng predicate tương ứng (ví dụ: legal_meaning, "
+        "prohibited_actor, direction_scope). Đưa loại xe/hành động cần lọc vào filters. "
+        "CHECK_PERMISSION đặt thuộc tính phương tiện do người dùng nêu trong conditions, ví dụ vehicle_payload_t. "
+        "Không tự suy ra dữ kiện từ ảnh. "
         "information_type có thể giữ làm nhãn nhóm tương thích cũ. Với câu hỏi về ý nghĩa biển, "
         "đặt information_type=sign_meaning và requested_fact=legal_meaning.\n"
         "- UNKNOWN: bao gồm câu hỏi ngoài phạm vi giao thông/biển báo, không thể xác định ý định, hoặc hỏi tiền phạt, "
         "mức xử phạt hay chế tài cho vi phạm. Câu hỏi lạ cách "
         "diễn đạt nhưng vẫn rõ nghĩa không được gán UNKNOWN chỉ vì không khớp từ khóa.\n"
-        "Chỉ thêm trường liên quan đến kind: CHECK_PERMISSION dùng action, actor, requested_answer; INFORMATION dùng "
+        "Chỉ thêm trường liên quan đến kind: CHECK_PERMISSION dùng action, actor, conditions, requested_answer; INFORMATION dùng "
         "requested_fact, filters và có thể giữ information_type. "
         "target chỉ thêm khi câu hỏi nhắm tới biển/cảnh cụ thể; nếu câu hỏi nêu mã biển, dùng "
         "target={kind:sign_code,sign_codes:[...]}, nếu có ID quan sát thì dùng kind=sign_observation. "
@@ -1013,8 +1114,9 @@ def parse_query_intent_with_llm(
         '"action":"parking|stopping|yielding|turn_left|turn_right|u_turn|going_straight|entering|exiting|speed|reduce_speed|circulation|crossing|overtaking|reversing|lane_change|using_horn|following_distance|passing_obstacle|roundabout_circulation|unknown",'
         '"actor":"'
         + vehicle_enum + '","information_type":"sign_meaning|prohibited_subjects|time_condition|direction_scope|speed|distance_scope|destination_distance|road_identity",'
-        '"requested_fact":"legal_meaning|active_time|minimum_speed|maximum_speed|calendar_parity|minimum_distance|maximum_vehicle_height|maximum_vehicle_mass|maximum_payload_mass|maximum_seat_count|prohibited_actor",'
-        '"filters":{},"requested_answer":{}}],'
+        '"requested_fact":"conditions|legal_meaning|prohibited_actor|direction_scope",'
+        '"filters":{"condition_type":"active_time|calendar_parity|maximum_speed|minimum_speed|maximum_payload_mass|maximum_vehicle_mass|maximum_axle_load|maximum_vehicle_height|maximum_vehicle_width|minimum_distance"},'
+        '"conditions":{"vehicle_payload_t":{"value":2,"unit":"t"}},"requested_answer":{}}],'
         '"context_facts":[],"unresolved_items":[],"confidence":"high|medium|low"}\n'
         f"Câu hỏi: {question}"
     )

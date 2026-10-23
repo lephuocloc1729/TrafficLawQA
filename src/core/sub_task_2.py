@@ -7,6 +7,7 @@ import torch
 import logging
 import argparse
 import unicodedata as ud
+from datetime import datetime, time as datetime_time
 
 from PIL import Image
 from tqdm import tqdm
@@ -27,6 +28,7 @@ from src.core.article_context import (
 from src.core.symbolic.reasoner import build_symbolic_reasoning_context
 from src.core.symbolic.fact_schema import SignObservation, TrafficFacts
 from src.core.symbolic.intent_schema import normalize_intent_kind
+from src.core.symbolic.condition_facts import CONDITION_PREDICATES, expand_condition_facts
 from src.core.symbolic.sign_normalizer import normalize_detected_sign_to_observation, normalize_sign_code
 from src.core.symbolic.sign_relations import link_supplementary_signs
 from src.core.symbolic.traffic_sign_ocr import get_traffic_sign_ocr
@@ -182,7 +184,7 @@ _INFO_FACT_PREDICATES = {
     "minimum_speed": {"minimum_speed"},
     "maximum_speed": {"maximum_speed"},
     "speed_limit": {"minimum_speed", "maximum_speed"},
-    "minimum_distance": {"minimum_distance"},
+    "minimum_distance": {"minimum_distance", "supplementary_distance_m"},
     "maximum_vehicle_height": {"maximum_vehicle_height"},
     "maximum_vehicle_mass": {"maximum_vehicle_mass"},
     "maximum_payload_mass": {"maximum_payload_mass"},
@@ -196,6 +198,7 @@ _INFO_FACT_PREDICATES = {
     "highway_name": {"highway_name"},
     "highway_route_code": {"highway_route_code"},
     "direction_scope": {"direction_scope"},
+    "conditions": {"conditions"},
 }
 
 
@@ -266,6 +269,86 @@ def _catalog_meaning_matches_filters(meaning: str, filters: dict[str, Any]) -> b
             if "xe co gioi" not in normalized:
                 return False
     return True
+
+
+def _information_condition_state(entry: dict[str, Any], intent_conditions: dict[str, Any]) -> str:
+    """Compare supplied query details with one condition attached to an answer fact."""
+    predicate = entry.get("predicate")
+    vehicle_value_by_condition = {
+        "maximum_payload_mass": "vehicle_payload_t",
+        "maximum_vehicle_mass": "vehicle_gross_weight_t",
+        "maximum_axle_load": "vehicle_axle_load_t",
+        "maximum_vehicle_height": "vehicle_height_m",
+        "maximum_vehicle_width": "vehicle_width_m",
+    }
+    actual_value = None
+    if predicate in vehicle_value_by_condition:
+        actual_value = intent_conditions.get(vehicle_value_by_condition[predicate])
+        if isinstance(actual_value, dict):
+            actual_value = actual_value.get("value")
+    elif predicate == "active_time":
+        actual_value = intent_conditions.get("observed_at", intent_conditions.get("observed_time"))
+    elif predicate == "calendar_parity":
+        actual_value = intent_conditions.get("calendar_parity")
+        if actual_value is None:
+            observed_date = intent_conditions.get("observed_at", intent_conditions.get("date"))
+            if isinstance(observed_date, str):
+                try:
+                    actual_value = "odd" if datetime.fromisoformat(observed_date).day % 2 else "even"
+                except ValueError:
+                    pass
+    if actual_value is None:
+        return "unresolved"
+
+    if predicate in vehicle_value_by_condition:
+        try:
+            actual = float(actual_value)
+            limit = float(entry.get("value"))
+        except (TypeError, ValueError):
+            return "unresolved"
+        operator = entry.get("operator")
+        if operator == ">":
+            return "satisfied" if actual > limit else "not_satisfied"
+        if operator == ">=":
+            return "satisfied" if actual >= limit else "not_satisfied"
+        if operator == "<":
+            return "satisfied" if actual < limit else "not_satisfied"
+        if operator == "<=":
+            return "satisfied" if actual <= limit else "not_satisfied"
+        return "unresolved"
+
+    if predicate == "calendar_parity":
+        expected = str(entry.get("value") or "").replace("_days", "").lower()
+        actual = str(actual_value).replace("_days", "").lower()
+        return "satisfied" if expected == actual else "not_satisfied"
+
+    if predicate == "active_time":
+        if isinstance(actual_value, str):
+            try:
+                observed_time = datetime.fromisoformat(actual_value).time()
+            except ValueError:
+                try:
+                    observed_time = datetime_time.fromisoformat(actual_value)
+                except ValueError:
+                    return "unresolved"
+        else:
+            return "unresolved"
+        windows = entry.get("value")
+        windows = windows if isinstance(windows, list) else [windows]
+        for window in windows:
+            if not isinstance(window, dict):
+                continue
+            try:
+                start = datetime_time.fromisoformat(str(window.get("from", window.get("start"))))
+                end = datetime_time.fromisoformat(str(window.get("to", window.get("end"))))
+            except ValueError:
+                continue
+            if (start <= end and start <= observed_time <= end) or (
+                start > end and (observed_time >= start or observed_time <= end)
+            ):
+                return "satisfied"
+        return "not_satisfied"
+    return "unresolved"
 
 
 def _fact_matches_information_filters(
@@ -354,11 +437,11 @@ def _information_answer_facts(
     if predicates is None:
         info_type = str(intent.get("information_type") or "").strip().lower()
         if info_type == "time_condition":
-            predicates = {"active_time", "calendar_parity"}
+            predicates = {"conditions", "active_time", "calendar_parity"}
         elif info_type == "sign_meaning":
             predicates = {"sign_meaning"}
         elif info_type == "speed":
-            predicates = {"minimum_speed", "maximum_speed"}
+            predicates = {"conditions", "minimum_speed", "maximum_speed"}
         elif info_type in {"prohibited_subjects", "prohibited_actors"}:
             predicates = {"prohibited_actor", "prohibited_vehicle", "prohibited_subject"}
         elif info_type == "destination_distance":
@@ -411,7 +494,10 @@ def _information_answer_facts(
             str(item.get("value") or "") for item in observation_facts
             if isinstance(item, dict) and item.get("predicate") == "sign_meaning"
         ), "")
-        if requested_fact == "active_time" and filters:
+        condition_type = filters.get("condition_type") or (
+            requested_fact if requested_fact in CONDITION_PREDICATES else None
+        )
+        if condition_type == "active_time" and filters:
             catalog = observation.get("catalog") if isinstance(observation.get("catalog"), dict) else {}
             meaning = str(meaning or catalog.get("legal_meaning") or "").strip()
             if not meaning:
@@ -440,11 +526,121 @@ def _information_answer_facts(
             if observation_id not in target_observation_ids and not target_observation_ids.intersection(panel_targets.get(observation_id, [])):
                 continue
         facts = [item for item in observation_facts if isinstance(item, dict)]
-        selected = [
-            item for item in facts
-            if item.get("predicate") in predicates
-            and _fact_matches_information_filters(item, filters, facts, requested_fact)
-        ]
+        condition_type = filters.get("condition_type")
+        if (requested_fact == "conditions" or requested_fact in CONDITION_PREDICATES) and any(
+            item.get("predicate") == "conditions" for item in facts
+        ):
+            # Public facts bundle time, calendar and numeric restrictions under
+            # one predicate. Select the requested member, then retain any
+            # actor-specific numeric threshold needed to qualify the answer.
+            condition_fact = next(item for item in facts if item.get("predicate") == "conditions")
+            entries = [
+                item for item in expand_condition_facts([condition_fact])
+                if item.get("predicate") in CONDITION_PREDICATES
+            ]
+            requested_types = (
+                {"minimum_speed", "maximum_speed"}
+                if condition_type == "speed_limit"
+                else {condition_type or requested_fact}
+            )
+            requested_entries = [
+                item for item in entries
+                if isinstance(item, dict)
+                and item.get("predicate") in requested_types
+                and (
+                    not filters.get("vehicle_type")
+                    or not isinstance(item.get("scope"), dict)
+                    or not item["scope"].get("vehicle_types")
+                    or any(
+                        _vehicle_scope_matches(filters["vehicle_type"], value)
+                        for value in (
+                            item["scope"]["vehicle_types"]
+                            if isinstance(item["scope"]["vehicle_types"], list)
+                            else [item["scope"]["vehicle_types"]]
+                        )
+                    )
+                )
+            ]
+            related_entries = []
+            vehicle = filters.get("vehicle_type")
+            query_conditions = intent.get("conditions") if isinstance(intent.get("conditions"), dict) else {}
+            for entry in entries:
+                if (
+                    not isinstance(entry, dict)
+                    or entry in requested_entries
+                ):
+                    continue
+                applies_to = entry.get("applies_to")
+                if applies_to and vehicle and not _vehicle_scope_matches(vehicle, applies_to):
+                    continue
+                entry_scope = entry.get("scope") if isinstance(entry.get("scope"), dict) else {}
+                scoped_vehicles = entry_scope.get("vehicle_types")
+                scoped_vehicles = scoped_vehicles if isinstance(scoped_vehicles, list) else [scoped_vehicles] if scoped_vehicles else []
+                if vehicle and scoped_vehicles and not any(
+                    _vehicle_scope_matches(vehicle, scoped_vehicle) for scoped_vehicle in scoped_vehicles
+                ):
+                    continue
+                # Other conditions qualify the requested information. For
+                # example, a speed limit may only apply during a time window,
+                # and an active-time answer may only concern trucks over a
+                # payload threshold.
+                qualified = dict(entry)
+                qualified["condition_state"] = _information_condition_state(entry, query_conditions)
+                related_entries.append(qualified)
+            if vehicle:
+                actor_predicates = {"prohibited_actor", "prohibited_vehicle", "prohibited_subject"}
+                for actor_fact in facts:
+                    if actor_fact.get("predicate") not in actor_predicates:
+                        continue
+                    actor_values = actor_fact.get("value")
+                    actor_values = actor_values if isinstance(actor_values, list) else [actor_values]
+                    if not any(_vehicle_scope_matches(vehicle, value) for value in actor_values):
+                        continue
+                    actor_conditions = actor_fact.get("conditions")
+                    actor_condition = actor_conditions.get(vehicle) if isinstance(actor_conditions, dict) else None
+                    if not isinstance(actor_condition, dict):
+                        continue
+                    required_predicate = actor_condition.get("predicate")
+                    related_entries.extend(
+                        {
+                            **entry,
+                            "operator": actor_condition.get("operator"),
+                            "applies_to": vehicle,
+                        }
+                        for entry in entries
+                        if isinstance(entry, dict) and entry.get("predicate") == required_predicate
+                    )
+            if requested_entries:
+                def _condition_map(items):
+                    mapped = {}
+                    for item in items:
+                        predicate = item.get("predicate")
+                        if not predicate:
+                            continue
+                        payload = {key: value for key, value in item.items() if key != "predicate"}
+                        if predicate not in mapped:
+                            mapped[predicate] = payload
+                        elif isinstance(mapped[predicate], list):
+                            mapped[predicate].append(payload)
+                        else:
+                            mapped[predicate] = [mapped[predicate], payload]
+                    return mapped
+
+                selected = [{
+                    "predicate": "conditions",
+                    "value": _condition_map(requested_entries + [
+                        item for item in related_entries
+                        if item not in requested_entries
+                    ]),
+                }]
+            else:
+                selected = []
+        else:
+            selected = [
+                item for item in facts
+                if item.get("predicate") in predicates
+                and _fact_matches_information_filters(item, filters, facts, requested_fact)
+            ]
         if not selected:
             continue
         selected_observations.append({
