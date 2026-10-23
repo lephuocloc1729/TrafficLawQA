@@ -16,14 +16,14 @@ dependencies = [
     "supervision==0.26.1",
     "openai==1.102.0",
     "qdrant-client==1.15.1",
-    "streamlit==1.49.1",
+    "streamlit==1.52.0",
     "loguru==0.7.3",
     "clip @ git+https://github.com/ultralytics/CLIP.git",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=7.3,<9"]
-ocr = ["paddleocr==3.7.0", "vietocr==0.3.13"]
+ocr = ["paddleocr==3.7.0"]
 baseline1 = ["pytesseract>=0.3.13"]
 
 [tool.pytest.ini_options]

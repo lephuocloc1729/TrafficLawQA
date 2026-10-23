@@ -30,7 +30,10 @@ from src.core.symbolic.intent_schema import normalize_intent_kind
 from src.core.symbolic.sign_normalizer import normalize_detected_sign_to_observation, normalize_sign_code
 from src.core.symbolic.sign_relations import link_supplementary_signs
 from src.core.symbolic.traffic_sign_ocr import get_traffic_sign_ocr
-from src.core.symbolic.sign_information_facts import extract_nearby_highway_profile_facts
+from src.core.symbolic.sign_information_facts import (
+    TIME_RANGE_RE,
+    extract_nearby_highway_profile_facts,
+)
 from src.prompts.answer_prompt import (
     SYSTEM_PROMPT_CHECK_PERMISSION,
     SYSTEM_PROMPT_FREEFORM_CITED_QA,
@@ -47,6 +50,75 @@ SIGN_CODE_RE = re.compile(
     r"\b([A-Z]{1,3}(?:\.[A-Z])?[,\.]\d+[a-z]?)\b",
     re.IGNORECASE,
 )
+
+
+def _ocr_text_panel_observations(sample: dict[str, Any]) -> tuple[list[SignObservation], set[str]]:
+    """Turn OCR time text below a detected sign into a linked panel observation."""
+    full_ocr = sample.get("full_image_ocr", [])
+    if not isinstance(full_ocr, list):
+        return [], set()
+
+    grouped: dict[tuple[float, ...], list[dict[str, Any]]] = {}
+    for item in full_ocr:
+        if not isinstance(item, dict) or item.get("region_role") != "below_sign_context":
+            continue
+        associated = item.get("associated_sign_bbox")
+        polygon = item.get("bbox")
+        points = [
+            point for point in polygon or []
+            if isinstance(point, (list, tuple)) and len(point) >= 2
+        ]
+        if not isinstance(associated, (list, tuple)) or len(associated) != 4 or len(points) < 4:
+            continue
+        raw_text = str(item.get("normalized_value") or item.get("raw_text") or "")
+        if not TIME_RANGE_RE.search(raw_text):
+            continue
+        try:
+            key = tuple(round(float(value), 1) for value in associated)
+        except (TypeError, ValueError):
+            continue
+        grouped.setdefault(key, []).append(item)
+
+    observations: list[SignObservation] = []
+    consumed_text_keys: set[str] = set()
+    image_id = str(sample.get("image_id") or "scene")
+    for index, items in enumerate(grouped.values()):
+        all_points = [
+            (float(point[0]), float(point[1]))
+            for item in items
+            for point in item.get("bbox", [])
+            if isinstance(point, (list, tuple)) and len(point) >= 2
+        ]
+        if len(all_points) < 4:
+            continue
+        panel_bbox = [
+            min(point[0] for point in all_points),
+            min(point[1] for point in all_points),
+            max(point[0] for point in all_points),
+            max(point[1] for point in all_points),
+        ]
+        confidence_labels = [str(item.get("confidence") or "low") for item in items]
+        confidence = (
+            "low" if "low" in confidence_labels
+            else "medium" if "medium" in confidence_labels
+            else "high"
+        )
+        observation_id = f"{image_id}:ocr-time-panel-{index + 1}"
+        observations.append(SignObservation(
+            observation_id=observation_id,
+            role="supplementary",
+            bbox=panel_bbox,
+            identity_status="unidentified",
+            ocr_texts=items,
+            confidence=confidence,
+            source="paddleocr_text_panel",
+            evidence=[{"type": "image", "ref": image_id}],
+        ))
+        consumed_text_keys.update(
+            json.dumps(item.get("bbox"), separators=(",", ":"), sort_keys=True)
+            for item in items
+        )
+    return observations, consumed_text_keys
 
 
 def normalize_text(text: str | int) -> str:
@@ -103,6 +175,389 @@ def _answer_system_prompt(symbolic_context: dict[str, Any]) -> str:
     return SYSTEM_PROMPT_FREEFORM_CITED_QA
 
 
+_INFO_FACT_PREDICATES = {
+    "legal_meaning": {"sign_meaning"},
+    "active_time": {"active_time"},
+    "calendar_parity": {"calendar_parity"},
+    "minimum_speed": {"minimum_speed"},
+    "maximum_speed": {"maximum_speed"},
+    "speed_limit": {"minimum_speed", "maximum_speed"},
+    "minimum_distance": {"minimum_distance"},
+    "maximum_vehicle_height": {"maximum_vehicle_height"},
+    "maximum_vehicle_mass": {"maximum_vehicle_mass"},
+    "maximum_payload_mass": {"maximum_payload_mass"},
+    "maximum_seat_count": {"maximum_seat_count"},
+    "prohibited_actor": {"prohibited_actor", "prohibited_vehicle", "prohibited_subject"},
+    "prohibited_vehicle": {"prohibited_actor", "prohibited_vehicle"},
+    "prohibited_subject": {"prohibited_actor", "prohibited_subject"},
+    "vehicle_scope": {"vehicle_scope"},
+    "destination_distance_km": {"destination_distance_km"},
+    "destination_name": {"destination_name"},
+    "highway_name": {"highway_name"},
+    "highway_route_code": {"highway_route_code"},
+    "direction_scope": {"direction_scope"},
+}
+
+
+def _vehicle_scope_matches(requested: Any, actual: Any) -> bool:
+    aliases = {
+        "motorcycle_or_moped": {"motorcycle", "moped", "motorcycle_or_moped"},
+        "motorcycle": {"motorcycle", "motorcycle_or_moped"},
+        "moped": {"moped", "motorcycle_or_moped"},
+        "automobile": {"automobile", "passenger_car", "car"},
+        "passenger_car": {"automobile", "passenger_car", "car"},
+    }
+    requested_value = str(requested).strip().lower()
+    actual_value = str(actual).strip().lower()
+    requested_values = aliases.get(requested_value, {requested_value})
+    actual_values = aliases.get(actual_value, {actual_value})
+    motor_vehicle_types = {
+        "motorcycle", "motorcycle_or_moped", "moped", "automobile", "passenger_car", "car", "bus", "truck",
+        "tractor", "tractor_unit", "special_use_vehicle", "special_use_machine", "construction_machine",
+        "agricultural_forestry_machine", "other_motor_vehicle", "motorized_tricycle",
+    }
+    if "vehicle" in actual_values and requested_value != "pedestrian":
+        return True
+    if "motor_vehicle" in actual_values and requested_value in {
+        *motor_vehicle_types,
+    }:
+        return True
+    return bool(requested_values.intersection(actual_values))
+
+
+def _plain_vietnamese(text: str) -> str:
+    value = ud.normalize("NFD", text.lower())
+    value = "".join(char for char in value if ud.category(char) != "Mn")
+    return value.replace("đ", "d")
+
+
+def _catalog_meaning_matches_filters(meaning: str, filters: dict[str, Any]) -> bool:
+    normalized = _plain_vietnamese(meaning)
+    action = str(filters.get("action") or "").lower()
+    action_phrases = {
+        "turn_left": ("re trai", "queo trai"),
+        "turn_right": ("re phai", "queo phai"),
+        "u_turn": ("quay dau",),
+        "parking": ("do xe", "dau xe"),
+        "stopping": ("dung xe", "tam dung"),
+        "entering": ("di vao", "cam vao"),
+        "exiting": ("di ra", "roi khoi"),
+        "going_straight": ("di thang",),
+    }
+    if action in action_phrases and not any(term in normalized for term in action_phrases[action]):
+        return False
+
+    vehicle = str(filters.get("vehicle_type") or "").lower()
+    recognized_vehicle_terms = {
+        "motorcycle": ("mo to", "xe may", "xe gan may"),
+        "motorcycle_or_moped": ("mo to", "xe may", "xe gan may"),
+        "moped": ("xe gan may",),
+        "automobile": ("o to", "xe con", "xe hoi"),
+        "passenger_car": ("o to", "xe con", "xe hoi"),
+        "truck": ("xe tai", "o to tai"),
+        "bus": ("xe buyt", "xe bus", "xe khach"),
+    }
+    stated_vehicle_groups = {
+        key for key, terms in recognized_vehicle_terms.items()
+        if any(term in normalized for term in terms)
+    }
+    if stated_vehicle_groups:
+        if not any(_vehicle_scope_matches(vehicle, stated) for stated in stated_vehicle_groups):
+            if "xe co gioi" not in normalized:
+                return False
+    return True
+
+
+def _fact_matches_information_filters(
+    fact: dict[str, Any],
+    filters: dict[str, Any],
+    sibling_facts: list[dict[str, Any]],
+    requested_fact: str,
+) -> bool:
+    scope = fact.get("scope") if isinstance(fact.get("scope"), dict) else {}
+    vehicle = filters.get("vehicle_type")
+    if vehicle:
+        included = scope.get("vehicle_types")
+        excluded = scope.get("excluded_vehicle_types", [])
+        included_values = included if isinstance(included, list) else [included] if included else []
+        excluded_values = excluded if isinstance(excluded, list) else [excluded] if excluded else []
+        if included_values and not any(_vehicle_scope_matches(vehicle, item) for item in included_values):
+            return False
+        if any(_vehicle_scope_matches(vehicle, item) for item in excluded_values):
+            return False
+    for key in ("vehicle_type", "action", "distance_kind"):
+        requested = filters.get(key)
+        actual = scope.get(key)
+        if key == "vehicle_type" and actual is None:
+            actual = scope.get("vehicle_types")
+        if requested and actual:
+            actual_values = actual if isinstance(actual, list) else [actual]
+            if key == "vehicle_type":
+                if not any(_vehicle_scope_matches(requested, item) for item in actual_values):
+                    return False
+            elif requested not in actual_values:
+                return False
+
+    # A supplementary time fact is attached to its primary sign. If that sign
+    # explicitly states a vehicle/action restriction, use it to scope the fact.
+    sibling_predicates = {item.get("predicate") for item in sibling_facts if isinstance(item, dict)}
+    vehicle = filters.get("vehicle_type")
+    actor_scope_predicates = {"prohibited_actor", "prohibited_vehicle", "prohibited_subject", "vehicle_scope_condition", "vehicle_scope"}
+    if vehicle and sibling_predicates.intersection(actor_scope_predicates):
+        restrictions = [
+            item
+            for item in sibling_facts
+            if isinstance(item, dict) and item.get("predicate") in actor_scope_predicates
+        ]
+        def flatten(value: Any) -> set[str]:
+            if isinstance(value, str):
+                return {value.strip().lower()}
+            if isinstance(value, dict):
+                return {part for item in value.values() for part in flatten(item)}
+            if isinstance(value, list):
+                return {part for item in value for part in flatten(item)}
+            return set()
+        matched_restriction = False
+        for item in restrictions:
+            item_scope = item.get("scope") if isinstance(item.get("scope"), dict) else {}
+            values = item_scope.get("vehicle_types")
+            if values is None:
+                values = item.get("value")
+            normalized_values = flatten(values)
+            excluded_values = flatten(item_scope.get("excluded_vehicle_types", []))
+            conditions = item.get("conditions") if isinstance(item.get("conditions"), dict) else {}
+            exceptions = flatten(conditions.get("exceptions", []))
+            if normalized_values and any(_vehicle_scope_matches(vehicle, value) for value in normalized_values):
+                if any(_vehicle_scope_matches(vehicle, value) for value in excluded_values | exceptions):
+                    continue
+                matched_restriction = True
+                break
+        if restrictions and not matched_restriction:
+            return False
+    action = filters.get("action")
+    action_predicates = {"prohibited_action", "restricted_action", "mandatory_action", "recommended_action", "action_scope_condition"}
+    if action and sibling_predicates.intersection(action_predicates):
+        if not any(
+            item.get("predicate") in action_predicates and action in flatten(item.get("value"))
+            for item in sibling_facts if isinstance(item, dict)
+        ):
+            return False
+    return True
+
+
+def _information_answer_facts(
+    traffic_facts: dict[str, Any],
+    intent: dict[str, Any],
+) -> dict[str, Any]:
+    requested_fact = str(intent.get("requested_fact") or "").strip().lower()
+    predicates = _INFO_FACT_PREDICATES.get(requested_fact)
+    if predicates is None:
+        info_type = str(intent.get("information_type") or "").strip().lower()
+        if info_type == "time_condition":
+            predicates = {"active_time", "calendar_parity"}
+        elif info_type == "sign_meaning":
+            predicates = {"sign_meaning"}
+        elif info_type == "speed":
+            predicates = {"minimum_speed", "maximum_speed"}
+        elif info_type in {"prohibited_subjects", "prohibited_actors"}:
+            predicates = {"prohibited_actor", "prohibited_vehicle", "prohibited_subject"}
+        elif info_type == "destination_distance":
+            predicates = {"destination_distance_km", "destination_name"}
+        elif info_type == "road_identity":
+            predicates = {"highway_name", "highway_route_code"}
+        elif info_type == "direction_scope":
+            predicates = {"direction_scope"}
+        else:
+            predicates = set()
+
+    filters = intent.get("filters") if isinstance(intent.get("filters"), dict) else {}
+    target_payload = intent.get("target")
+    target = target_payload if isinstance(target_payload, dict) else {}
+    target_kind = str(target.get("kind") or target_payload or "").strip().lower()
+    target_codes = {
+        normalize_sign_code(str(code))
+        for code in target.get("sign_codes", [])
+        if code
+    } if isinstance(target.get("sign_codes"), list) else set()
+    target_observation_ids = {
+        str(item) for item in target.get("observation_ids", []) if item
+    } if isinstance(target.get("observation_ids"), list) else set()
+    observations = traffic_facts.get("signs", traffic_facts.get("sign_observations", []))
+    observations = observations if isinstance(observations, list) else []
+    observation_by_id = {
+        str(item.get("id")): item
+        for item in observations
+        if isinstance(item, dict) and item.get("id")
+    }
+    relation_payload = traffic_facts.get("relations", traffic_facts.get("sign_relations", []))
+    relation_payload = relation_payload if isinstance(relation_payload, list) else []
+    panel_targets: dict[str, list[str]] = {}
+    for relation in relation_payload:
+        if not isinstance(relation, dict):
+            continue
+        source_id = str(relation.get("from") or relation.get("source_observation_id") or "")
+        target_id = str(relation.get("to") or relation.get("target_observation_id") or "")
+        if source_id and target_id:
+            panel_targets.setdefault(source_id, []).append(target_id)
+    selected_observations = []
+    for observation in observations:
+        if not isinstance(observation, dict):
+            continue
+        identity = observation.get("identity") if isinstance(observation.get("identity"), dict) else {}
+        sign_code = observation.get("code") or identity.get("sign_code")
+        observation_facts = observation.get("facts", [])
+        observation_facts = observation_facts if isinstance(observation_facts, list) else []
+        meaning = next((
+            str(item.get("value") or "") for item in observation_facts
+            if isinstance(item, dict) and item.get("predicate") == "sign_meaning"
+        ), "")
+        if requested_fact == "active_time" and filters:
+            catalog = observation.get("catalog") if isinstance(observation.get("catalog"), dict) else {}
+            meaning = str(meaning or catalog.get("legal_meaning") or "").strip()
+            if not meaning:
+                related_meanings = [
+                    str(next((
+                        item.get("value") for item in (observation_by_id.get(target_id, {}).get("facts") or [])
+                        if isinstance(item, dict) and item.get("predicate") == "sign_meaning"
+                    ), None) or (observation_by_id.get(target_id, {}).get("catalog") or {}).get("legal_meaning") or "").strip()
+                    for target_id in panel_targets.get(str(observation.get("id") or ""), [])
+                ]
+                meaning = next((item for item in related_meanings if item), "")
+            if meaning and not _catalog_meaning_matches_filters(meaning, filters):
+                continue
+            if not meaning and (filters.get("vehicle_type") or filters.get("action")):
+                continue
+        observation_id = str(observation.get("id") or "")
+        if target_kind == "sign_code" and target_codes:
+            direct_code_match = normalize_sign_code(str(sign_code or "")) in target_codes
+            linked_code_match = any(
+                normalize_sign_code(str(observation_by_id.get(target_id, {}).get("code") or (observation_by_id.get(target_id, {}).get("identity") or {}).get("sign_code") or "")) in target_codes
+                for target_id in panel_targets.get(observation_id, [])
+            )
+            if not direct_code_match and not linked_code_match:
+                continue
+        if target_kind == "sign_observation" and target_observation_ids:
+            if observation_id not in target_observation_ids and not target_observation_ids.intersection(panel_targets.get(observation_id, [])):
+                continue
+        facts = [item for item in observation_facts if isinstance(item, dict)]
+        selected = [
+            item for item in facts
+            if item.get("predicate") in predicates
+            and _fact_matches_information_filters(item, filters, facts, requested_fact)
+        ]
+        if not selected:
+            continue
+        selected_observations.append({
+            "id": observation.get("id"),
+            "role": observation.get("role"),
+            "code": sign_code,
+            "facts": [
+                {
+                    key: fact[key]
+                    for key in ("predicate", "value", "unit", "scope", "conditions", "status", "confidence")
+                    if key == "value" and key in fact or fact.get(key) is not None
+                }
+                for fact in selected
+            ],
+        })
+
+    scene_facts = traffic_facts.get("scene_facts", [])
+    selected_scene_facts = [
+        {
+            key: fact[key]
+            for key in ("predicate", "value", "unit", "scope", "conditions", "status", "confidence")
+            if key == "value" and key in fact or fact.get(key) is not None
+        }
+        for fact in scene_facts
+        if isinstance(fact, dict)
+        and fact.get("predicate") in predicates
+        and _fact_matches_information_filters(fact, filters, scene_facts, requested_fact)
+    ] if isinstance(scene_facts, list) else []
+    selected_ids = {str(item.get("id")) for item in selected_observations if item.get("id")}
+    all_relations = relation_payload
+    selected_relations = [
+        relation for relation in all_relations
+        if isinstance(relation, dict)
+        and (
+            str(relation.get("from") or relation.get("source_observation_id")) in selected_ids
+            or str(relation.get("to") or relation.get("target_observation_id")) in selected_ids
+        )
+    ] if isinstance(all_relations, list) else []
+    related_ids = {
+        str(relation.get("to") or relation.get("target_observation_id"))
+        for relation in selected_relations
+        if str(relation.get("from") or relation.get("source_observation_id")) in selected_ids
+        and (relation.get("to") or relation.get("target_observation_id"))
+    }
+    all_observations = observations
+    related_signs = [
+        {
+            "id": observation.get("id"),
+            "code": observation.get("code") or (observation.get("identity") or {}).get("sign_code"),
+            "name": observation.get("name") or (observation.get("catalog") or {}).get("official_name"),
+            "facts": [
+                item for item in (observation.get("facts") or [])
+                if isinstance(item, dict) and item.get("predicate") == "sign_meaning"
+            ],
+        }
+        for observation in all_observations
+        if isinstance(observation, dict) and str(observation.get("id")) in related_ids
+    ] if isinstance(all_observations, list) else []
+    return {
+        "requested_fact": requested_fact or None,
+        "filters": filters,
+        "signs": selected_observations,
+        "scene_facts": selected_scene_facts,
+        "relations": selected_relations,
+        "related_signs": related_signs,
+    }
+
+
+def _answer_context_for_vlm(symbolic_context: dict[str, Any]) -> dict[str, Any]:
+    """Keep full traces for returned/debug data; send only answer-relevant context to the VLM."""
+    query_intent = symbolic_context.get("query_intent", {})
+    intent_items = query_intent.get("intents", []) if isinstance(query_intent, dict) else []
+    intents = [item for item in intent_items if isinstance(item, dict)]
+    kinds = {normalize_intent_kind(str(item.get("kind") or "UNKNOWN")) for item in intents}
+    context: dict[str, Any] = {"intents": intents}
+    if "INFORMATION" in kinds:
+        info_intents = [item for item in intents if normalize_intent_kind(str(item.get("kind") or "")) == "INFORMATION"]
+        if len(info_intents) == 1:
+            context["answer_facts"] = _information_answer_facts(
+                symbolic_context.get("facts", {}) if isinstance(symbolic_context.get("facts"), dict) else {},
+                info_intents[0],
+            )
+        else:
+            context["answer_facts"] = [
+                _information_answer_facts(
+                    symbolic_context.get("facts", {}) if isinstance(symbolic_context.get("facts"), dict) else {},
+                    item,
+                )
+                for item in info_intents
+            ]
+        if any(item.get("requested_fact") == "legal_meaning" or item.get("information_type") == "sign_meaning" for item in info_intents):
+            context["sign_meaning_evaluations"] = [
+                {
+                    key: item[key]
+                    for key in ("observation_id", "status", "issues")
+                    if item.get(key) is not None
+                }
+                for item in symbolic_context.get("sign_meaning_evaluations", [])
+                if isinstance(item, dict)
+            ]
+    if "CHECK_PERMISSION" in kinds:
+        decision = symbolic_context.get("symbolic_decision", {})
+        if isinstance(decision, dict):
+            context["symbolic_decision"] = {
+                key: decision[key]
+                for key in ("decision", "conclusion", "reason", "confidence", "legal_basis")
+                if decision.get(key) is not None
+            }
+        context["intent_evaluations"] = symbolic_context.get("intent_evaluations", [])
+        context["rules_fired"] = symbolic_context.get("rules_fired", [])
+    return context
+
+
 def extract_json_object(response_content: str) -> dict[str, Any]:
     cleaned = response_content.strip()
     cleaned = re.sub(
@@ -140,9 +595,15 @@ def normalize_freeform_response(
     symbolic_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     symbolic_context = symbolic_context or {}
+    query_intent_for_response = symbolic_context.get("query_intent", {})
+    response_intents = query_intent_for_response.get("intents", []) if isinstance(query_intent_for_response, dict) else []
+    information_only = bool(response_intents) and all(
+        isinstance(item, dict) and normalize_intent_kind(str(item.get("kind") or "UNKNOWN")) == "INFORMATION"
+        for item in response_intents
+    )
     allowed_articles = {
         (article["law_id"], article["article_id"]): article
-        for article in article_contexts
+        for article in ([] if information_only else article_contexts)
     }
 
     try:
@@ -237,10 +698,10 @@ def normalize_freeform_response(
             for item in visual_evidence
         ]
 
-    if not citations and confidence != "low":
+    if not citations and confidence != "low" and not information_only:
         confidence = "low"
 
-    if not citations:
+    if not citations and not information_only:
         citations = [
             {
                 "law_id": article["law_id"],
@@ -283,7 +744,10 @@ def normalize_freeform_response(
         for item in intents
     )
     traffic_facts = symbolic_context.get("facts", {})
-    observations = traffic_facts.get("sign_observations", []) if isinstance(traffic_facts, dict) else []
+    observations = (
+        traffic_facts.get("signs", traffic_facts.get("sign_observations", []))
+        if isinstance(traffic_facts, dict) else []
+    )
     # An ambiguous/unidentified observation is still a sign-focused request;
     # it must not fall through to a free-form permission inference.
     target_has_sign = isinstance(observations, list) and bool(observations)
@@ -628,12 +1092,22 @@ def collect_retrieved_context(
     visual_evidence: list[dict[str, Any]] = []
     sign_prompt_parts: list[dict[str, Any]] = []
     traffic_sign_observations: list[SignObservation] = []
+    ocr_time_panels, ocr_time_panel_bbox_keys = _ocr_text_panel_observations(sample)
     ocr_engine = None
     ocr_unavailable = False
 
     for sign in sample.get("detected_signs", []):
         if not sign.get("is_chosen"):
             continue
+
+        # OCR text on a time panel is represented as its own supplementary
+        # observation below, then linked geometrically to the nearest main sign.
+        if ocr_time_panel_bbox_keys:
+            sign["ocr_texts"] = [
+                item for item in sign.get("ocr_texts", [])
+                if json.dumps(item.get("bbox"), separators=(",", ":"), sort_keys=True)
+                not in ocr_time_panel_bbox_keys
+            ]
 
         sign_image_path = sign_dir / sign["image_name"]
         sign_image = Image.open(sign_image_path).convert("RGB")
@@ -816,6 +1290,8 @@ def collect_retrieved_context(
             ),
         })
 
+    traffic_sign_observations.extend(ocr_time_panels)
+
     predicted_article_refs = sample.get("predicted_articles") or []
     sample_article_refs = predicted_article_refs or sample.get("relevant_articles", [])
     for article_ref in sample_article_refs:
@@ -858,21 +1334,35 @@ def build_freeform_prompt_parts(
     include_full_image_ocr: bool = False,
 ) -> list[dict[str, Any]]:
     symbolic_context = symbolic_context or {}
+    answer_context = _answer_context_for_vlm(symbolic_context)
+    answer_intents = answer_context.get("intents", [])
+    intent_kinds = {
+        normalize_intent_kind(str(item.get("kind") or "UNKNOWN"))
+        for item in answer_intents if isinstance(item, dict)
+    }
+    information_only = bool(intent_kinds) and intent_kinds == {"INFORMATION"}
+    info_intents = [
+        item for item in answer_intents
+        if isinstance(item, dict) and normalize_intent_kind(str(item.get("kind") or "")) == "INFORMATION"
+    ]
+    structured_information = bool(info_intents) and all(
+        item.get("requested_fact") in _INFO_FACT_PREDICATES
+        or item.get("information_type") == "sign_meaning"
+        for item in info_intents
+    )
     choices = sample.get("choices")
     user_context = {
         "question": sample.get("question", ""),
         "choices_optional_reference": choices if choices else None,
     }
-    if include_full_image_ocr:
+    if include_full_image_ocr and not structured_information:
         user_context.update({
             "full_image_ocr_status": sample.get("full_image_ocr_status", "unavailable"),
             "full_image_ocr": sample.get("full_image_ocr", []),
         })
     if not trafficlawqa_rag_compatibility:
         user_context.update({
-            "query_intent": symbolic_context.get("query_intent", {}),
-            "symbolic_decision": symbolic_context.get("symbolic_decision", {}),
-            "rules_fired": symbolic_context.get("rules_fired", []),
+            "query_intent": {"intents": answer_intents},
         })
 
     def format_article_section(
@@ -902,12 +1392,12 @@ def build_freeform_prompt_parts(
     primary_articles = [
         article
         for article in article_contexts
-        if article.get("context_source") in {"retrieval", "detector"}
+        if not information_only and article.get("context_source") in {"retrieval", "detector"}
     ]
     related_articles = [
         article
         for article in article_contexts
-        if article.get("context_source") not in {"retrieval", "detector"}
+        if not information_only and article.get("context_source") not in {"retrieval", "detector"}
     ]
     legal_context = "\n\n".join(
         [
@@ -927,7 +1417,7 @@ def build_freeform_prompt_parts(
             "image_name": item.get("image_name", ""),
             "retrieval_rank": item.get("retrieval_rank"),
         }
-        for item in _primary_evidence_by_sign(visual_evidence)
+        for item in ([] if information_only else _primary_evidence_by_sign(visual_evidence))
     ]
     sign_specific_context = (
         json.dumps(sign_evidence, ensure_ascii=False) if sign_evidence else "None"
@@ -940,14 +1430,15 @@ def build_freeform_prompt_parts(
     if not trafficlawqa_rag_compatibility:
         question_block += (
             "SYMBOLIC REASONING CONTEXT\n"
-            f"{json.dumps(_without_verification_status(symbolic_context), ensure_ascii=False)}\n\n"
+            f"{json.dumps(_without_verification_status(answer_context), ensure_ascii=False)}\n\n"
         )
-    question_block += (
-        "LEGAL ARTICLE CONTEXT\n"
-        f"{legal_context}\n\n"
-        "SIGN-SPECIFIC EVIDENCE\n"
-        f"{sign_specific_context}"
-    )
+    if not information_only:
+        question_block += (
+            "LEGAL ARTICLE CONTEXT\n"
+            f"{legal_context}\n\n"
+            "SIGN-SPECIFIC EVIDENCE\n"
+            f"{sign_specific_context}"
+        )
 
     prompt_parts = [
         {
@@ -970,7 +1461,8 @@ def build_freeform_prompt_parts(
                 "image_url": {"url": f"data:{image_mime};base64,{image_b64}"},
             },
         ])
-    prompt_parts.extend(sign_prompt_parts)
+    if not information_only:
+        prompt_parts.extend(sign_prompt_parts)
     return prompt_parts
 
 

@@ -1,4 +1,4 @@
-"""Vietnamese full-image OCR using Paddle text detection and VietOCR recognition."""
+"""Full-image text detection and recognition using PaddleOCR."""
 
 from __future__ import annotations
 
@@ -11,9 +11,6 @@ from PIL import Image
 
 
 PADDLEOCR_VERSION = "3.7.0"
-VIETOCR_VERSION = "0.3.13"
-TEXT_DETECTION_MODEL = "PP-OCRv6_medium_det"
-VIETOCR_MODEL = "vgg_transformer"
 
 
 def resolve_ocr_device(requested: str = "gpu") -> str:
@@ -25,19 +22,17 @@ def resolve_ocr_device(requested: str = "gpu") -> str:
         return "cpu"
 
     try:
-        import torch
         import paddle
 
         gpu_available = (
-            torch.cuda.is_available()
-            and paddle.is_compiled_with_cuda()
+            paddle.is_compiled_with_cuda()
             and paddle.device.cuda.device_count() > 0
         )
     except (ImportError, RuntimeError, AttributeError) as exc:
         if normalized == "gpu":
             raise RuntimeError(
-                "GPU OCR is the default, but PyTorch or PaddlePaddle could not "
-                "initialize CUDA. Install CUDA-enabled builds or set "
+                "GPU OCR is the default, but PaddlePaddle could not initialize "
+                "CUDA. Install a CUDA-enabled PaddlePaddle build or set "
                 "TRAFFIC_SIGN_OCR_DEVICE=cpu."
             ) from exc
         return "cpu"
@@ -46,8 +41,8 @@ def resolve_ocr_device(requested: str = "gpu") -> str:
         return "gpu"
     if normalized == "gpu":
         raise RuntimeError(
-            "GPU OCR is the default, but CUDA is unavailable in PyTorch or "
-            "PaddlePaddle. Install CUDA-enabled builds or set "
+            "GPU OCR is the default, but CUDA is unavailable in PaddlePaddle. "
+            "Install a CUDA-enabled PaddlePaddle build or set "
             "TRAFFIC_SIGN_OCR_DEVICE=cpu."
         )
     return "cpu"
@@ -106,31 +101,23 @@ def _score_value(value: Any) -> float:
 
 
 class TrafficSignOCR:
-    """Full-image OCR: PaddleOCR detects text regions; VietOCR reads each crop."""
+    """Run PaddleOCR detection and recognition on a full traffic-sign image."""
 
     def __init__(self, device: str = "gpu", language: str = "vi") -> None:
         self.device = resolve_ocr_device(device)
-        self.language = language
-        if language.lower() not in {"vi", "vietnamese"}:
-            raise ValueError("VietOCR is configured for Vietnamese text (vi).")
+        self.language = "vi" if language.lower() == "vietnamese" else language.lower()
 
         self._require_version("paddleocr", PADDLEOCR_VERSION)
-        self._require_version("vietocr", VIETOCR_VERSION)
+        from paddleocr import PaddleOCR
 
-        from paddleocr import TextDetection
-        from vietocr.tool.config import Cfg
-        from vietocr.tool.predictor import Predictor
-
-        # VietOCR is a recognizer, so retain a text-region detector and replace
-        # PP-OCR's recognition stage with VietOCR for each detected line.
-        self.detector = TextDetection(
-            model_name=TEXT_DETECTION_MODEL,
+        self.ocr = PaddleOCR(
+            lang=self.language,
             device=self.device,
+            use_doc_orientation_classify=False,
+            use_doc_unwarping=False,
+            use_textline_orientation=False,
         )
-        config = Cfg.load_config_from_name(VIETOCR_MODEL)
-        config["device"] = "cuda:0" if self.device == "gpu" else "cpu"
-        self.recognizer = Predictor(config)
-        self.ocr_version = f"{TEXT_DETECTION_MODEL}+VietOCR-{VIETOCR_MODEL}"
+        self.ocr_version = f"PaddleOCR-{PADDLEOCR_VERSION}({self.language})"
 
     @staticmethod
     def _require_version(package: str, required: str) -> None:
@@ -150,13 +137,25 @@ class TrafficSignOCR:
         with Image.open(image_path) as source:
             image = source.convert("RGB")
 
-        results = self.detector.predict(str(image_path))
+        results = self.ocr.predict(str(image_path))
         extracted: list[dict[str, Any]] = []
         for result in results or []:
             payload = _result_dict(result)
-            polygons = _as_list(payload.get("dt_polys"))
+            polygon_data = payload.get("rec_polys")
+            if polygon_data is None:
+                polygon_data = payload.get("dt_polys")
+            polygons = _as_list(polygon_data)
+            texts = _as_list(payload.get("rec_texts"))
+            scores = _as_list(payload.get("rec_scores"))
+            if not polygons:
+                boxes = _as_list(payload.get("rec_boxes"))
+                polygons = [
+                    [[box[0], box[1]], [box[2], box[1]], [box[2], box[3]], [box[0], box[3]]]
+                    for box in boxes
+                    if isinstance(box, (list, tuple)) and len(box) >= 4
+                ]
 
-            for polygon in polygons:
+            for index, polygon in enumerate(polygons):
                 if hasattr(polygon, "tolist"):
                     polygon = polygon.tolist()
                 if not isinstance(polygon, list) or not polygon:
@@ -179,15 +178,11 @@ class TrafficSignOCR:
                 if right <= left or bottom <= top:
                     continue
 
-                crop = image.crop((left, top, right, bottom))
-                try:
-                    text, probability = self.recognizer.predict(crop, return_prob=True)
-                except TypeError:
-                    # Support VietOCR releases whose predictor returns text only.
-                    text, probability = self.recognizer.predict(crop), 0.0
+                text = texts[index] if index < len(texts) else ""
                 text = str(text or "").strip()
                 if not text:
                     continue
+                probability = scores[index] if index < len(scores) else 0.0
                 score = _score_value(probability)
                 extracted.append({
                     "raw_text": text,
@@ -195,7 +190,7 @@ class TrafficSignOCR:
                     "confidence": _confidence_label(score),
                     "score": score,
                     "bbox": points,
-                    "source": "vietocr_vgg_transformer",
+                    "source": "paddleocr",
                 })
         return extracted
 

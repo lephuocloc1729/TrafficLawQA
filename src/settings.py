@@ -63,7 +63,7 @@ class ProjectSettings(ProjectBaseSettings):
     enable_symbolic_reasoning: bool = True
     sign_recognition_candidate_limit: int = 10
 
-    # Detect full-image text regions, then recognize Vietnamese text with VietOCR.
+    # Detect and recognize full-image text with PaddleOCR.
     traffic_sign_ocr_enabled: bool = True
     traffic_sign_ocr_device: str = "gpu"
     traffic_sign_ocr_language: str = "vi"

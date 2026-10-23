@@ -17,6 +17,45 @@ def _coerce_facts(facts: TrafficFacts | Iterable[SignObservation | dict[str, Any
         return facts
     if isinstance(facts, dict):
         payload = dict(facts)
+        if isinstance(payload.get("signs"), list):
+            compact_signs = payload.pop("signs")
+            normalized_signs = []
+            for item in compact_signs:
+                if not isinstance(item, dict):
+                    continue
+                meaning = next((
+                    fact.get("value") for fact in item.get("facts", [])
+                    if isinstance(fact, dict) and fact.get("predicate") == "sign_meaning"
+                ), None)
+                normalized_signs.append({
+                    **item,
+                    "id": item.get("id"),
+                    "ocr_texts": [
+                        {"raw_text": text, "normalized_value": text, "confidence": "high"}
+                        for text in item.get("ocr_text", [])
+                    ],
+                    "source": "paddleocr_text_panel" if item.get("type") == "ocr_text_panel" else "image",
+                    "identity": {
+                        "sign_code": item.get("code"),
+                        "status": item.get("identity_status", "identified" if item.get("code") else "unidentified"),
+                        "confidence": item.get("confidence", "high"),
+                    },
+                    "catalog": {
+                        "official_name": item.get("name"),
+                        "legal_meaning": meaning,
+                    },
+                })
+            payload["sign_observations"] = normalized_signs
+            payload["sign_relations"] = [
+                {
+                    "type": item.get("predicate", "supplements"),
+                    "from": item.get("from"),
+                    "to": item.get("to"),
+                    "confidence": item.get("confidence", "high"),
+                }
+                for item in payload.pop("relations", [])
+                if isinstance(item, dict)
+            ]
         legacy_context_facts = payload.pop("context_facts", [])
         inventory = payload.pop("sign_inventory", None)
         if isinstance(inventory, dict):
@@ -58,7 +97,7 @@ def _coerce_facts(facts: TrafficFacts | Iterable[SignObservation | dict[str, Any
                         "fact_id": fact.get("fact_id") or f"{item['observation_id']}:fact-{fact_index + 1}",
                         "metadata": {"subject_observation_id": item["observation_id"]},
                     })
-            item["source"] = "image"
+            item["source"] = item.get("source", "image")
             observations.append(item)
         payload["sign_observations"] = observations
         payload["context_facts"] = observation_facts + [

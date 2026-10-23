@@ -239,7 +239,10 @@ class OfficialSignCatalog:
 
     def evaluate_meaning(self, facts: TrafficFacts, intent: Intent) -> list[SignMeaningEvaluation]:
         """Resolve sign-meaning information only from this official-source catalog."""
-        if intent.kind != "INFORMATION" or intent.information_type != "sign_meaning":
+        if intent.kind != "INFORMATION" or not (
+            intent.information_type == "sign_meaning"
+            or intent.requested_fact == "legal_meaning"
+        ):
             return []
         if intent.target.kind == "sign_code" and intent.target.sign_codes:
             results = []

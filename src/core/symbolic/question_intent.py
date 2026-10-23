@@ -88,7 +88,11 @@ INTENT_PATTERNS = (
         "huong nao", "chieu nao", "re huong", "ben nao", "phia nao",
         "bao xa", "khoang cach", "pham vi", "bao nhieu met",
         "thoi gian nao", "thoi diem nao", "hieu luc vao luc nao", "co hieu luc khi nao",
-        "toc do toi da", "gioi han toc do", "bao nhieu km h", "toc do bao nhieu", "van toc bao nhieu",
+        "vao luc nao", "luc nao", "ngay chan", "ngay le", "ngay chan le",
+        "toc do toi da", "toc do toi thieu", "van toc toi da", "van toc toi thieu",
+        "gioi han toc do", "bao nhieu km h", "toc do bao nhieu", "van toc bao nhieu",
+        "chieu cao toi da", "chieu cao an toan", "xe cao bao nhieu", "bao nhieu tan",
+        "tai trong", "so cho toi da", "toi da bao nhieu cho", "khoang cach toi thieu",
         "cao toc nao", "cao toc gi", "ten cao toc", "ten duong cao toc", "cao toc nay la gi", "ma cao toc",
         "ten duong nao", "bien chi duong", "di den dau",
         "dieu kien gi", "truong hop nao", "ap dung khi nao",
@@ -108,7 +112,11 @@ INFORMATION_SCOPE_PHRASES = (
     "bao xa", "khoang cach", "pham vi", "bao nhieu met",
     "con cach", "cach ha noi", "cach sai gon", "cach tphcm",
     "thoi gian nao", "thoi diem nao", "hieu luc vao luc nao", "co hieu luc khi nao",
+    "vao luc nao", "luc nao", "ngay chan", "ngay le", "ngay chan le",
     "toc do toi da", "gioi han toc do", "bao nhieu km h", "toc do bao nhieu", "van toc bao nhieu",
+    "toc do toi thieu", "van toc toi thieu", "chieu cao toi da", "chieu cao an toan",
+    "xe cao bao nhieu", "bao nhieu tan", "tai trong", "so cho toi da",
+    "toi da bao nhieu cho", "khoang cach toi thieu",
 )
 ACTION_PATTERNS = (
     ("parking", ("do xe", "dau xe", "dung do", "duoc do", "phep do", "cam do", "do tai", "do khong")),
@@ -714,6 +722,60 @@ def _information_type(question: str) -> str | None:
     return None
 
 
+def _requested_fact(question: str, information_type: str | None = None) -> str | None:
+    """Return the normalized fact requested by an INFORMATION intent."""
+    text = normalize_question_text(question)
+    if information_type == "sign_meaning":
+        return "legal_meaning"
+    if information_type == "prohibited_subjects":
+        return "prohibited_actor"
+    if any(term in text for term in ("toc do toi thieu", "van toc toi thieu", "toc do thap nhat")):
+        return "minimum_speed"
+    if any(term in text for term in ("toc do toi da", "van toc toi da", "toc do cao nhat")):
+        return "maximum_speed"
+    if any(term in text for term in ("chieu cao toi da", "chieu cao an toan", "xe cao toi da")):
+        return "maximum_vehicle_height"
+    if any(term in text for term in ("tai trong toi da", "xe tren bao nhieu tan", "bao nhieu tan")):
+        return "maximum_vehicle_mass"
+    if any(term in text for term in ("so cho toi da", "toi da bao nhieu cho", "suc chua toi da")):
+        return "maximum_seat_count"
+    if any(term in text for term in ("khoang cach toi thieu", "cu ly toi thieu", "khoang cach an toan toi thieu")):
+        return "minimum_distance"
+    if any(term in text for term in ("ngay chan", "ngay le", "ngay chan le")):
+        return "calendar_parity"
+    if information_type == "time_condition" or any(term in text for term in (
+        "vao luc nao", "khung gio", "khoang thoi gian", "thoi gian nao", "hieu luc khi nao",
+    )):
+        return "active_time"
+    if information_type == "speed":
+        return "speed_limit"
+    if information_type == "direction_scope":
+        return "direction_scope"
+    if information_type == "destination_distance":
+        return "destination_distance_km"
+    if information_type == "road_identity":
+        if any(term in text for term in ("ma cao toc", "ma tuyen", "ky hieu tuyen")):
+            return "highway_route_code"
+        return "highway_name"
+    if information_type == "distance_scope":
+        return "minimum_distance"
+    return None
+
+
+def _information_filters(question: str, actor: str, action: str, requested_fact: str | None) -> dict[str, Any]:
+    filters: dict[str, Any] = {}
+    if actor != "unknown":
+        filters["vehicle_type"] = actor
+    if action != "unknown" and requested_fact in {"active_time", "prohibition_active_time"}:
+        filters["action"] = action
+    text = normalize_question_text(question)
+    if requested_fact == "minimum_distance" and any(term in text for term in (
+        "giua hai xe", "giua cac xe", "theo sau", "giu khoang cach",
+    )):
+        filters["distance_kind"] = "following_distance"
+    return filters
+
+
 def _answer_spec(kind: str) -> dict[str, Any]:
     answer_types = {
         "CHECK_PERMISSION": "decision_with_explanation",
@@ -767,25 +829,30 @@ def parse_query_intent_deterministic(
     normalized_question = normalize_question_text(question)
     refers_to_scene = location is not None or any(phrase in normalized_question for phrase in (
         "bien nay", "bien bao nay", "bien bao trong anh", "bien trong anh",
-        "anh nay", "hinh nay", "trong hinh", "trong anh",
+        "anh nay", "hinh nay", "trong hinh", "trong anh", "doan duong phia truoc",
+        "duong phia truoc", "tren duong nay",
     ))
     target = (
         IntentTarget(kind="sign_code", sign_codes=explicit_sign_codes)
         if explicit_sign_codes
         else IntentTarget(kind="scene" if refers_to_scene else "unresolved")
     )
-    intents = [
-        Intent(
+    intents = []
+    for index, kind in enumerate(kinds):
+        info_type = _information_type(question) if kind == "INFORMATION" else None
+        requested_fact = _requested_fact(question, info_type) if kind == "INFORMATION" else None
+        intents.append(Intent(
             intent_id=f"intent-{index + 1}",
             kind=kind,
             target=target,
             action=action,
             actor=actor,
             requested_answer=_requested_answer(kind, action_value, question),
-            information_type=_information_type(question) if kind == "INFORMATION" else None,
-        )
-        for index, kind in enumerate(kinds)
-    ]
+            information_type=info_type,
+            requested_fact=requested_fact,
+            filters=_information_filters(question, vehicle_value, action_value, requested_fact)
+            if kind == "INFORMATION" else {},
+        ))
     return IntentParseResult(
         schema_version="3.0",
         query_intent=QueryIntent(
@@ -856,6 +923,15 @@ def _validate_llm_query(payload: dict[str, Any], question: str, now: datetime | 
         information_type = str(item.get("information_type") or "").strip().lower() or None
         if raw_kind in {"QUERY_SIGN", "QUERY_SIGN_MEANING", "IDENTIFY_SIGN"} and not information_type:
             information_type = "sign_meaning"
+        requested_fact = str(item.get("requested_fact") or "").strip().lower() or None
+        if kind == "INFORMATION" and not requested_fact:
+            requested_fact = _requested_fact(question, information_type)
+        filters = item.get("filters") if isinstance(item.get("filters"), dict) else {}
+        filters = dict(filters)
+        if kind == "INFORMATION":
+            inferred_filters = _information_filters(question, actor_value, action_value, requested_fact)
+            for key, value in inferred_filters.items():
+                filters.setdefault(key, value)
         parsed_intents.append(Intent(
             intent_id=str(item.get("intent_id") or f"intent-{index + 1}"),
             kind=kind,
@@ -864,6 +940,8 @@ def _validate_llm_query(payload: dict[str, Any], question: str, now: datetime | 
             actor=IntentSlot(actor_value, actor_raw_text, actor_status),
             requested_answer=requested,
             information_type=information_type,
+            requested_fact=requested_fact,
+            filters=filters,
         ))
 
     if not parsed_intents:
@@ -913,24 +991,30 @@ def parse_query_intent_with_llm(
         "bao gồm cách hỏi khẩu ngữ hoặc diễn đạt gián tiếp.\n"
         "- INFORMATION: hỏi thông tin thể hiện bởi biển hoặc dữ liệu nhận diện, gồm nhận diện biển, ký hiệu/mã, "
         "ý nghĩa/thông điệp của biển, đối tượng xe, thời gian hiệu lực, "
-        "hướng, tốc độ, khoảng cách, mã/tên đường và các thông tin cụ thể khác. information_type chỉ là gợi ý tùy chọn: "
-        "nếu không khớp các giá trị liệt kê, vẫn chọn INFORMATION và bỏ qua trường information_type để LLM tự trả lời "
-        "từ câu hỏi cùng context. Với câu hỏi nhận diện/ý nghĩa biển, đặt information_type=sign_meaning.\n"
+        "hướng, tốc độ, khoảng cách, ngày chẵn/lẻ, chiều cao, tải trọng, số chỗ và mã/tên đường. "
+        "Khi xác định được, điền requested_fact bằng predicate cụ thể cần truy xuất (ví dụ: legal_meaning, "
+        "active_time, minimum_speed, maximum_speed, calendar_parity, minimum_distance, "
+        "maximum_vehicle_height, maximum_vehicle_mass, maximum_seat_count, prohibited_actor). "
+        "Đưa loại xe/hành động cần lọc vào filters; không tự suy ra dữ kiện từ ảnh. "
+        "information_type có thể giữ làm nhãn nhóm tương thích cũ. Với câu hỏi về ý nghĩa biển, "
+        "đặt information_type=sign_meaning và requested_fact=legal_meaning.\n"
         "- UNKNOWN: bao gồm câu hỏi ngoài phạm vi giao thông/biển báo, không thể xác định ý định, hoặc hỏi tiền phạt, "
         "mức xử phạt hay chế tài cho vi phạm. Câu hỏi lạ cách "
         "diễn đạt nhưng vẫn rõ nghĩa không được gán UNKNOWN chỉ vì không khớp từ khóa.\n"
-        "Chỉ thêm trường liên quan đến kind: CHECK_PERMISSION dùng action, actor; INFORMATION có thể có "
-        "information_type nếu khớp một giá trị đã liệt kê; nếu không, hãy bỏ trường đó. "
-        "target chỉ thêm khi câu hỏi nhắm tới biển/cảnh cụ thể. "
+        "Chỉ thêm trường liên quan đến kind: CHECK_PERMISSION dùng action, actor, requested_answer; INFORMATION dùng "
+        "requested_fact, filters và có thể giữ information_type. "
+        "target chỉ thêm khi câu hỏi nhắm tới biển/cảnh cụ thể; nếu câu hỏi nêu mã biển, dùng "
+        "target={kind:sign_code,sign_codes:[...]}, nếu có ID quan sát thì dùng kind=sign_observation. "
         "Với cách gọi chung 'xe máy', dùng actor=motorcycle_or_moped, không tự chọn mô tô hay xe gắn máy.\n"
         "Intent mô tả điều người dùng muốn biết; không suy đoán dữ kiện từ ảnh. Dữ kiện thời gian/vị trí "
         "được nêu rõ đưa vào context_facts với source=user_query. Trả về JSON hợp lệ, không thêm văn xuôi.\n"
         'Schema: {"schema_version":"3.0","intents":[{"kind":"CHECK_PERMISSION|INFORMATION|UNKNOWN",'
-        '"target":"scene|sign_observation|sign_code|unresolved",'
+        '"target":{"kind":"scene|sign_observation|sign_code|unresolved","observation_ids":[],"sign_codes":[]},'
         '"action":"parking|stopping|yielding|turn_left|turn_right|u_turn|going_straight|entering|exiting|speed|reduce_speed|circulation|crossing|overtaking|reversing|lane_change|using_horn|following_distance|passing_obstacle|roundabout_circulation|unknown",'
         '"actor":"'
         + vehicle_enum + '","information_type":"sign_meaning|prohibited_subjects|time_condition|direction_scope|speed|distance_scope|destination_distance|road_identity",'
-        '"requested_answer":{}}],'
+        '"requested_fact":"legal_meaning|active_time|minimum_speed|maximum_speed|calendar_parity|minimum_distance|maximum_vehicle_height|maximum_vehicle_mass|maximum_payload_mass|maximum_seat_count|prohibited_actor",'
+        '"filters":{},"requested_answer":{}}],'
         '"context_facts":[],"unresolved_items":[],"confidence":"high|medium|low"}\n'
         f"Câu hỏi: {question}"
     )

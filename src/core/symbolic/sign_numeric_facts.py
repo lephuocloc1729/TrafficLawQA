@@ -106,20 +106,14 @@ def extract_main_sign_context_facts(
     if spec is None:
         return []
 
-    # Some YOLO classes already identify the numeric value (for example,
-    # speed_limit_40 and min_speed_limit_30). Do not let OCR create a second,
-    # possibly conflicting value for the same sign attribute.
     normalized_conditions = observation.visual_attributes.get("normalized_conditions", {})
+    detector_value = (
+        normalized_conditions.get(spec["predicate"])
+        if isinstance(normalized_conditions, dict) else None
+    )
     # P.121's displayed following distance is read from the sign itself. OCR
     # must remain authoritative so conflicting readings stay unresolved rather
     # than being hidden by a stale/pre-filled normalized value.
-    if (
-        code != "P.121"
-        and isinstance(normalized_conditions, dict)
-        and spec["predicate"] in normalized_conditions
-    ):
-        return []
-
     readings: list[tuple[Any, str, str, dict[str, Any]]] = []
     for index, item in enumerate(observation.ocr_texts):
         raw = str(item.get("normalized_value") or item.get("raw_text") or "").strip()
@@ -148,6 +142,31 @@ def extract_main_sign_context_facts(
         return value
 
     values = {fingerprint(reading[0]) for reading in readings}
+    if detector_value is not None:
+        detector_fingerprint = fingerprint(detector_value)
+        if detector_fingerprint not in values:
+            conflicting_values = sorted(
+                {detector_fingerprint, *values},
+                key=str,
+            )
+            return [ContextFact(
+                fact_id=f"{observation.observation_id}:ocr:{spec['predicate']}:detector-conflict",
+                predicate=spec["predicate"],
+                value=None,
+                status="ambiguous",
+                source="detector_attribute_ocr_conflict",
+                raw_text=" | ".join([str(detector_value), *(reading[1] for reading in readings)]),
+                confidence="low",
+                evidence=list(observation.evidence),
+                conditions={"conflicting_values": conflicting_values},
+                metadata={
+                    "subject_observation_id": subject_id,
+                    "source_observation_id": observation.observation_id,
+                    "extraction": f"strict_{code.lower().replace('.', '')}_numeric_ocr",
+                    "conflicting_values": conflicting_values,
+                    "unit": spec["unit"],
+                },
+            )]
     if len(values) > 1:
         conflicting_values = sorted(values) if all(isinstance(value, (int, float)) for value in values) else sorted(values, key=str)
         return [ContextFact(
@@ -159,6 +178,7 @@ def extract_main_sign_context_facts(
             raw_text=" | ".join(reading[1] for reading in readings),
             confidence="low",
             evidence=list(observation.evidence),
+            conditions={"conflicting_values": conflicting_values},
             metadata={
                 "subject_observation_id": subject_id,
                 "source_observation_id": observation.observation_id,

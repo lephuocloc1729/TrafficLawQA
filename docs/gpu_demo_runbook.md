@@ -42,23 +42,22 @@ grep -E '^(LLM_BASE_URL|LLM_MODEL|IMAGE_LAWDB_DETECTION_MODEL|IMAGE_QUERY_DETECT
 For this demo, `LLM_MODEL` must refer to the Gemma 3 12B model served by Ollama,
 `IMAGE_QUERY_DETECTION_MODEL` must be `Yolo26s`, OCR should use the configured
 GPU device, and `SIGN_MODEL_PATH` must resolve to the fine-tuned checkpoint.
-The OCR extra includes VietOCR plus the PP-OCRv6 text detector. VietOCR downloads
-its pretrained `vgg_transformer` weights on first initialization, so allow the
-GPU host to reach the model download source before starting the first run.
+The OCR extra installs PaddleOCR for both text detection and recognition. Allow
+the GPU host to reach PaddleOCR's model download source before starting the
+first run if the required models are not cached.
 
 ## 2. Check the GPU and Python runtime
 
 ```bash
 nvidia-smi
 .venv/bin/python -c 'import torch; print("torch CUDA:", torch.cuda.is_available()); print("GPU:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "none")'
-.venv/bin/python -c 'import paddle, torch, vietocr; from paddleocr import TextDetection; print("Paddle CUDA:", paddle.is_compiled_with_cuda(), "Torch CUDA:", torch.cuda.is_available(), "VietOCR:", vietocr.__file__)'
+.venv/bin/python -c 'import paddle; from paddleocr import PaddleOCR; print("Paddle CUDA:", paddle.is_compiled_with_cuda()); print("PaddleOCR import: OK")'
 ```
 
 Stop here if CUDA is unavailable or the installed PaddlePaddle build has no
-CUDA support. VietOCR uses PyTorch CUDA, while PaddleOCR is retained only for
-text-region detection. Do not try to fix a runtime import error by changing
-application code; install the GPU-compatible dependencies for this machine
-first.
+CUDA support. PaddleOCR uses PaddlePaddle for text detection and recognition.
+Do not try to fix a runtime import error by changing application code; install
+the GPU-compatible dependencies for this machine first.
 
 ## 3. Check the YOLO26s checkpoint
 
@@ -179,7 +178,7 @@ pipeline that uses LawDB retrieval, confirm the Qdrant collection has points.
 | LLM connection refused | Ollama is stopped or `LLM_BASE_URL` is wrong | Start Ollama and verify section 5 |
 | Ollama reports model not found | Configured Gemma alias is not installed/served | Pull or configure Gemma 3 12B, then verify `/v1/models` |
 | `libGL.so.1` or OpenCV import error | Missing system OpenGL runtime library | Install the OS package providing `libGL.so.1`, then restart the app |
-| VietOCR or text detector cannot initialize GPU | CPU-only/mismatched PyTorch or Paddle build, or CUDA runtime issue | Recheck section 2 and install GPU-compatible PyTorch and Paddle builds |
+| PaddleOCR cannot initialize GPU | CPU-only/mismatched Paddle build, or CUDA runtime issue | Recheck section 2 and install a GPU-compatible PaddlePaddle build |
 
 After every restart, check `outputs/streamlit.log` and the Streamlit health
 endpoint before retrying a request in the browser. A healthy HTTP endpoint alone

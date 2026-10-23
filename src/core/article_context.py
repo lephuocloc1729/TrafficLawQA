@@ -148,9 +148,12 @@ def build_article_contexts(
 
 def rule_article_candidates(symbolic_context: dict[str, Any]) -> list[dict[str, Any]]:
     sign_codes = [
-        str(observation.get("sign_code") or "").strip()
-        for observation in symbolic_context.get("facts", {}).get("sign_observations", [])
-        if str(observation.get("sign_code") or "").strip()
+        str(observation.get("code") or observation.get("sign_code") or "").strip()
+        for observation in (
+            symbolic_context.get("facts", {}).get("signs")
+            or symbolic_context.get("facts", {}).get("sign_observations", [])
+        )
+        if str(observation.get("code") or observation.get("sign_code") or "").strip()
     ]
     candidates: list[dict[str, Any]] = []
     legal_basis = symbolic_context.get("symbolic_decision", {}).get(

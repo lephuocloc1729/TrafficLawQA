@@ -1,7 +1,7 @@
 # VLSP2025 Legal Q&A System Makefile
 # This Makefile provides convenient commands for common project tasks
 
-.PHONY: help install setup venv venv-create venv-activate venv-remove lawdb task1 task2 clean docker-up docker-down test baseline neuro-symbolic baseline-compare baseline-vlm-only test-four-pipelines format lint ui-freeform-demo
+.PHONY: help install setup venv venv-create venv-activate venv-remove lawdb task1 task2 clean docker-up docker-down test baseline neuro-symbolic baseline-compare baseline-vlm-only test-four-pipelines format lint ui-freeform-demo ui-facts
 
 # Default target
 help:
@@ -38,6 +38,7 @@ help:
 	@echo "  ui-label    Start labeling application"
 	@echo "  ui-inspect  Start law database inspection tool"
 	@echo "  ui-freeform-demo Start free-form cited QA demo"
+	@echo "  ui-facts    Upload an image and inspect extracted traffic-sign facts"
 	@echo ""
 
 # Virtual environment management
@@ -165,6 +166,14 @@ ui-inspect-task1:
 ui-freeform-demo:
 	@echo "Starting free-form cited QA demo..."
 	PYTHONPATH=. streamlit run src/ui/freeform_qa_demo.py
+
+ui-facts:
+	@echo "Starting traffic-sign facts viewer..."
+	PYTHONPATH=. streamlit run src/ui/facts_viewer.py
+
+ui-sign-template-review:
+	@echo "Starting traffic-sign fact-template review..."
+	PYTHONPATH=. streamlit run src/ui/sign_template_review.py --server.port 8502
 
 # Data management
 data-clean:

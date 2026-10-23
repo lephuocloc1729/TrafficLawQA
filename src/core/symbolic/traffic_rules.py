@@ -6,12 +6,21 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
 
-from src.core.symbolic.fact_schema import ContextFact, SignObservation, TrafficFacts
+from src.core.symbolic.fact_schema import (
+    FACT_PREDICATE_ALIASES,
+    ContextFact,
+    SignObservation,
+    TrafficFacts,
+)
 from src.core.symbolic.intent_schema import Intent, QueryIntent
 from src.core.symbolic.rule_schema import RuleEffect, RuleEvaluation, TrafficRule
 from src.core.symbolic.supplementary_facts import extract_supplementary_context_facts
 from src.core.symbolic.sign_numeric_facts import extract_main_sign_context_facts
 from src.core.symbolic.sign_information_facts import extract_sign_information_facts
+from src.core.symbolic.sign_fact_templates import (
+    instantiate_sign_fact_templates,
+    instantiate_supplementary_template,
+)
 from src.core.symbolic.sign_schema import normalize_confidence
 from src.core.symbolic.sign_normalizer import normalize_sign_code, sign_family
 from src.core.symbolic.question_intent import extract_vehicle
@@ -228,7 +237,41 @@ def _observation_context_facts(
         "exceptions": "supplementary_exceptions",
         "sign_effective_scope_confirmed": "sign_effective_scope_confirmed",
     }
+    normalized_units = {
+        "speed_limit_value": "km/h",
+        "minimum_speed_limit_kmh": "km/h",
+        "total_weight_limit_t": "t",
+        "axle_load_limit_t": "t",
+        "payload_limit_t": "t",
+        "height_limit_m": "m",
+        "width_limit_m": "m",
+        "length_limit_m": "m",
+        "combination_length_limit_m": "m",
+        "minimum_following_distance_m": "m",
+        "passenger_seat_limit": "seats",
+    }
     result: list[ContextFact] = []
+    main_numeric_ocr_facts = (
+        extract_main_sign_context_facts(observation, subject_id=subject_id)
+        if observation.sign_code and not observation.sign_code.upper().startswith("S.")
+        else []
+    )
+    numeric_ocr_predicates = {
+        FACT_PREDICATE_ALIASES.get(item.predicate, item.predicate)
+        for item in main_numeric_ocr_facts
+    }
+    normalized_field_predicates = {
+        "speed_limit_value": "maximum_speed",
+        "minimum_speed_limit_kmh": "minimum_speed",
+        "total_weight_limit_t": "maximum_vehicle_mass",
+        "axle_load_limit_t": "maximum_axle_load",
+        "payload_limit_t": "maximum_payload_mass",
+        "height_limit_m": "maximum_vehicle_height",
+        "width_limit_m": "maximum_vehicle_width",
+        "length_limit_m": "maximum_vehicle_length",
+        "combination_length_limit_m": "maximum_combination_length",
+        "minimum_following_distance_m": "minimum_distance",
+    }
     fields = observation.visual_attributes.get("normalized_conditions", {})
     if isinstance(fields, dict):
         for source_key, predicate in normalized_fields.items():
@@ -241,6 +284,8 @@ def _observation_context_facts(
             ):
                 continue
             if source_key in fields:
+                if normalized_field_predicates.get(source_key, predicate) in numeric_ocr_predicates:
+                    continue
                 result.append(ContextFact(
                     fact_id=f"{observation.observation_id}:{predicate}",
                     predicate=predicate,
@@ -253,6 +298,7 @@ def _observation_context_facts(
                     ),
                     confidence=observation.confidence,
                     evidence=observation.evidence,
+                    unit=normalized_units.get(source_key),
                     metadata={
                         "subject_observation_id": subject_id,
                         "source_observation_id": observation.observation_id,
@@ -283,8 +329,34 @@ def _observation_context_facts(
             observation, subject_id=subject_id, relation_id=relation_id
         ))
     elif observation.sign_code:
-        result.extend(extract_main_sign_context_facts(observation, subject_id=subject_id))
-    result.extend(extract_sign_information_facts(observation, subject_id=subject_id))
+        result.extend(main_numeric_ocr_facts)
+    result.extend(extract_sign_information_facts(
+        observation,
+        subject_id=subject_id,
+        relation_id=relation_id,
+    ))
+    template_facts = instantiate_sign_fact_templates(observation)
+    for template_fact in template_facts:
+        if template_fact.metadata.get("fill_from") == "ocr_or_detector_attribute":
+            template_predicate = FACT_PREDICATE_ALIASES.get(
+                template_fact.predicate, template_fact.predicate
+            )
+            observed_matches = [
+                fact for fact in result
+                if FACT_PREDICATE_ALIASES.get(fact.predicate, fact.predicate) == template_predicate
+            ]
+            if observed_matches:
+                # The observed OCR/detector fact supplies the value and status;
+                # the sign-code template supplies its unit and legal scope.
+                # This preserves OCR ambiguity while avoiding duplicate values.
+                for observed in observed_matches:
+                    if observed.unit is None:
+                        observed.unit = template_fact.unit
+                    observed.scope = {**template_fact.scope, **observed.scope}
+                    observed.conditions = {**template_fact.conditions, **observed.conditions}
+                continue
+        result.append(template_fact)
+    result.extend(instantiate_supplementary_template(observation))
     return result
 
 
@@ -301,8 +373,13 @@ def _supplementary_context(facts: TrafficFacts, main_sign: SignObservation) -> l
         supplementary = observations.get(relation.source_observation_id)
         if (
             supplementary is None
-            or supplementary.identity_status != "identified"
-            or not _is_scope_supplementary(supplementary)
+            or (
+                supplementary.source != "paddleocr_text_panel"
+                and (
+                    supplementary.identity_status != "identified"
+                    or not _is_scope_supplementary(supplementary)
+                )
+            )
         ):
             continue
         result.extend(_observation_context_facts(
@@ -430,7 +507,8 @@ def _supplementary_linkage_unresolved(facts: TrafficFacts, main_sign: SignObserv
     for supplementary in facts.sign_observations:
         if not _is_scope_supplementary(supplementary):
             continue
-        if supplementary.identity_status != "identified":
+        is_ocr_text_panel = supplementary.source == "paddleocr_text_panel"
+        if supplementary.identity_status != "identified" and not is_ocr_text_panel:
             return True
         if (
             sign_family(supplementary.sign_code) == "S.505"
@@ -443,6 +521,10 @@ def _supplementary_linkage_unresolved(facts: TrafficFacts, main_sign: SignObserv
             and relation.source_observation_id == supplementary.observation_id
         ]
         if not relations:
+            return True
+        if is_ocr_text_panel and not any(
+            relation.confidence == "high" for relation in relations
+        ):
             return True
         attached_here = [
             relation for relation in relations

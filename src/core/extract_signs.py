@@ -1,9 +1,59 @@
 import argparse
 from loguru import logger
 from pathlib import Path
+from typing import Any
 from src.deps.detection import SignExtractor
 from src.settings import settings
 from src.core.symbolic.traffic_sign_ocr import get_traffic_sign_ocr
+
+
+def _box_iou(first: dict[str, Any], second: dict[str, Any]) -> float:
+    first_box = first.get("bbox")
+    second_box = second.get("bbox")
+    if not isinstance(first_box, (list, tuple)) or not isinstance(second_box, (list, tuple)):
+        return 0.0
+    if len(first_box) != 4 or len(second_box) != 4:
+        return 0.0
+    try:
+        ax1, ay1, ax2, ay2 = (float(value) for value in first_box)
+        bx1, by1, bx2, by2 = (float(value) for value in second_box)
+    except (TypeError, ValueError):
+        return 0.0
+    intersection = max(0.0, min(ax2, bx2) - max(ax1, bx1)) * max(
+        0.0, min(ay2, by2) - max(ay1, by1)
+    )
+    area_a = max(0.0, ax2 - ax1) * max(0.0, ay2 - ay1)
+    area_b = max(0.0, bx2 - bx1) * max(0.0, by2 - by1)
+    union = area_a + area_b - intersection
+    return intersection / union if union > 0 else 0.0
+
+
+def _deduplicate_detections(
+    detections: list[tuple[Any, dict[str, Any]]],
+) -> list[tuple[Any, dict[str, Any]]]:
+    """Collapse near-identical boxes, keeping the detector's strongest class."""
+    ranked = sorted(
+        detections,
+        key=lambda item: float(item[1].get("confidence") or 0.0),
+        reverse=True,
+    )
+    kept: list[tuple[Any, dict[str, Any]]] = []
+    for detection in ranked:
+        if any(_box_iou(detection[1], existing[1]) >= 0.9 for existing in kept):
+            continue
+        kept.append(detection)
+
+    # Stable visual ordering makes crop IDs and the UI easier to inspect.
+    def visual_position(item: tuple[Any, dict[str, Any]]) -> tuple[float, float]:
+        box = item[1].get("bbox")
+        if isinstance(box, (list, tuple)) and len(box) == 4:
+            try:
+                return float(box[1]), float(box[0])
+            except (TypeError, ValueError):
+                pass
+        return float("inf"), float("inf")
+
+    return sorted(kept, key=visual_position)
 
 
 def _ocr_full_image_and_associate_yolo_text(
@@ -35,7 +85,7 @@ def _ocr_full_image_and_associate_yolo_text(
         return image_texts, "read" if image_texts else "no_text"
 
     associations: list[list[dict]] = [[] for _ in detections]
-    for text_item in image_texts:
+    for text_index, text_item in enumerate(image_texts):
         polygon = text_item.get("bbox")
         if not isinstance(polygon, list) or not polygon:
             continue
@@ -97,6 +147,8 @@ def _ocr_full_image_and_associate_yolo_text(
             associated = dict(text_item)
             associated["region_role"] = role
             associated["associated_sign_bbox"] = detections[selected_index].get("bbox")
+            image_texts[text_index]["region_role"] = role
+            image_texts[text_index]["associated_sign_bbox"] = detections[selected_index].get("bbox")
             associations[selected_index].append(associated)
 
     for detection, texts in zip(detections, associations):
@@ -118,7 +170,9 @@ def extract_signs(
     try:
         image_id = sample["image_id"]
         image_path = image_dir / f"{image_id}.jpg"
-        detections = sign_extractor.detect_and_crop(image_path=str(image_path))
+        detections = _deduplicate_detections(
+            sign_extractor.detect_and_crop(image_path=str(image_path))
+        )
         detection_metadata = [metadata for _, metadata in detections]
         detection_dir = Path(sign_dir) if sign_dir is not None else image_dir
         if include_full_image_ocr:

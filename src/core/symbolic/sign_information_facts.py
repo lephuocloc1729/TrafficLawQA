@@ -76,6 +76,7 @@ def _fact(
 def extract_sign_information_facts(
     observation: SignObservation,
     subject_id: str | None = None,
+    relation_id: str | None = None,
 ) -> list[ContextFact]:
     """Parse explicit time, distance, route and destination data from OCR.
 
@@ -114,7 +115,10 @@ def extract_sign_information_facts(
                 item,
                 time_index,
                 raw_text=match.group(0),
-                metadata={"ocr_line_index": line_index},
+                metadata={
+                    "ocr_line_index": line_index,
+                    **({"relation_id": relation_id} if relation_id else {}),
+                },
             ))
 
     is_expressway = (

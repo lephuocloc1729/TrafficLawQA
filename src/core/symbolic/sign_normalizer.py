@@ -275,6 +275,8 @@ def normalize_detected_sign_to_observation(
             observation.metadata["identity_resolution"] = "retrieval_top1_not_visually_confirmed"
     if sign.get("confidence") is not None:
         observation.metadata["detector_confidence"] = sign.get("confidence")
+    if sign.get("class_label"):
+        observation.metadata["detector_class_label"] = str(sign["class_label"]).strip().lower()
     if not observation.visual_attributes.get("name") and sign.get("sign_name"):
         observation.visual_attributes["name"] = str(sign["sign_name"])
     if not observation.sign_code and sign.get("sign_code"):

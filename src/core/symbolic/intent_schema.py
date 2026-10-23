@@ -69,6 +69,8 @@ class Intent(SerializableMixin):
     actor: IntentSlot = field(default_factory=IntentSlot)
     requested_answer: dict[str, Any] = field(default_factory=dict)
     information_type: str | None = None
+    requested_fact: str | None = None
+    filters: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.intent_id = str(self.intent_id or "intent-1").strip()
@@ -96,6 +98,8 @@ class Intent(SerializableMixin):
             })
         self.requested_answer = dict(self.requested_answer or {})
         self.information_type = str(self.information_type).strip().lower() if self.information_type else None
+        self.requested_fact = str(self.requested_fact).strip().lower() if self.requested_fact else None
+        self.filters = dict(self.filters or {}) if isinstance(self.filters, dict) else {}
 
     def to_dict(self) -> dict[str, Any]:
         """Expose the compact intent contract while retaining richer runtime slots."""
@@ -105,8 +109,9 @@ class Intent(SerializableMixin):
                 payload["action"] = self.action.value
             if self.actor.value != "unknown":
                 payload["actor"] = self.actor.value
-            if self.target.kind != "unresolved":
-                payload["target"] = "scene" if self.target.kind in {"scene", "sign_observation", "sign_code"} else self.target.kind
+            target = self._compact_target()
+            if target is not None:
+                payload["target"] = target
             requested_values = {
                 key: value for key, value in self.requested_answer.items()
                 if key.startswith("requested_") and value is not None
@@ -116,9 +121,23 @@ class Intent(SerializableMixin):
         elif self.kind == "INFORMATION":
             if self.information_type:
                 payload["information_type"] = self.information_type
-            if self.target.kind != "unresolved":
-                payload["target"] = "scene" if self.target.kind in {"scene", "sign_observation", "sign_code"} else self.target.kind
+            if self.requested_fact:
+                payload["requested_fact"] = self.requested_fact
+            if self.filters:
+                payload["filters"] = self.filters
+            target = self._compact_target()
+            if target is not None:
+                payload["target"] = target
         return payload
+
+    def _compact_target(self) -> str | dict[str, Any] | None:
+        if self.target.kind == "sign_code" and self.target.sign_codes:
+            return {"kind": "sign_code", "sign_codes": self.target.sign_codes}
+        if self.target.kind == "sign_observation" and self.target.observation_ids:
+            return {"kind": "sign_observation", "observation_ids": self.target.observation_ids}
+        if self.target.kind == "unresolved":
+            return None
+        return "scene" if self.target.kind in {"scene", "sign_observation", "sign_code"} else self.target.kind
 
 
 @dataclass
@@ -143,7 +162,7 @@ class QueryIntent(SerializableMixin):
                     key: value for key, value in item.items()
                     if key in {
                         "kind", "target", "action", "actor", "requested_answer",
-                        "information_type",
+                        "information_type", "requested_fact", "filters",
                     }
                 },
             })

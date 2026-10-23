@@ -1,0 +1,2408 @@
+{
+  "schema_version": "1.0",
+  "source": "VTSDB100 reviewed class mapping and QCVN 41:2024/BGTVT sign catalog",
+  "class_count": 100,
+  "classes": {
+    "no_entry": {
+      "class_label": "no_entry",
+      "sign_code": "P.102",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm mọi phương tiện đi vào từ phía đặt biển. Xe ưu tiên được đi theo quy định; người đi bộ vẫn có thể đi trên vỉa hè hoặc lề đường.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ],
+            "direction": "opposite_sign"
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_cars": {
+      "class_label": "no_cars",
+      "sign_code": "P.103a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm ô tô đi vào đoạn đường này, trừ xe được ưu tiên theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "motor_vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "excluded_vehicle_types": [
+              "motorcycle",
+              "moped"
+            ]
+          },
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_cars_turn_right": {
+      "class_label": "no_cars_turn_right",
+      "sign_code": "P.103b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm ô tô rẽ phải tại nút giao phía trước. Biển này không cấm xe máy hai bánh và xe gắn máy rẽ phải; xe ưu tiên được áp dụng theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "motor_vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "excluded_vehicle_types": [
+              "motorcycle",
+              "moped"
+            ]
+          },
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "turn_right"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_cars_turn_left": {
+      "class_label": "no_cars_turn_left",
+      "sign_code": "P.103c",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm ô tô rẽ trái tại nút giao phía trước. Biển này không cấm xe máy hai bánh và xe gắn máy rẽ trái; xe ưu tiên được áp dụng theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "motor_vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "excluded_vehicle_types": [
+              "motorcycle",
+              "moped"
+            ]
+          },
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "turn_left"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_motorcycles": {
+      "class_label": "no_motorcycles",
+      "sign_code": "P.104",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm xe máy đi vào đoạn đường này, trừ xe được ưu tiên theo quy định. Người dắt xe máy vẫn được đi.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "motorcycle",
+            "moped"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_trucks": {
+      "class_label": "no_trucks",
+      "sign_code": "P.106a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm xe tải đi vào đoạn đường này; biển cũng áp dụng với máy kéo và xe máy chuyên dùng. Xe ưu tiên được đi theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "truck",
+            "tractor",
+            "tractor_unit",
+            "special_use_vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_trucks_over_2.5t": {
+      "class_label": "no_trucks_over_2.5t",
+      "sign_code": "P.106b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm xe tải có khối lượng chuyên chở vượt quá 2,5 tấn. Biển cũng áp dụng với máy kéo và xe máy chuyên dùng theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "truck",
+            "tractor",
+            "tractor_unit",
+            "special_use_vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "truck": {
+              "predicate": "maximum_payload_mass",
+              "operator": ">",
+              "limit": "sign_value"
+            }
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "maximum_payload_mass",
+          "value": 2.5,
+          "unit": "t",
+          "status": "derived",
+          "confidence": "high",
+          "fill_from": "ocr_or_detector_attribute",
+          "scope": {
+            "vehicle_types": [
+              "truck"
+            ]
+          }
+        }
+      ]
+    },
+    "no_pedestrians": {
+      "class_label": "no_pedestrians",
+      "sign_code": "P.112",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm người đi bộ đi qua đoạn đường này.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "pedestrian"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "height_limit": {
+      "class_label": "height_limit",
+      "sign_code": "P.117",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Xe cao hơn mức ghi trên biển không được đi qua.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "maximum_vehicle_height",
+          "value": null,
+          "unit": "m",
+          "status": "not_observed",
+          "confidence": "low",
+          "fill_from": "ocr_or_detector_attribute"
+        }
+      ]
+    },
+    "no_turn_left": {
+      "class_label": "no_turn_left",
+      "sign_code": "P.123a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm rẽ trái tại nút giao phía trước; biển không cấm quay đầu xe.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "turn_left"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_turn_right": {
+      "class_label": "no_turn_right",
+      "sign_code": "P.123b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm rẽ phải tại nút giao phía trước; biển không cấm quay đầu xe.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "turn_right"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_u_turn": {
+      "class_label": "no_u_turn",
+      "sign_code": "P.124a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm quay đầu xe tại vị trí đặt biển.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "u_turn"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_turn_left_and_u_turn": {
+      "class_label": "no_turn_left_and_u_turn",
+      "sign_code": "P.124c",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm cả rẽ trái và quay đầu xe tại nút giao phía trước.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "turn_left",
+            "u_turn"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_honking": {
+      "class_label": "no_honking",
+      "sign_code": "P.128",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm sử dụng còi trong đoạn đường có hiệu lực của biển.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "honk"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_stopping_and_parking": {
+      "class_label": "no_stopping_and_parking",
+      "sign_code": "P.130",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm dừng xe và đỗ xe ở phía đường có đặt biển, trừ xe ưu tiên theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "motor_vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "stop",
+            "park"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_parking": {
+      "class_label": "no_parking",
+      "sign_code": "P.131a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm đỗ xe ở phía đường có đặt biển, trừ xe ưu tiên theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "motor_vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "park"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_parking_odd_days": {
+      "class_label": "no_parking_odd_days",
+      "sign_code": "P.131b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm đỗ xe vào ngày lẻ trong tháng ở phía đường có đặt biển, trừ xe ưu tiên theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "motor_vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "park"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "calendar_parity",
+          "value": "odd",
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_parking_even_days": {
+      "class_label": "no_parking_even_days",
+      "sign_code": "P.131c",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm đỗ xe vào ngày chẵn trong tháng ở phía đường có đặt biển, trừ xe ưu tiên theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "motor_vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "park"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "calendar_parity",
+          "value": "even",
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_straight_ahead": {
+      "class_label": "no_straight_ahead",
+      "sign_code": "P.136",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm đi thẳng qua nút giao phía trước, trừ xe ưu tiên theo quy định. Biển phụ có thể giới hạn lệnh cấm theo giờ hoặc loại xe.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "go_straight"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_turn_left_and_right": {
+      "class_label": "no_turn_left_and_right",
+      "sign_code": "P.137",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm rẽ trái và rẽ phải tại nút giao phía trước, trừ xe ưu tiên theo quy định. Biển phụ có thể giới hạn lệnh cấm theo giờ hoặc loại xe.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "turn_left",
+            "turn_right"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_cars_u_turn": {
+      "class_label": "no_cars_u_turn",
+      "sign_code": "P.124b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm ô tô và xe ba bánh có động cơ quay đầu tại vị trí đặt biển.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "car",
+            "motorized_tricycle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "u_turn"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_buses_and_trucks": {
+      "class_label": "no_buses_and_trucks",
+      "sign_code": "P.107",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm xe khách và xe tải đi vào đoạn đường này; biển cũng áp dụng với máy kéo và xe máy chuyên dùng. Xe ưu tiên được đi theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "bus",
+            "truck",
+            "tractor",
+            "tractor_unit",
+            "special_use_vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_trailers": {
+      "class_label": "no_trailers",
+      "sign_code": "P.108",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm xe kéo theo rơ-moóc đi vào, kể cả xe máy, máy kéo và xe khách. Biển không áp dụng với ô tô đầu kéo kéo sơ-mi rơ-moóc và xe ưu tiên theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "motor_vehicle",
+            "motorized_tricycle",
+            "tractor",
+            "special_use_vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ],
+            "trailer_configuration": {
+              "required": "towing_trailer",
+              "excluded_configurations": [
+                "semi_trailer"
+              ]
+            }
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_vehicles_carrying_dangerous_goods": {
+      "class_label": "no_vehicles_carrying_dangerous_goods",
+      "sign_code": "P.106c",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm xe chở hàng nguy hiểm đi vào đoạn đường này.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle_carrying_dangerous_goods"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_bicycles": {
+      "class_label": "no_bicycles",
+      "sign_code": "P.110a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm xe đạp đi vào đoạn đường này. Người dắt xe đạp vẫn được đi.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "bicycle"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "no_slow_moving_vehicles": {
+      "class_label": "no_slow_moving_vehicles",
+      "sign_code": "LOCAL.001",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Theo phân loại riêng của bộ dữ liệu này, biển cấm xe ba bánh có động cơ và xe ba bánh thô sơ, kể cả xe lam.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "no_motorcycles_and_slow_vehicles": {
+      "class_label": "no_motorcycles_and_slow_vehicles",
+      "sign_code": "LOCAL.002",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Theo phân loại riêng của bộ dữ liệu này, biển cấm xe máy và các loại xe ba bánh có động cơ hoặc thô sơ.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "give_way": {
+      "class_label": "give_way",
+      "sign_code": "W.208",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo trước sắp giao nhau với đường ưu tiên. Xe trên đường đang đi phải giảm tốc độ và nhường đường cho xe trên đường ưu tiên.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "width_limit": {
+      "class_label": "width_limit",
+      "sign_code": "P.118",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Xe rộng hơn mức ghi trên biển không được đi qua.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "maximum_vehicle_width",
+          "value": null,
+          "unit": "m",
+          "status": "not_observed",
+          "confidence": "low",
+          "fill_from": "ocr_or_detector_attribute"
+        }
+      ]
+    },
+    "weight_limit": {
+      "class_label": "weight_limit",
+      "sign_code": "P.115",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm xe có tổng khối lượng của xe, người và hàng vượt quá mức ghi trên biển đi qua, kể cả xe ưu tiên.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "maximum_vehicle_mass",
+          "value": null,
+          "unit": "t",
+          "status": "not_observed",
+          "confidence": "low",
+          "fill_from": "ocr_or_detector_attribute"
+        }
+      ]
+    },
+    "axle_weight_limit": {
+      "class_label": "axle_weight_limit",
+      "sign_code": "P.116",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm xe có tải trọng trên bất kỳ trục nào vượt quá mức ghi trên biển đi qua, kể cả xe ưu tiên.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        },
+        {
+          "predicate": "maximum_axle_load",
+          "value": null,
+          "unit": "t",
+          "status": "not_observed",
+          "confidence": "low",
+          "fill_from": "ocr_or_detector_attribute"
+        }
+      ]
+    },
+    "no_overtaking": {
+      "class_label": "no_overtaking",
+      "sign_code": "P.125",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm các xe cơ giới vượt nhau trong đoạn đường có hiệu lực của biển.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "motor_vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "excluded_vehicle_types": [
+              "motorcycle",
+              "moped"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "overtake"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "min_distance_between_vehicles": {
+      "class_label": "min_distance_between_vehicles",
+      "sign_code": "P.121",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Ô tô phải giữ khoảng cách với xe phía trước ít nhất bằng mức ghi trên biển.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "minimum_distance",
+          "value": null,
+          "unit": "m",
+          "status": "not_observed",
+          "confidence": "low",
+          "fill_from": "ocr_or_detector_attribute",
+          "scope": {
+            "vehicle_types": [
+              "car",
+              "bus",
+              "truck",
+              "tractor_unit",
+              "four_wheel_passenger_vehicle",
+              "four_wheel_goods_vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "end_no_overtaking": {
+      "class_label": "end_no_overtaking",
+      "sign_code": "DP.133",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo hết đoạn đường cấm vượt; từ đây, xe cơ giới được vượt khi đáp ứng quy định an toàn.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "end_all_prohibitions": {
+      "class_label": "end_all_prohibitions",
+      "sign_code": "DP.135",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo các lệnh cấm trên đoạn đường vừa qua đã hết hiệu lực.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "road_closed": {
+      "class_label": "road_closed",
+      "sign_code": "P.101",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cấm mọi phương tiện đi lại theo cả hai chiều, trừ xe ưu tiên theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "prohibited_actor",
+          "value": [
+            "vehicle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "conditions": {
+            "exceptions": [
+              "priority_vehicle"
+            ]
+          }
+        },
+        {
+          "predicate": "prohibited_action",
+          "value": [
+            "entering"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "pedestrian_crossing": {
+      "class_label": "pedestrian_crossing",
+      "sign_code": "W.224",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo trước nơi người đi bộ sang đường. Giảm tốc độ, nhường đường và chỉ đi tiếp khi không gây nguy hiểm cho người đi bộ.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "mandatory_action",
+          "value": [
+            "reduce_speed",
+            "yielding"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "vehicle_types": [
+              "vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "children_crossing": {
+      "class_label": "children_crossing",
+      "sign_code": "W.225",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo trước khu vực có trẻ em thường sang đường hoặc tụ tập gần đường. Hãy giảm tốc độ và quan sát kỹ.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "road_works": {
+      "class_label": "road_works",
+      "sign_code": "W.227",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo trước đoạn đường đang thi công, có thể có công nhân và máy móc trên mặt đường. Giảm tốc độ và đi cẩn thận.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "mandatory_action",
+          "value": [
+            "reduce_speed"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "vehicle_types": [
+              "vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "two_way_traffic": {
+      "class_label": "two_way_traffic",
+      "sign_code": "W.204",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo trước đoạn đường phía trước có xe chạy theo cả hai chiều, thường do sửa đường hoặc có chướng ngại vật.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "railway_crossing_with_gates": {
+      "class_label": "railway_crossing_with_gates",
+      "sign_code": "W.211",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo trước giao cắt với đường sắt không có rào chắn và không có người điều khiển giao thông. Quan sát kỹ trước khi qua.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "go_straight": {
+      "class_label": "go_straight",
+      "sign_code": "R.301a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tại nút giao, các phương tiện phải đi thẳng theo hướng mũi tên.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "mandatory_action",
+          "value": [
+            "go_straight"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "vehicle_types": [
+              "vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "turn_left_only": {
+      "class_label": "turn_left_only",
+      "sign_code": "R.301e",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tại nút giao, các phương tiện phải rẽ trái theo hướng mũi tên.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "mandatory_action",
+          "value": [
+            "turn_left"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "vehicle_types": [
+              "vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "turn_right_only": {
+      "class_label": "turn_right_only",
+      "sign_code": "R.301d",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tại nút giao, các phương tiện phải rẽ phải theo hướng mũi tên.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "mandatory_action",
+          "value": [
+            "turn_right"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "vehicle_types": [
+              "vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "roundabout": {
+      "class_label": "roundabout",
+      "sign_code": "R.303",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo nơi giao nhau có vòng xuyến; các phương tiện phải đi theo chiều vòng quanh đảo an toàn.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "mandatory_action",
+          "value": [
+            "roundabout_circulation"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "vehicle_types": [
+              "vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "main_road": {
+      "class_label": "main_road",
+      "sign_code": "I.401",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Bắt đầu đoạn đường ưu tiên. Xe từ đường nhánh phải nhường đường cho xe đang đi trên đường này.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "end_main_road": {
+      "class_label": "end_main_road",
+      "sign_code": "I.402",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo hết đoạn đường ưu tiên.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "hospital": {
+      "class_label": "hospital",
+      "sign_code": "I.425",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn gần đó có bệnh viện, bệnh xá hoặc cơ sở điều trị.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "bus_stop": {
+      "class_label": "bus_stop",
+      "sign_code": "I.434a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn điểm dừng hoặc bến xe buýt để đón, trả khách. Biển phụ có thể ghi tuyến và lộ trình.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "vehicle_scope",
+          "value": [
+            "bus"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "market": {
+      "class_label": "market",
+      "sign_code": "I.442",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo trước khu vực gần chợ. Xe cơ giới cần quan sát kỹ và giảm tốc độ.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "recommended_action",
+          "value": [
+            "reduce_speed"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "vehicle_types": [
+              "motor_vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "checkpoint": {
+      "class_label": "checkpoint",
+      "sign_code": "P.129",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo trạm kiểm tra phía trước. Phương tiện vận tải phải dừng để làm thủ tục kiểm tra theo quy định.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "mandatory_action",
+          "value": [
+            "stop"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "vehicle_types": [
+              "vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "one_way_road": {
+      "class_label": "one_way_road",
+      "sign_code": "I.407a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn đường một chiều. Biển này được đặt sau nút giao để xác nhận chiều lưu thông trên đường.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "u_turn_area": {
+      "class_label": "u_turn_area",
+      "sign_code": "I.409",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn vị trí được phép quay đầu xe.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "clearance_height": {
+      "class_label": "clearance_height",
+      "sign_code": "W.239b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo chiều cao thông xe thực tế bên dưới công trình phía trước. Xe cao hơn mức ghi trên biển không được đi qua.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "maximum_vehicle_height",
+          "value": null,
+          "unit": "m",
+          "status": "not_observed",
+          "confidence": "low",
+          "fill_from": "ocr_or_detector_attribute"
+        }
+      ]
+    },
+    "slow_down": {
+      "class_label": "slow_down",
+      "sign_code": "W.245a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Nhắc người lái xe giảm tốc độ trước đoạn đường cần đi chậm.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "accident_area": {
+      "class_label": "accident_area",
+      "sign_code": "W.244",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo đoạn đường phía trước thường xảy ra tai nạn. Hãy chú ý và điều khiển xe cẩn thận.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "end_dual_carriageway": {
+      "class_label": "end_dual_carriageway",
+      "sign_code": "W.236",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo trước đoạn đường đôi sắp kết thúc; phía trước, hai chiều xe chạy không còn được ngăn cách bằng dải phân cách cứng.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "tunnel": {
+      "class_label": "tunnel",
+      "sign_code": "R.E.11a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn phía trước có hầm chui.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "end_tunnel": {
+      "class_label": "end_tunnel",
+      "sign_code": "R.E.11b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn sắp hết hầm chui.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "road_reserved_for_cars": {
+      "class_label": "road_reserved_for_cars",
+      "sign_code": "R.403a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn đường dành cho các loại ô tô.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "vehicle_scope",
+          "value": [
+            "automobile"
+          ],
+          "status": "derived",
+          "confidence": "medium"
+        }
+      ]
+    },
+    "expressway": {
+      "class_label": "expressway",
+      "sign_code": "I.437",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn bắt đầu đường cao tốc.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "reserved_for_disabled": {
+      "class_label": "reserved_for_disabled",
+      "sign_code": "I.446",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn chỗ đỗ xe dành cho người khuyết tật.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "residential_area": {
+      "class_label": "residential_area",
+      "sign_code": "R.420",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo bắt đầu khu đông dân cư; biển có hiệu lực đến biển hết khu đông dân cư. Trong khu vực này, tốc độ tối đa mặc định phụ thuộc vào loại xe và loại đường: ô tô con, ô tô tải, ô tô chở người và xe máy trên 50 cm³ được chạy tối đa 60 km/h trên đường đôi hoặc đường một chiều có từ hai làn xe, và 50 km/h trên đường hai chiều hoặc đường một chiều có một làn xe. Xe gắn máy dưới 50 cm³, xe máy điện và xe máy chuyên dùng tối đa 40 km/h trên các loại đường này. Các giới hạn tốc độ ghi trên biển tại đoạn đường vẫn phải được tuân thủ.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "end_residential_area": {
+      "class_label": "end_residential_area",
+      "sign_code": "R.421",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo hết khu đông dân cư; từ đây không còn áp dụng các quy định riêng về lưu thông trong khu đông dân cư.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "parking_area": {
+      "class_label": "parking_area",
+      "sign_code": "I.408",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn nơi được phép đỗ xe hoặc bãi đỗ xe.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "speed_limit_40": {
+      "class_label": "speed_limit_40",
+      "sign_code": "P.127",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tốc độ tối đa cho phép là 40 km/h.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "maximum_speed",
+          "value": 40,
+          "unit": "km/h",
+          "status": "derived",
+          "confidence": "high",
+          "fill_from": "ocr_or_detector_attribute",
+          "scope": {
+            "vehicle_types": [
+              "motor_vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "speed_limit_50": {
+      "class_label": "speed_limit_50",
+      "sign_code": "P.127",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tốc độ tối đa cho phép là 50 km/h.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "maximum_speed",
+          "value": 50,
+          "unit": "km/h",
+          "status": "derived",
+          "confidence": "high",
+          "fill_from": "ocr_or_detector_attribute",
+          "scope": {
+            "vehicle_types": [
+              "motor_vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "speed_limit_60": {
+      "class_label": "speed_limit_60",
+      "sign_code": "P.127",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tốc độ tối đa cho phép là 60 km/h.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "maximum_speed",
+          "value": 60,
+          "unit": "km/h",
+          "status": "derived",
+          "confidence": "high",
+          "fill_from": "ocr_or_detector_attribute",
+          "scope": {
+            "vehicle_types": [
+              "motor_vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "speed_limit_70": {
+      "class_label": "speed_limit_70",
+      "sign_code": "P.127",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tốc độ tối đa cho phép là 70 km/h.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "maximum_speed",
+          "value": 70,
+          "unit": "km/h",
+          "status": "derived",
+          "confidence": "high",
+          "fill_from": "ocr_or_detector_attribute",
+          "scope": {
+            "vehicle_types": [
+              "motor_vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "speed_limit_80": {
+      "class_label": "speed_limit_80",
+      "sign_code": "P.127",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tốc độ tối đa cho phép là 80 km/h.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "maximum_speed",
+          "value": 80,
+          "unit": "km/h",
+          "status": "derived",
+          "confidence": "high",
+          "fill_from": "ocr_or_detector_attribute",
+          "scope": {
+            "vehicle_types": [
+              "motor_vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "speed_limit_90": {
+      "class_label": "speed_limit_90",
+      "sign_code": "P.127",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tốc độ tối đa cho phép là 90 km/h.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "maximum_speed",
+          "value": 90,
+          "unit": "km/h",
+          "status": "derived",
+          "confidence": "high",
+          "fill_from": "ocr_or_detector_attribute",
+          "scope": {
+            "vehicle_types": [
+              "motor_vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "speed_limit_100": {
+      "class_label": "speed_limit_100",
+      "sign_code": "P.127",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tốc độ tối đa cho phép là 100 km/h.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "maximum_speed",
+          "value": 100,
+          "unit": "km/h",
+          "status": "derived",
+          "confidence": "high",
+          "fill_from": "ocr_or_detector_attribute",
+          "scope": {
+            "vehicle_types": [
+              "motor_vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "speed_limit_120": {
+      "class_label": "speed_limit_120",
+      "sign_code": "P.127",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tốc độ tối đa cho phép là 120 km/h.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "maximum_speed",
+          "value": 120,
+          "unit": "km/h",
+          "status": "derived",
+          "confidence": "high",
+          "fill_from": "ocr_or_detector_attribute",
+          "scope": {
+            "vehicle_types": [
+              "motor_vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "min_speed_limit_30": {
+      "class_label": "min_speed_limit_30",
+      "sign_code": "R.306",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tốc độ tối thiểu phải duy trì là 30 km/h.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "minimum_speed",
+          "value": 30,
+          "unit": "km/h",
+          "status": "derived",
+          "confidence": "high",
+          "fill_from": "ocr_or_detector_attribute",
+          "scope": {
+            "vehicle_types": [
+              "motor_vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "min_speed_limit_60": {
+      "class_label": "min_speed_limit_60",
+      "sign_code": "R.306",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Tốc độ tối thiểu phải duy trì là 60 km/h.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "minimum_speed",
+          "value": 60,
+          "unit": "km/h",
+          "status": "derived",
+          "confidence": "high",
+          "fill_from": "ocr_or_detector_attribute",
+          "scope": {
+            "vehicle_types": [
+              "motor_vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "end_min_speed_limit_30": {
+      "class_label": "end_min_speed_limit_30",
+      "sign_code": "R.307",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Báo hết đoạn đường áp dụng tốc độ tối thiểu.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "steep_descent_5_percent": {
+      "class_label": "steep_descent_5_percent",
+      "sign_code": "W.219",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo dốc xuống nguy hiểm phía trước; độ dốc được ghi là 5%. Hãy giảm tốc độ và kiểm soát xe.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "steep_ascent_5_percent": {
+      "class_label": "steep_ascent_5_percent",
+      "sign_code": "W.220",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo dốc lên nguy hiểm phía trước; độ dốc được ghi là 5%.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "dangerous_curve_left": {
+      "class_label": "dangerous_curve_left",
+      "sign_code": "W.201a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo khúc cua nguy hiểm vòng sang trái phía trước.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "dangerous_curve_right": {
+      "class_label": "dangerous_curve_right",
+      "sign_code": "W.201b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo khúc cua nguy hiểm vòng sang phải phía trước.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "cliff_ahead": {
+      "class_label": "cliff_ahead",
+      "sign_code": "W.215a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo phía trước có kè, vực sâu hoặc sông suối sát đường; cần chú ý nguy cơ xe rơi khỏi đường.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "road_narrows": {
+      "class_label": "road_narrows",
+      "sign_code": "W.203a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo mặt đường phía trước bị thu hẹp ở cả hai bên.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "crossroad": {
+      "class_label": "crossroad",
+      "sign_code": "W.205a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo sắp đến nơi giao nhau cùng mức với các đường ngang cấp, không có đường ưu tiên.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "intersection_with_non_priority_road": {
+      "class_label": "intersection_with_non_priority_road",
+      "sign_code": "W.207a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo sắp giao nhau với đường nhánh không ưu tiên. Xe trên đường nhánh phải nhường đường.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "road_bump": {
+      "class_label": "road_bump",
+      "sign_code": "W.221b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo phía trước có gồ giảm tốc hoặc đoạn mặt đường lồi lõm. Giảm tốc độ để đi qua an toàn.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "pedestrian_crossing_zone": {
+      "class_label": "pedestrian_crossing_zone",
+      "sign_code": "I.423b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn vị trí dành cho người đi bộ sang ngang đường.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "pedestrian_overpass": {
+      "class_label": "pedestrian_overpass",
+      "sign_code": "I.424d",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn lối xuống hầm chui dành cho người đi bộ.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "multiple_curves": {
+      "class_label": "multiple_curves",
+      "sign_code": "W.202a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo phía trước có từ hai khúc cua liên tiếp; khúc cua đầu tiên vòng sang trái.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "intersection_with_non_priority_road_right": {
+      "class_label": "intersection_with_non_priority_road_right",
+      "sign_code": "W.207b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo sắp giao nhau với đường nhánh không ưu tiên từ bên phải.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "t_junction": {
+      "class_label": "t_junction",
+      "sign_code": "W.205d",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo sắp đến ngã ba dạng chữ T; đường phía trước không tiếp tục đi thẳng.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "t_junction_right": {
+      "class_label": "t_junction_right",
+      "sign_code": "W.205b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo sắp đến ngã ba dạng chữ T, có nhánh rẽ sang phải.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "t_junction_left": {
+      "class_label": "t_junction_left",
+      "sign_code": "W.205c",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo sắp đến ngã ba dạng chữ T, có nhánh rẽ sang trái.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "intersection_with_non_priority_road_left": {
+      "class_label": "intersection_with_non_priority_road_left",
+      "sign_code": "W.207c",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo sắp giao nhau với đường nhánh không ưu tiên từ bên trái.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "dead_end": {
+      "class_label": "dead_end",
+      "sign_code": "I.405c",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn phía trước là đường cụt, không có lối đi tiếp.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "underpass": {
+      "class_label": "underpass",
+      "sign_code": "W.218",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo phía trước có cổng hoặc vòm thấp có thể hạn chế xe cao đi qua.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "road_narrows_left": {
+      "class_label": "road_narrows_left",
+      "sign_code": "W.203b",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo mặt đường phía trước bị thu hẹp từ bên trái.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "road_narrows_right": {
+      "class_label": "road_narrows_right",
+      "sign_code": "W.203c",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Cảnh báo mặt đường phía trước bị thu hẹp từ bên phải.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        }
+      ]
+    },
+    "keep_right": {
+      "class_label": "keep_right",
+      "sign_code": "R.302a",
+      "identity_status": "identified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Chỉ dẫn đi vòng qua chướng ngại vật ở bên phải.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unverified"
+        },
+        {
+          "predicate": "mandatory_action",
+          "value": [
+            "passing_obstacle"
+          ],
+          "status": "derived",
+          "confidence": "medium",
+          "scope": {
+            "vehicle_types": [
+              "vehicle"
+            ]
+          }
+        }
+      ]
+    },
+    "other_prohibition_signs": {
+      "class_label": "other_prohibition_signs",
+      "sign_code": null,
+      "identity_status": "unidentified",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Đây là nhóm biển cấm chưa xác định được loại cụ thể; cần nhận diện rõ hình biển để giải thích chính xác lệnh cấm.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unresolved_class_description"
+        }
+      ],
+      "template_status": "unresolved_identity"
+    },
+    "overhead_power_lines": {
+      "class_label": "overhead_power_lines",
+      "sign_code": null,
+      "identity_status": "ambiguous",
+      "facts": [
+        {
+          "predicate": "sign_meaning",
+          "value": "Biển thuộc nhóm cảnh báo hoặc chỉ dẫn về chướng ngại phía trên đường, như đường dây điện; cần đọc trị số tĩnh không nếu biển có ghi chiều cao.",
+          "status": "derived",
+          "confidence": "low",
+          "source_status": "unresolved_class_description"
+        }
+      ],
+      "template_status": "unresolved_identity",
+      "sign_family": "W.239",
+      "candidate_codes": [
+        "W.239a",
+        "W.239b"
+      ]
+    }
+  },
+  "supplementary_templates": {
+    "ocr_time_panel": [
+      {
+        "predicate": "active_time",
+        "value": null,
+        "status": "not_observed",
+        "confidence": "low",
+        "fill_from": "ocr"
+      }
+    ]
+  }
+}

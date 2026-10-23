@@ -107,21 +107,19 @@ pip install -e ".[dev]"
 ```
 
 Enable traffic-sign text recognition (time ranges, distances, and numeric
-limits) with VietOCR:
+limits) with PaddleOCR:
 
 ```bash
 pip install -e ".[dev,ocr]"
 ```
 
-VietOCR recognizes Vietnamese text in detected text regions. PaddleOCR's
-PP-OCRv6 medium text detector locates those regions; its recognition model is
-not loaded. The default device is GPU and requires CUDA-enabled PyTorch for
-VietOCR and a CUDA-enabled PaddlePaddle build for text detection. Follow the
+PaddleOCR detects text regions and recognizes Vietnamese text in those regions.
+The default device is GPU and requires a CUDA-enabled PaddlePaddle build. Follow the
 [official PaddlePaddle installation guide](https://www.paddlepaddle.org.cn/install/quick)
 for the matching detector build. Set `TRAFFIC_SIGN_OCR_DEVICE=cpu` to run on
 CPU, or `auto` to select GPU when available and otherwise use CPU.
-OCR runs once on the full source image immediately after YOLO26. VietOCR
-recognizes each detected text crop; the detector polygons are associated with
+OCR runs once on the full source image immediately after YOLO26. PaddleOCR
+recognizes each detected text region; the detector polygons are associated with
 detected signs by overlap or close alignment
 below a sign, so text on an attached supplementary panel can be linked to the
 sign above. The symbolic layer extracts every visible time window, below-sign
@@ -129,9 +127,8 @@ distance, expressway route code/name, and destination-plus-distance pair. The
 highway profile also collects nearby YOLO maximum/minimum speed-limit signs.
 These observations support `INFORMATION` questions; they do not by themselves
 decide whether a restriction is legally active. Unclear distances retain an
-unresolved S.501/S.502 meaning. The recognizer uses VietOCR's `vgg_transformer`
-pretrained model; signs with stylized or damaged lettering may still need
-visual review.
+unresolved S.501/S.502 meaning. Signs with stylized or damaged lettering may
+still need visual review.
 Configure it with `TRAFFIC_SIGN_OCR_ENABLED`,
 `TRAFFIC_SIGN_OCR_DEVICE` (`auto`, `gpu`, or `cpu`), and
 `TRAFFIC_SIGN_OCR_LANGUAGE` (default `vi`).
