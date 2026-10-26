@@ -1,0 +1,3569 @@
+{
+  "schema_version": "1.0",
+  "title": "LexiSignVQA 150-case intent and fact benchmark",
+  "description": "150 template-grounded cases; facts use internal TrafficFacts v2.0, intents use locked schema v3.0, expected_answer_facts retains the existing schema. Random split seed: 20261026.",
+  "fact_schema_version": "2.0",
+  "intent_schema_version": "3.0",
+  "template_source": "src/core/symbolic/catalogs/vtsdb100_fact_templates.json",
+  "intent_source": "Locked intent schema v3.0 and reviewed VTSDB100/QCVN fact templates; covers all 3 intent kinds and all condition predicates.",
+  "cases": [
+    {
+      "case_id": "SIF040",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF040",
+      "question": "Xe tải có được đỗ ở đây không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF040",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.106b",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm xe tải có khối lượng chuyên chở vượt quá 2,5 tấn. Biển cũng áp dụng với máy kéo và xe máy chuyên dùng theo quy định."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "maximum_payload_mass",
+            "value": 2.5,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "t",
+            "scope": {
+              "vehicle_types": [
+                "truck"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe tải có được đỗ ở đây không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "parking",
+            "actor": "truck",
+            "target": "scene"
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.106b",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "maximum_payload_mass": {
+                    "value": 2.5,
+                    "unit": "t",
+                    "scope": {
+                      "vehicle_types": [
+                        "truck"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high",
+                    "applies_to": "truck",
+                    "operator": ">"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts không áp dụng cho loại xe/hành vi này."
+    },
+    {
+      "case_id": "SIF126",
+      "source_case_id": "GEN-INFORMATION-SIF126",
+      "question": "Ngày nào trong tháng bị cấm đỗ?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF126",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.131b",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm đỗ xe vào ngày lẻ trong tháng ở phía đường có đặt biển, trừ xe ưu tiên theo quy định."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "calendar_parity",
+            "value": "odd_days",
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {
+              "vehicle_types": [
+                "motor_vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Ngày nào trong tháng bị cấm đỗ?",
+        "intents": [
+          {
+            "kind": "INFORMATION",
+            "information_type": "time_condition",
+            "requested_fact": "conditions",
+            "filters": {
+              "condition_type": "calendar_parity",
+              "vehicle_type": "automobile"
+            },
+            "target": {
+              "kind": "sign_code",
+              "sign_codes": [
+                "P.131b"
+              ]
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.131b",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "calendar_parity": {
+                    "value": "odd",
+                    "scope": {
+                      "vehicle_types": [
+                        "motor_vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "P.131b: ngày lẻ."
+    },
+    {
+      "case_id": "SIF116",
+      "source_case_id": "GEN-INFORMATION-SIF116",
+      "question": "Chiều cao xe tối đa qua đây là bao nhiêu?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF116",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.117",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Xe cao hơn mức ghi trên biển không được đi qua."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "maximum_vehicle_height",
+            "value": 4.2,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "m",
+            "scope": {
+              "vehicle_types": [
+                "vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Chiều cao xe tối đa qua đây là bao nhiêu?",
+        "intents": [
+          {
+            "kind": "INFORMATION",
+            "information_type": "direction_scope",
+            "requested_fact": "conditions",
+            "filters": {
+              "condition_type": "maximum_vehicle_height",
+              "vehicle_type": "truck"
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.117",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "maximum_vehicle_height": {
+                    "value": 4.2,
+                    "unit": "m",
+                    "scope": {
+                      "vehicle_types": [
+                        "vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "P.117: 4.2 m."
+    },
+    {
+      "case_id": "SIF129",
+      "source_case_id": "GEN-INFORMATION-SIF129",
+      "question": "Thời gian hiệu lực của biển phụ là khi nào?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF129",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.107",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm xe khách và xe tải đi vào đoạn đường này; biển cũng áp dụng với máy kéo và xe máy chuyên dùng. Xe ưu tiên được đi theo quy định."
+            }
+          },
+          {
+            "observation_id": "panel1",
+            "role": "supplementary",
+            "bbox": null,
+            "sign_code": null,
+            "identity_status": "unidentified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [
+              {
+                "raw_text": "06:00–09:00",
+                "normalized_value": "06:00–09:00",
+                "confidence": "high",
+                "source": "ocr"
+              },
+              {
+                "raw_text": "16:00–20:00",
+                "normalized_value": "16:00–20:00",
+                "confidence": "high",
+                "source": "ocr"
+              }
+            ],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "paddleocr_text_panel",
+            "metadata": {},
+            "catalog": {}
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "panel1:f1",
+            "predicate": "active_time",
+            "value": [
+              {
+                "from": "06:00",
+                "to": "09:00"
+              },
+              {
+                "from": "16:00",
+                "to": "20:00"
+              }
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "panel1"
+            },
+            "unit": null,
+            "scope": {
+              "vehicle_types": [
+                "truck"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [
+          {
+            "relation_id": "SIF129:r1",
+            "relation_type": "supplements",
+            "source_observation_id": "panel1",
+            "target_observation_id": "s1",
+            "confidence": "high",
+            "source": "image"
+          }
+        ],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Thời gian hiệu lực của biển phụ là khi nào?",
+        "intents": [
+          {
+            "kind": "INFORMATION",
+            "information_type": "time_condition",
+            "requested_fact": "conditions",
+            "filters": {
+              "condition_type": "active_time",
+              "vehicle_type": "truck"
+            },
+            "target": {
+              "kind": "sign_code",
+              "sign_codes": [
+                "P.107"
+              ]
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.107",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "active_time": {
+                    "scope": {
+                      "vehicle_types": [
+                        "truck"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high",
+                    "value": [
+                      {
+                        "from": "06:00",
+                        "to": "09:00"
+                      },
+                      {
+                        "from": "16:00",
+                        "to": "20:00"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [
+          {
+            "predicate": "supplements",
+            "from": "panel1",
+            "to": "s1",
+            "confidence": "high"
+          }
+        ],
+        "scene_facts": []
+      },
+      "expected_answer_text": "P.107: 06:00–09:00 và 16:00–20:00."
+    },
+    {
+      "case_id": "SIF138",
+      "source_case_id": "GEN-UNKNOWN-SIF138",
+      "question": "Đường này có thu phí không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF138",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.102",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm mọi phương tiện đi vào từ phía đặt biển. Xe ưu tiên được đi theo quy định; người đi bộ vẫn có thể đi trên vỉa hè hoặc lề đường."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "prohibited_actor",
+            "value": [
+              "vehicle"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f2",
+            "predicate": "prohibited_action",
+            "value": [
+              "entering"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Đường này có thu phí không?",
+        "intents": [
+          {
+            "kind": "UNKNOWN"
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts hiện có không chứa thông tin được hỏi."
+    },
+    {
+      "case_id": "SIF099",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF099",
+      "question": "Xe tải có được đi vào không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF099",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.107",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm xe khách và xe tải đi vào đoạn đường này; biển cũng áp dụng với máy kéo và xe máy chuyên dùng. Xe ưu tiên được đi theo quy định."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "active_time",
+            "value": [
+              {
+                "from": "06:00",
+                "to": "09:00"
+              },
+              {
+                "from": "16:00",
+                "to": "20:00"
+              }
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {
+              "vehicle_types": [
+                "truck",
+                "bus"
+              ]
+            },
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f2",
+            "predicate": "prohibited_actor",
+            "value": [
+              "truck",
+              "bus"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f3",
+            "predicate": "prohibited_action",
+            "value": [
+              "entering"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe tải có được đi vào không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "entering",
+            "actor": "truck",
+            "target": "scene"
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.107",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "active_time": {
+                    "scope": {
+                      "vehicle_types": [
+                        "truck",
+                        "bus"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high",
+                    "value": [
+                      {
+                        "from": "06:00",
+                        "to": "09:00"
+                      },
+                      {
+                        "from": "16:00",
+                        "to": "20:00"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "CONDITIONAL — Cần biết thời điểm thực hiện hành vi."
+    },
+    {
+      "case_id": "SIF017",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF017",
+      "question": "Ô tô chạy ở tốc độ 30 km/h có đáp ứng mức tối thiểu trên biển không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF017",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "R.306",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Tốc độ tối thiểu cho phép"
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "minimum_speed",
+            "value": 30,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "km/h",
+            "scope": {
+              "vehicle_types": [
+                "motor_vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Ô tô chạy ở tốc độ 30 km/h có đáp ứng mức tối thiểu trên biển không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "speed",
+            "actor": "automobile",
+            "target": "scene",
+            "requested_answer": {
+              "requested_speed_kmh": 30
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "R.306",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "minimum_speed": {
+                    "value": 30,
+                    "unit": "km/h",
+                    "scope": {
+                      "vehicle_types": [
+                        "motor_vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "ALLOWED — 30 km/h nằm trong giới hạn 30 km/h."
+    },
+    {
+      "case_id": "SIF130",
+      "source_case_id": "GEN-INFORMATION-SIF130",
+      "question": "Xe tải bị hạn chế vào giờ nào?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF130",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.107",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm xe khách và xe tải đi vào đoạn đường này; biển cũng áp dụng với máy kéo và xe máy chuyên dùng. Xe ưu tiên được đi theo quy định."
+            }
+          },
+          {
+            "observation_id": "panel1",
+            "role": "supplementary",
+            "bbox": null,
+            "sign_code": null,
+            "identity_status": "unidentified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [
+              {
+                "raw_text": "06:00–09:00",
+                "normalized_value": "06:00–09:00",
+                "confidence": "high",
+                "source": "ocr"
+              },
+              {
+                "raw_text": "16:00–20:00",
+                "normalized_value": "16:00–20:00",
+                "confidence": "high",
+                "source": "ocr"
+              }
+            ],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "paddleocr_text_panel",
+            "metadata": {},
+            "catalog": {}
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "panel1:f1",
+            "predicate": "active_time",
+            "value": [
+              {
+                "from": "06:00",
+                "to": "09:00"
+              },
+              {
+                "from": "16:00",
+                "to": "20:00"
+              }
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "panel1"
+            },
+            "unit": null,
+            "scope": {
+              "vehicle_types": [
+                "truck"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [
+          {
+            "relation_id": "SIF130:r1",
+            "relation_type": "supplements",
+            "source_observation_id": "panel1",
+            "target_observation_id": "s1",
+            "confidence": "high",
+            "source": "image"
+          }
+        ],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe tải bị hạn chế vào giờ nào?",
+        "intents": [
+          {
+            "kind": "INFORMATION",
+            "information_type": "time_condition",
+            "requested_fact": "conditions",
+            "filters": {
+              "condition_type": "active_time",
+              "vehicle_type": "truck"
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.107",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "active_time": {
+                    "scope": {
+                      "vehicle_types": [
+                        "truck"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high",
+                    "value": [
+                      {
+                        "from": "06:00",
+                        "to": "09:00"
+                      },
+                      {
+                        "from": "16:00",
+                        "to": "20:00"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [
+          {
+            "predicate": "supplements",
+            "from": "panel1",
+            "to": "s1",
+            "confidence": "high"
+          }
+        ],
+        "scene_facts": []
+      },
+      "expected_answer_text": "P.107: 06:00–09:00 và 16:00–20:00."
+    },
+    {
+      "case_id": "SIF122",
+      "source_case_id": "GEN-INFORMATION-SIF122",
+      "question": "Khoảng cách tối thiểu giữa các xe là bao nhiêu?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF122",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.121",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Ô tô phải giữ khoảng cách với xe phía trước ít nhất bằng mức ghi trên biển."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "minimum_distance",
+            "value": 50,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "m",
+            "scope": {
+              "vehicle_types": [
+                "motor_vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Khoảng cách tối thiểu giữa các xe là bao nhiêu?",
+        "intents": [
+          {
+            "kind": "INFORMATION",
+            "information_type": "distance_scope",
+            "requested_fact": "conditions",
+            "filters": {
+              "condition_type": "minimum_distance",
+              "vehicle_type": "automobile"
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.121",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "minimum_distance": {
+                    "value": 50,
+                    "unit": "m",
+                    "scope": {
+                      "vehicle_types": [
+                        "motor_vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "P.121: 50 m."
+    },
+    {
+      "case_id": "SIF136",
+      "source_case_id": "GEN-UNKNOWN-SIF136",
+      "question": "Xe vi phạm bị trừ bao nhiêu điểm?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF136",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.102",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm mọi phương tiện đi vào từ phía đặt biển. Xe ưu tiên được đi theo quy định; người đi bộ vẫn có thể đi trên vỉa hè hoặc lề đường."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "prohibited_actor",
+            "value": [
+              "vehicle"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f2",
+            "predicate": "prohibited_action",
+            "value": [
+              "entering"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe vi phạm bị trừ bao nhiêu điểm?",
+        "intents": [
+          {
+            "kind": "UNKNOWN"
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts hiện có không chứa thông tin được hỏi."
+    },
+    {
+      "case_id": "SIF134",
+      "source_case_id": "GEN-UNKNOWN-SIF134",
+      "question": "Ngày mai có mưa không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF134",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.102",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm mọi phương tiện đi vào từ phía đặt biển. Xe ưu tiên được đi theo quy định; người đi bộ vẫn có thể đi trên vỉa hè hoặc lề đường."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "prohibited_actor",
+            "value": [
+              "vehicle"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f2",
+            "predicate": "prohibited_action",
+            "value": [
+              "entering"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Ngày mai có mưa không?",
+        "intents": [
+          {
+            "kind": "UNKNOWN"
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts hiện có không chứa thông tin được hỏi."
+    },
+    {
+      "case_id": "SIF056",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF056",
+      "question": "Xe tải cao 9.2 m có được đi qua không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF056",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.117",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Xe cao hơn mức ghi trên biển không được đi qua."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "maximum_vehicle_height",
+            "value": 4.2,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "m",
+            "scope": {
+              "vehicle_types": [
+                "vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe tải cao 9.2 m có được đi qua không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "circulation",
+            "actor": "truck",
+            "target": "scene",
+            "conditions": {
+              "vehicle_height_m": {
+                "value": 9.2,
+                "unit": "m"
+              }
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.117",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "maximum_vehicle_height": {
+                    "value": 4.2,
+                    "unit": "m",
+                    "scope": {
+                      "vehicle_types": [
+                        "vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "PROHIBITED — 9.2 m vượt giới hạn 4.2 m."
+    },
+    {
+      "case_id": "SIF014",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF014",
+      "question": "Ô tô chạy ở tốc độ 20 km/h có đáp ứng mức tối thiểu trên biển không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF014",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "R.306",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Tốc độ tối thiểu cho phép"
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "minimum_speed",
+            "value": 30,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "km/h",
+            "scope": {
+              "vehicle_types": [
+                "bus"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Ô tô chạy ở tốc độ 20 km/h có đáp ứng mức tối thiểu trên biển không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "speed",
+            "actor": "automobile",
+            "target": "scene",
+            "requested_answer": {
+              "requested_speed_kmh": 20
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "R.306",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "minimum_speed": {
+                    "value": 30,
+                    "unit": "km/h",
+                    "scope": {
+                      "vehicle_types": [
+                        "bus"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts không áp dụng cho loại xe/hành vi này."
+    },
+    {
+      "case_id": "SIF096",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF096",
+      "question": "Xe tải có được đi vào lúc 23:00 không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF096",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.107",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm xe khách và xe tải đi vào đoạn đường này; biển cũng áp dụng với máy kéo và xe máy chuyên dùng. Xe ưu tiên được đi theo quy định."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "active_time",
+            "value": [
+              {
+                "from": "22:00",
+                "to": "02:00"
+              }
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {
+              "vehicle_types": [
+                "truck",
+                "bus"
+              ]
+            },
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f2",
+            "predicate": "prohibited_actor",
+            "value": [
+              "truck",
+              "bus"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f3",
+            "predicate": "prohibited_action",
+            "value": [
+              "entering"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe tải có được đi vào lúc 23:00 không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "entering",
+            "actor": "truck",
+            "target": "scene",
+            "conditions": {
+              "time": {
+                "value": "23:00"
+              }
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.107",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "active_time": {
+                    "scope": {
+                      "vehicle_types": [
+                        "truck",
+                        "bus"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high",
+                    "value": [
+                      {
+                        "from": "22:00",
+                        "to": "02:00"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "PROHIBITED — Thời điểm nằm trong khung giờ cấm."
+    },
+    {
+      "case_id": "SIF145",
+      "source_case_id": "GEN-UNKNOWN-SIF145",
+      "question": "Mức phạt mới nhất là bao nhiêu?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF145",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.102",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm mọi phương tiện đi vào từ phía đặt biển. Xe ưu tiên được đi theo quy định; người đi bộ vẫn có thể đi trên vỉa hè hoặc lề đường."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "prohibited_actor",
+            "value": [
+              "vehicle"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f2",
+            "predicate": "prohibited_action",
+            "value": [
+              "entering"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Mức phạt mới nhất là bao nhiêu?",
+        "intents": [
+          {
+            "kind": "UNKNOWN"
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts hiện có không chứa thông tin được hỏi."
+    },
+    {
+      "case_id": "SIF128",
+      "source_case_id": "GEN-INFORMATION-SIF128",
+      "question": "Biển cấm áp dụng vào khung giờ nào?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF128",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.107",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm xe khách và xe tải đi vào đoạn đường này; biển cũng áp dụng với máy kéo và xe máy chuyên dùng. Xe ưu tiên được đi theo quy định."
+            }
+          },
+          {
+            "observation_id": "panel1",
+            "role": "supplementary",
+            "bbox": null,
+            "sign_code": null,
+            "identity_status": "unidentified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [
+              {
+                "raw_text": "06:00–09:00",
+                "normalized_value": "06:00–09:00",
+                "confidence": "high",
+                "source": "ocr"
+              },
+              {
+                "raw_text": "16:00–20:00",
+                "normalized_value": "16:00–20:00",
+                "confidence": "high",
+                "source": "ocr"
+              }
+            ],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "paddleocr_text_panel",
+            "metadata": {},
+            "catalog": {}
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "panel1:f1",
+            "predicate": "active_time",
+            "value": [
+              {
+                "from": "06:00",
+                "to": "09:00"
+              },
+              {
+                "from": "16:00",
+                "to": "20:00"
+              }
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "panel1"
+            },
+            "unit": null,
+            "scope": {
+              "vehicle_types": [
+                "truck"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [
+          {
+            "relation_id": "SIF128:r1",
+            "relation_type": "supplements",
+            "source_observation_id": "panel1",
+            "target_observation_id": "s1",
+            "confidence": "high",
+            "source": "image"
+          }
+        ],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Biển cấm áp dụng vào khung giờ nào?",
+        "intents": [
+          {
+            "kind": "INFORMATION",
+            "information_type": "time_condition",
+            "requested_fact": "conditions",
+            "filters": {
+              "condition_type": "active_time",
+              "vehicle_type": "truck"
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.107",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "active_time": {
+                    "scope": {
+                      "vehicle_types": [
+                        "truck"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high",
+                    "value": [
+                      {
+                        "from": "06:00",
+                        "to": "09:00"
+                      },
+                      {
+                        "from": "16:00",
+                        "to": "20:00"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [
+          {
+            "predicate": "supplements",
+            "from": "panel1",
+            "to": "s1",
+            "confidence": "high"
+          }
+        ],
+        "scene_facts": []
+      },
+      "expected_answer_text": "P.107: 06:00–09:00 và 16:00–20:00."
+    },
+    {
+      "case_id": "SIF070",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF070",
+      "question": "Xe tải có được đỗ ở đây không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF070",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.118",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Xe rộng hơn mức ghi trên biển không được đi qua."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "maximum_vehicle_width",
+            "value": 2.5,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "m",
+            "scope": {
+              "vehicle_types": [
+                "vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe tải có được đỗ ở đây không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "parking",
+            "actor": "truck",
+            "target": "scene"
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.118",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "maximum_vehicle_width": {
+                    "value": 2.5,
+                    "unit": "m",
+                    "scope": {
+                      "vehicle_types": [
+                        "vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts không áp dụng cho loại xe/hành vi này."
+    },
+    {
+      "case_id": "SIF050",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF050",
+      "question": "Xe tải có được đỗ ở đây không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF050",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.116",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm xe có tải trọng trên bất kỳ trục nào vượt quá mức ghi trên biển đi qua, kể cả xe ưu tiên."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "maximum_axle_load",
+            "value": 8,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "t",
+            "scope": {
+              "vehicle_types": [
+                "motor_vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe tải có được đỗ ở đây không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "parking",
+            "actor": "truck",
+            "target": "scene"
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.116",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "maximum_axle_load": {
+                    "value": 8,
+                    "unit": "t",
+                    "scope": {
+                      "vehicle_types": [
+                        "motor_vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts không áp dụng cho loại xe/hành vi này."
+    },
+    {
+      "case_id": "SIF088",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF088",
+      "question": "Xe ô tô có được đỗ vào ngày 28/10 không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF088",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.131b",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm đỗ xe vào ngày lẻ trong tháng ở phía đường có đặt biển, trừ xe ưu tiên theo quy định."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "calendar_parity",
+            "value": "odd_days",
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {
+              "vehicle_types": [
+                "motor_vehicle"
+              ]
+            },
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f2",
+            "predicate": "prohibited_actor",
+            "value": [
+              "motor_vehicle"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f3",
+            "predicate": "prohibited_action",
+            "value": [
+              "park"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe ô tô có được đỗ vào ngày 28/10 không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "parking",
+            "actor": "automobile",
+            "target": "scene",
+            "conditions": {
+              "date": {
+                "month": 10,
+                "day": 28
+              }
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.131b",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "calendar_parity": {
+                    "value": "odd",
+                    "scope": {
+                      "vehicle_types": [
+                        "motor_vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts không áp dụng cho loại xe/hành vi này."
+    },
+    {
+      "case_id": "SIF085",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF085",
+      "question": "Ngày lẻ, xe ô tô có được đỗ không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF085",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.131b",
+            "identity_status": "ambiguous",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm đỗ xe vào ngày lẻ trong tháng ở phía đường có đặt biển, trừ xe ưu tiên theo quy định."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "calendar_parity",
+            "value": "odd_days",
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {
+              "vehicle_types": [
+                "motor_vehicle"
+              ]
+            },
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f2",
+            "predicate": "prohibited_actor",
+            "value": [
+              "motor_vehicle"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f3",
+            "predicate": "prohibited_action",
+            "value": [
+              "park"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Ngày lẻ, xe ô tô có được đỗ không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "parking",
+            "actor": "automobile",
+            "target": "scene",
+            "conditions": {
+              "calendar_parity": {
+                "value": "odd_days"
+              }
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.131b",
+            "identity_status": "ambiguous",
+            "confidence": "high",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "calendar_parity": {
+                    "value": "odd",
+                    "scope": {
+                      "vehicle_types": [
+                        "motor_vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts không áp dụng cho loại xe/hành vi này."
+    },
+    {
+      "case_id": "SIF091",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF091",
+      "question": "Xe tải có được đi vào lúc 08:30 không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF091",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.107",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm xe khách và xe tải đi vào đoạn đường này; biển cũng áp dụng với máy kéo và xe máy chuyên dùng. Xe ưu tiên được đi theo quy định."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "active_time",
+            "value": [
+              {
+                "from": "06:00",
+                "to": "09:00"
+              },
+              {
+                "from": "16:00",
+                "to": "20:00"
+              }
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {
+              "vehicle_types": [
+                "truck",
+                "bus"
+              ]
+            },
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f2",
+            "predicate": "prohibited_actor",
+            "value": [
+              "truck",
+              "bus"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f3",
+            "predicate": "prohibited_action",
+            "value": [
+              "entering"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe tải có được đi vào lúc 08:30 không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "entering",
+            "actor": "truck",
+            "target": "scene",
+            "conditions": {
+              "time": {
+                "value": "08:30"
+              }
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.107",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "active_time": {
+                    "scope": {
+                      "vehicle_types": [
+                        "truck",
+                        "bus"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high",
+                    "value": [
+                      {
+                        "from": "06:00",
+                        "to": "09:00"
+                      },
+                      {
+                        "from": "16:00",
+                        "to": "20:00"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "PROHIBITED — Thời điểm nằm trong khung giờ cấm."
+    },
+    {
+      "case_id": "SIF103",
+      "source_case_id": "GEN-INFORMATION-SIF103",
+      "question": "Mức tốc độ lớn nhất ở đây là bao nhiêu?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF103",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.127",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Tốc độ tối đa cho phép"
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "maximum_speed",
+            "value": 50,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "km/h",
+            "scope": {
+              "vehicle_types": [
+                "motor_vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Mức tốc độ lớn nhất ở đây là bao nhiêu?",
+        "intents": [
+          {
+            "kind": "INFORMATION",
+            "information_type": "speed",
+            "requested_fact": "conditions",
+            "filters": {
+              "condition_type": "maximum_speed",
+              "vehicle_type": "automobile"
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.127",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "maximum_speed": {
+                    "value": 50,
+                    "unit": "km/h",
+                    "scope": {
+                      "vehicle_types": [
+                        "motor_vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "P.127: 50 km/h."
+    },
+    {
+      "case_id": "SIF003",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF003",
+      "question": "Ô tô có được chạy qua đoạn đường này không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF003",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.127",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Tốc độ tối đa cho phép"
+            }
+          },
+          {
+            "observation_id": "s2",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "R.420",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Báo bắt đầu khu đông dân cư; biển có hiệu lực đến biển hết khu đông dân cư. Trong khu vực này, tốc độ tối đa mặc định phụ thuộc vào loại xe và loại đường; xe máy chuyên dùng, xe gắn máy và các loại xe tương tự tối đa 40 km/h. Nếu có biển báo tốc độ riêng thì phải chấp hành tốc độ ghi trên biển."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "maximum_speed",
+            "value": 50,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "km/h",
+            "scope": {
+              "vehicle_types": [
+                "motor_vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Ô tô có được chạy qua đoạn đường này không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "speed",
+            "actor": "automobile",
+            "target": "scene"
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.127",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "maximum_speed": {
+                    "value": 50,
+                    "unit": "km/h",
+                    "scope": {
+                      "vehicle_types": [
+                        "motor_vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "CONDITIONAL — Cần xác nhận giá trị giới hạn hoặc thông số phương tiện."
+    },
+    {
+      "case_id": "SIF023",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF023",
+      "question": "Xe tải có được đi qua không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF023",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.115",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm xe có tổng khối lượng của xe, người và hàng vượt quá mức ghi trên biển đi qua, kể cả xe ưu tiên."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "maximum_vehicle_mass",
+            "value": 10,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "t",
+            "scope": {
+              "vehicle_types": [
+                "motor_vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe tải có được đi qua không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "circulation",
+            "actor": "truck",
+            "target": "scene"
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.115",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "maximum_vehicle_mass": {
+                    "value": 10,
+                    "unit": "t",
+                    "scope": {
+                      "vehicle_types": [
+                        "motor_vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "CONDITIONAL — Cần xác nhận giá trị giới hạn hoặc thông số phương tiện."
+    },
+    {
+      "case_id": "SIF139",
+      "source_case_id": "GEN-UNKNOWN-SIF139",
+      "question": "Có camera giao thông ở đây không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF139",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.102",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm mọi phương tiện đi vào từ phía đặt biển. Xe ưu tiên được đi theo quy định; người đi bộ vẫn có thể đi trên vỉa hè hoặc lề đường."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "prohibited_actor",
+            "value": [
+              "vehicle"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          },
+          {
+            "fact_id": "s1:f2",
+            "predicate": "prohibited_action",
+            "value": [
+              "entering"
+            ],
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {},
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Có camera giao thông ở đây không?",
+        "intents": [
+          {
+            "kind": "UNKNOWN"
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts hiện có không chứa thông tin được hỏi."
+    },
+    {
+      "case_id": "SIF104",
+      "source_case_id": "GEN-INFORMATION-SIF104",
+      "question": "Tốc độ tối thiểu ghi trên biển là bao nhiêu?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF104",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "R.306",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Tốc độ tối thiểu cho phép"
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "minimum_speed",
+            "value": 30,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "km/h",
+            "scope": {
+              "vehicle_types": [
+                "motor_vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Tốc độ tối thiểu ghi trên biển là bao nhiêu?",
+        "intents": [
+          {
+            "kind": "INFORMATION",
+            "information_type": "speed",
+            "requested_fact": "conditions",
+            "filters": {
+              "condition_type": "minimum_speed",
+              "vehicle_type": "automobile"
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "R.306",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "minimum_speed": {
+                    "value": 30,
+                    "unit": "km/h",
+                    "scope": {
+                      "vehicle_types": [
+                        "motor_vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "R.306: 30 km/h."
+    },
+    {
+      "case_id": "SIF125",
+      "source_case_id": "GEN-INFORMATION-SIF125",
+      "question": "Biển cấm đỗ vào ngày chẵn hay lẻ?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF125",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.131b",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm đỗ xe vào ngày lẻ trong tháng ở phía đường có đặt biển, trừ xe ưu tiên theo quy định."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "calendar_parity",
+            "value": "odd_days",
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": null,
+            "scope": {
+              "vehicle_types": [
+                "motor_vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Biển cấm đỗ vào ngày chẵn hay lẻ?",
+        "intents": [
+          {
+            "kind": "INFORMATION",
+            "information_type": "time_condition",
+            "requested_fact": "conditions",
+            "filters": {
+              "condition_type": "calendar_parity",
+              "vehicle_type": "automobile"
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.131b",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "calendar_parity": {
+                    "value": "odd",
+                    "scope": {
+                      "vehicle_types": [
+                        "motor_vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "P.131b: ngày lẻ."
+    },
+    {
+      "case_id": "SIF035",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF035",
+      "question": "Xe tải có khối lượng chuyên chở 12.5 tấn được đi qua không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF035",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.106b",
+            "identity_status": "ambiguous",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm xe tải có khối lượng chuyên chở vượt quá 2,5 tấn. Biển cũng áp dụng với máy kéo và xe máy chuyên dùng theo quy định."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "maximum_payload_mass",
+            "value": 2.5,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "t",
+            "scope": {
+              "vehicle_types": [
+                "truck"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe tải có khối lượng chuyên chở 12.5 tấn được đi qua không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "circulation",
+            "actor": "truck",
+            "target": "scene",
+            "conditions": {
+              "vehicle_payload_t": {
+                "value": 12.5,
+                "unit": "t"
+              }
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.106b",
+            "identity_status": "ambiguous",
+            "confidence": "high",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "maximum_payload_mass": {
+                    "value": 2.5,
+                    "unit": "t",
+                    "scope": {
+                      "vehicle_types": [
+                        "truck"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts không áp dụng cho loại xe/hành vi này."
+    },
+    {
+      "case_id": "SIF059",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF059",
+      "question": "Xe tải cao 3.2 m có được đi qua không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF059",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.117",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Xe cao hơn mức ghi trên biển không được đi qua."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "maximum_vehicle_height",
+            "value": 4.2,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "m",
+            "scope": {
+              "vehicle_types": [
+                "vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe tải cao 3.2 m có được đi qua không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "circulation",
+            "actor": "truck",
+            "target": "scene",
+            "conditions": {
+              "vehicle_height_m": {
+                "value": 3.2,
+                "unit": "m"
+              }
+            }
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.117",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "maximum_vehicle_height": {
+                    "value": 4.2,
+                    "unit": "m",
+                    "scope": {
+                      "vehicle_types": [
+                        "vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "ALLOWED — 3.2 m nằm trong giới hạn 4.2 m."
+    },
+    {
+      "case_id": "SIF030",
+      "source_case_id": "GEN-CHECK_PERMISSION-SIF030",
+      "question": "Xe tải có được đỗ ở đây không?",
+      "facts": {
+        "schema_version": "2.0",
+        "scene_id": "SIF030",
+        "sign_observations": [
+          {
+            "observation_id": "s1",
+            "role": "main",
+            "bbox": null,
+            "sign_code": "P.115",
+            "identity_status": "identified",
+            "candidates": [],
+            "visual_attributes": {},
+            "ocr_texts": [],
+            "legal_refs": [],
+            "evidence": [],
+            "confidence": "high",
+            "source": "image",
+            "metadata": {},
+            "catalog": {
+              "official_name": null,
+              "legal_meaning": "Cấm xe có tổng khối lượng của xe, người và hàng vượt quá mức ghi trên biển đi qua, kể cả xe ưu tiên."
+            }
+          }
+        ],
+        "context_facts": [
+          {
+            "fact_id": "s1:f1",
+            "predicate": "maximum_vehicle_mass",
+            "value": 10,
+            "status": "observed",
+            "source": "sign_code_template",
+            "raw_text": null,
+            "confidence": "high",
+            "evidence": [],
+            "metadata": {
+              "subject_observation_id": "s1"
+            },
+            "unit": "t",
+            "scope": {
+              "vehicle_types": [
+                "motor_vehicle"
+              ]
+            },
+            "conditions": {}
+          }
+        ],
+        "sign_relations": [],
+        "unresolved_items": [],
+        "sign_inventory_status": "complete",
+        "sign_inventory_evidence": [
+          {
+            "source": "benchmark_fixture",
+            "evidence": "All signs in this synthetic scene are listed."
+          }
+        ]
+      },
+      "intent_json": {
+        "schema_version": "3.0",
+        "question": "Xe tải có được đỗ ở đây không?",
+        "intents": [
+          {
+            "kind": "CHECK_PERMISSION",
+            "action": "parking",
+            "actor": "truck",
+            "target": "scene"
+          }
+        ]
+      },
+      "expected_answer_facts": {
+        "signs": [
+          {
+            "id": "s1",
+            "role": "main",
+            "code": "P.115",
+            "facts": [
+              {
+                "predicate": "conditions",
+                "value": {
+                  "maximum_vehicle_mass": {
+                    "value": 10,
+                    "unit": "t",
+                    "scope": {
+                      "vehicle_types": [
+                        "motor_vehicle"
+                      ]
+                    },
+                    "status": "observed",
+                    "confidence": "high"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "relations": [],
+        "scene_facts": []
+      },
+      "expected_answer_text": "UNKNOWN — Facts không áp dụng cho loại xe/hành vi này."
+    }
+  ]
+}

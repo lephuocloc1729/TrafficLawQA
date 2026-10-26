@@ -99,7 +99,37 @@ def _query_values(query: IntentParseResult, intent: Intent) -> dict[str, Any]:
         for key, items in candidates.items()
     }
     for key, item in intent.conditions.items():
-        values[key] = item.get("value") if isinstance(item, dict) else item
+        value = item.get("value") if isinstance(item, dict) and "value" in item else item
+        key = str(key)
+        if key == "vehicle_following_distance_m":
+            key = "requested_distance_m"
+        elif key == "vehicle_capacity_passengers":
+            key = "vehicle_seat_count"
+        elif key == "vehicle_mass_constraint" and isinstance(item, dict):
+            mass_kind = str(item.get("mass_kind") or "gross").lower()
+            key = "vehicle_payload_t" if mass_kind == "payload" else "vehicle_gross_weight_t"
+        values[key] = value
+        if key == "time":
+            if isinstance(value, str) and ("T" in value or " " in value):
+                values["observed_at"] = value
+            elif value is not None:
+                values["observed_time"] = value
+        elif key == "date":
+            day = None
+            if isinstance(value, dict):
+                day = value.get("day")
+            elif isinstance(value, str):
+                try:
+                    day = datetime.fromisoformat(value).day
+                    if "T" in value or " " in value:
+                        values["observed_at"] = value
+                except ValueError:
+                    pass
+            if day is not None:
+                try:
+                    values["calendar_parity"] = "odd_days" if int(day) % 2 else "even_days"
+                except (TypeError, ValueError):
+                    pass
     values.update({key: value for key, value in intent.requested_answer.items() if value is not None})
     return values
 
@@ -116,11 +146,20 @@ def _targeted(intent: Intent, sign: dict[str, Any]) -> bool:
 
 def _time_match(value: Any, query_values: dict[str, Any]) -> tuple[str, str | None]:
     observed = query_values.get("observed_at")
-    if not isinstance(observed, str):
-        return "missing", "observed_at"
-    try:
-        current = datetime.fromisoformat(observed)
-    except ValueError:
+    now = None
+    if isinstance(observed, str):
+        try:
+            now = datetime.fromisoformat(observed).timetz().replace(tzinfo=None)
+        except ValueError:
+            return "missing", "observed_at"
+    if now is None:
+        raw_time = query_values.get("observed_time")
+        if raw_time is not None:
+            try:
+                now = time.fromisoformat(str(raw_time)).replace(tzinfo=None)
+            except ValueError:
+                return "missing", "observed_at"
+    if now is None:
         return "missing", "observed_at"
     windows = value if isinstance(value, list) else [value]
     for window in windows:
@@ -132,7 +171,6 @@ def _time_match(value: Any, query_values: dict[str, Any]) -> tuple[str, str | No
             begin, finish = time.fromisoformat(str(start)), time.fromisoformat(str(end))
         except ValueError:
             continue
-        now = current.timetz().replace(tzinfo=None)
         if begin <= finish and begin <= now <= finish:
             return "satisfied", None
         if begin > finish and (now >= begin or now <= finish):
@@ -140,10 +178,17 @@ def _time_match(value: Any, query_values: dict[str, Any]) -> tuple[str, str | No
     return "mismatch", None
 
 
-def _temporal_state(sign_facts: list[dict[str, Any]], values: dict[str, Any]) -> tuple[str, str | None]:
+def _temporal_state(
+    sign_facts: list[dict[str, Any]], values: dict[str, Any], actor: str = "unknown",
+) -> tuple[str, str | None]:
     for fact in sign_facts:
         predicate = _canonical_predicate(fact.get("predicate"))
         if predicate == "calendar_parity" and _fact_is_usable(fact):
+            scope_state, scope_missing = _scope_state(fact.get("scope"), actor, values)
+            if scope_state == "mismatch":
+                continue
+            if scope_state == "missing":
+                return "missing", (scope_missing[0] if scope_missing else "calendar_parity")
             parity = values.get("calendar_parity")
             if parity is None:
                 observed = values.get("observed_at")
@@ -159,6 +204,11 @@ def _temporal_state(sign_facts: list[dict[str, Any]], values: dict[str, Any]) ->
             if expected != actual:
                 return "mismatch", None
         if predicate == "active_time" and _fact_is_usable(fact):
+            scope_state, scope_missing = _scope_state(fact.get("scope"), actor, values)
+            if scope_state == "mismatch":
+                continue
+            if scope_state == "missing":
+                return "missing", (scope_missing[0] if scope_missing else "active_time")
             state, missing = _time_match(fact.get("value"), values)
             if state != "satisfied":
                 return state, missing
@@ -344,7 +394,7 @@ def _evaluate_sign(
                     if "allowed" in condition_states:
                         known_allowed = True
                         continue
-                    temporal_state, temporal_missing = _temporal_state(sign_facts, values)
+                    temporal_state, temporal_missing = _temporal_state(sign_facts, values, actor)
                     if temporal_state == "mismatch":
                         trace.append({"step": "temporal_scope", "state": "inactive"})
                         continue
@@ -372,7 +422,7 @@ def _evaluate_sign(
                 continue
         if any(action in [ACTION_ALIASES.get(str(value), str(value)) for value in (item.get("value") if isinstance(item.get("value"), list) else [item.get("value")])] for item in prohibited_actions):
             matched.extend([f"{observation_id}:prohibited_actor", f"{observation_id}:prohibited_action"])
-            temporal_state, temporal_missing = _temporal_state(sign_facts, values)
+            temporal_state, temporal_missing = _temporal_state(sign_facts, values, actor)
             if temporal_state == "mismatch":
                 trace.append({"step": "temporal_scope", "state": "inactive"})
                 continue
@@ -396,7 +446,7 @@ def _evaluate_sign(
         state, missing, reason = _threshold_state(fact, actor, action, values)
         if state == "irrelevant":
             continue
-        temporal_state, temporal_missing = _temporal_state(sign_facts, values)
+        temporal_state, temporal_missing = _temporal_state(sign_facts, values, actor)
         if temporal_state == "mismatch":
             trace.append({"step": "temporal_scope", "state": "inactive"})
             continue
@@ -503,12 +553,44 @@ def evaluate_check_permission(
     payload = facts.to_dict()
     signs = [item for item in payload.get("signs", []) if isinstance(item, dict) and _targeted(intent, item)]
     values = _query_values(query, intent)
+    explicit_max_speed_on_scene = any(
+        normalize_sign_code(sign.get("code")) == "P.127"
+        and sign.get("identity_status", "identified") == "identified"
+        and any(
+            _canonical_predicate(item.get("predicate")) == "maximum_speed"
+            and _fact_is_usable(item)
+            and item.get("value") is not None
+            and _scope_state(item.get("scope"), ACTOR_ALIASES.get(intent.actor.value, intent.actor.value), values)[0] != "mismatch"
+            for item in expand_condition_facts(
+                [fact for fact in sign.get("facts", []) if isinstance(fact, dict)]
+            )
+        )
+        for sign in signs
+    )
     evaluations: list[RuleEvaluation] = []
     catalog = load_default_sign_catalog()
     for sign in signs:
         # A panel's own facts are modifiers. The compact facts serializer moves
         # linked active_time rows to the primary sign before this evaluation.
-        result = _evaluate_sign(intent, sign, values)
+        evaluated_sign = sign
+        if (
+            explicit_max_speed_on_scene
+            and normalize_sign_code(sign.get("code")) == "R.420"
+            and ACTION_ALIASES.get(intent.action.value, intent.action.value) in {"speed", "circulation"}
+        ):
+            # A displayed speed-limit sign takes precedence over the residential-area
+            # default-speed slot, which may remain unresolved by road type.
+            expanded = expand_condition_facts(
+                [fact for fact in sign.get("facts", []) if isinstance(fact, dict)]
+            )
+            evaluated_sign = {
+                **sign,
+                "facts": [
+                    fact for fact in expanded
+                    if _canonical_predicate(fact.get("predicate")) != "maximum_speed"
+                ],
+            }
+        result = _evaluate_sign(intent, evaluated_sign, values)
         if result is None:
             continue
         entry = catalog.lookup(sign.get("code")) if sign.get("code") else None
